@@ -11,13 +11,15 @@ public class User implements Serializable {
 	private String username;
 	private String password;
 	private String id;
-	private List<Object> permissions;
+	private List<Object> documentsOwned;
+	private List<Object> editableDocuments;
+
 	
 	public User (String newUser, String pass, String newID, Object docPerm) {
 		this.username = newUser;
 		this.password = pass;
 		this.id = newID;
-		permissions.add(docPerm);
+		documentsOwned.add(docPerm);
 	}
 	
 	public String getName() {
@@ -29,7 +31,11 @@ public class User implements Serializable {
 	}
 	
 	public boolean hasPermission(Object document) {
-		for(Object o: permissions) {
+		for(Object o: documentsOwned) {
+			if(o.equals(document))
+				return true;
+		}
+		for(Object o: editableDocuments) {
 			if(o.equals(document))
 				return true;
 		}
@@ -37,12 +43,15 @@ public class User implements Serializable {
 	}
 	
 	public void givePermission(Object document) {
-		permissions.add(document);
+		editableDocuments.add(document);
 	}
 	
-	public void changePassword(String newPass) {
+	public void resetPassword(String newPass) {
 		password = newPass;
 	}
 	
+	public void changePassword() {
+		
+	}
 }
 
