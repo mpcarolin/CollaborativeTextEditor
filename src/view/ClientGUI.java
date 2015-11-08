@@ -11,6 +11,9 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,11 +24,19 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import model.DocumentServer;
+
 @SuppressWarnings("serial")
 public class ClientGUI extends JFrame  {
 	
 	private double screenWidth;
 	private double screenHeight;
+	
+	// Client and server socket configuration
+	private static final String ADDRESS = "localhost";
+	private Socket server;
+	private ObjectOutputStream toServer;
+	private ObjectInputStream fromServer;
 
 	// Java Swing Components
 	private JTextArea textArea, chatTextArea;
@@ -37,7 +48,7 @@ public class ClientGUI extends JFrame  {
 	private JToggleButton boldButton, italicsButton;
 	
 	public ClientGUI() {
-
+		
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		System.out.println(screensize);
@@ -51,6 +62,12 @@ public class ClientGUI extends JFrame  {
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
+		
+		// begin server connection 
+		openConnection();
+		ServerListener serverListener = new ServerListener();
+		serverListener.start();
+		
 	}
 	public void layoutGUI() {
 		int windowWidth 						= (int)(screenWidth * 0.75);
@@ -158,20 +175,49 @@ public class ClientGUI extends JFrame  {
 		screenPanel.add(scroll);
 		this.add(screenPanel,c);
 		this.setVisible(true);
-
 	}
+	
+	
+	/*
+	 *  Connects to a server
+	 */
+	private void openConnection() {
+		try {
+				server = new Socket(ADDRESS, DocumentServer.SERVER_PORT);
+				toServer = new ObjectOutputStream(server.getOutputStream());
+				fromServer = new ObjectInputStream(server.getInputStream());
+		} catch (IOException e) {
+				e.printStackTrace();
+		}
+	}
+	
+	
+	/* Listeners */
+	// Server listener
+	private class ServerListener extends Thread {
+		
+		@Override
+		public void run() {
+			while (true) {
+				// obtain updated doc text from server in a try-catch
+			}
+		}
+		
+	}
+	
+	// chatbox listener to send text to collaborators
 	private class newTextListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO 8: When the enter button is pressed, send the contents of the
 			// JTextField to the server (add the username for extra style!)
 			String text;
-			text=chatText.getText();
+			text = chatText.getText();
 			chatText.setText("");
-			if(chatTextArea.getText().equals("")){
-			chatTextArea.setText(text);
-			}else{
-				text= chatTextArea.getText()+ "\n"+ text;
+			if (chatTextArea.getText().equals("")) {
+				chatTextArea.setText(text);
+			} else {
+				text = chatTextArea.getText()+ "\n"+ text;
 				chatTextArea.setText(text);
 			}
 //			try {
