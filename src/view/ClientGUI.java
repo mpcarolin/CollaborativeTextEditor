@@ -70,29 +70,29 @@ public class ClientGUI extends JFrame  {
 		
 	}
 	public void layoutGUI() {
-		int windowWidth 						= (int)(screenWidth * 0.75);
-		int windowHeight						= (int)(screenHeight * 0.75);
-		Dimension windowSize 			= new Dimension(windowWidth, windowHeight);
-		Dimension sideBar						= new Dimension((int)(screenWidth - windowWidth*0.5),
-																						 (int)((screenHeight-windowHeight)*0.5));
+		int windowWidth	= (int)(screenWidth * 0.75);
+		int windowHeight = (int)(screenHeight * 0.75);
+		Dimension windowSize = new Dimension(windowWidth, windowHeight);
+		Dimension sideBar	= new Dimension((int)(screenWidth - windowWidth*0.5),
+											(int)((screenHeight-windowHeight)*0.5));
 		
 		// button group toolbar
-		toolBar				= new JToolBar();
-		boldButton 		= new JToggleButton("Bold");
-		italicsButton	= new JToggleButton("Italics");
+		toolBar	= new JToolBar();
+		boldButton = new JToggleButton("Bold");
+		italicsButton = new JToggleButton("Italics");
 		toolBar.add(boldButton);
 		toolBar.add(italicsButton);
 		
 		// set tool bar layout and location
 		GridBagConstraints toolbarConstraint = new GridBagConstraints();
-		toolbarConstraint.anchor 		= GridBagConstraints.NORTHWEST;
-		toolbarConstraint.gridx 			= 0;
-		toolbarConstraint.gridy 			= 0;
-		toolbarConstraint.fill 				= GridBagConstraints.NONE;
-		toolbarConstraint.gridheight	= 1;
-		toolbarConstraint.gridwidth	= 2;
-		toolbarConstraint.weighty 		= 0;
-		toolbarConstraint.weightx 		= 0;
+		toolbarConstraint.anchor = GridBagConstraints.NORTHWEST;
+		toolbarConstraint.gridx = 0;
+		toolbarConstraint.gridy = 0;
+		toolbarConstraint.fill = GridBagConstraints.NONE;
+		toolbarConstraint.gridheight = 1;
+		toolbarConstraint.gridwidth = 2;
+		toolbarConstraint.weighty = 0;
+		toolbarConstraint.weightx = 0;
 		this.add(toolBar, toolbarConstraint);
 	
 		// Chat Bar		
@@ -101,11 +101,11 @@ public class ClientGUI extends JFrame  {
 		rightPanel.setMinimumSize(new Dimension(400,300));
 		rightPanel.setBackground(Color.BLUE);
 		GridBagConstraints chatConstraints = new GridBagConstraints();
-		chatConstraints.anchor 			= GridBagConstraints.SOUTHEAST;
-		chatConstraints.gridx 				= 2;
-		chatConstraints.gridy 				= 3;
-		chatConstraints.gridheight		= 1;
-		chatConstraints.weightx			= 1;
+		chatConstraints.anchor = GridBagConstraints.SOUTHEAST;
+		chatConstraints.gridx 	= 2;
+		chatConstraints.gridy 	= 3;
+		chatConstraints.gridheight	= 1;
+		chatConstraints.weightx	= 1;
 
 		// Button to begin chat
 		openChatButton = new JButton("Open Chat!");
@@ -140,14 +140,14 @@ public class ClientGUI extends JFrame  {
 
 		
 		// in the Center set the Text Area
-		c.gridx			= 1;
-		c.gridy			= 1;
-		c.gridheight	= 3;
-		c.gridwidth	= 1;
-		c.weightx		= 0;
-		c.weighty 	= 0.5;
-		c.anchor		= GridBagConstraints.FIRST_LINE_END;
-		c.fill				= GridBagConstraints.FIRST_LINE_END;
+		c.gridx	= 1;
+		c.gridy	= 1;
+		c.gridheight = 3;
+		c.gridwidth = 1;
+		c.weightx = 0;
+		c.weighty = 0.5;
+		c.anchor = GridBagConstraints.FIRST_LINE_END;
+		c.fill = GridBagConstraints.FIRST_LINE_END;
 
 		// Center Panel to put Text Area and JScrollPane one
 		screenPanel = new JPanel();
@@ -158,8 +158,8 @@ public class ClientGUI extends JFrame  {
 		screenPanel.setBackground(Color.GREEN);
 
 		// Size of the textArea
-		int textWidth 	= (int) (screenWidth*.5);
-		windowSize		= new Dimension((int)textWidth+30, (int)screenHeight);
+		int textWidth = (int) (screenWidth*.5);
+		windowSize = new Dimension((int)textWidth+30, (int)screenHeight);
 	
 		// Create textArea To write on
 		textArea = new JTextArea();
