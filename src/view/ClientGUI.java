@@ -18,29 +18,34 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 @SuppressWarnings("serial")
 public class ClientGUI extends JFrame  {
 	
+	private double screenWidth;
+	private double screenHeight;
+
 	// Java Swing Components
 	private JTextArea textArea, chatTextArea;
 	private JScrollPane scroll, chatScroll;
 	private JPanel screenPanel,leftPanel, rightPanel;
-	private JButton openChat;
+	private JButton openChatButton;
 	private JTextField chatText;
-	private JToolBar   toolBar;
+	private JToolBar  toolBar;
+	private JToggleButton boldButton, italicsButton;
 	
 	public ClientGUI() {
 
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		System.out.println(screensize);
-		double screenWidth = screensize.getWidth() * (.8);
-		double screenHeight = screensize.getHeight() * (.8);
-		Dimension windowSize = new Dimension((int)screenWidth, (int)screenHeight);
-		this.setSize(windowSize);
+		screenWidth = screensize.getWidth() * 0.8;
+		screenHeight = screensize.getHeight() * 0.8;
+		this.setSize((int)screenWidth, (int)screenHeight);
 
+		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
@@ -48,32 +53,48 @@ public class ClientGUI extends JFrame  {
 		this.setVisible(true);
 	}
 	public void layoutGUI() {
-		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-		double screenWidth = screensize.getWidth() * (.75);
-		double screenHeight = screensize.getHeight() * (.75);
-		Dimension windowSize = new Dimension((int)screenWidth, (int)screenHeight);
-		Dimension sideBar= new Dimension((int)((screensize.getWidth()-screenWidth)*.5),(int)((screensize.getHeight()-screenHeight)*.5));
-		System.out.print(sideBar+ " " +windowSize);
+		int windowWidth 						= (int)(screenWidth * 0.75);
+		int windowHeight						= (int)(screenHeight * 0.75);
+		Dimension windowSize 			= new Dimension(windowWidth, windowHeight);
+		Dimension sideBar						= new Dimension((int)(screenWidth - windowWidth*0.5),
+																						 (int)((screenHeight-windowHeight)*0.5));
 		
-
+		// button group toolbar
+		toolBar				= new JToolBar();
+		boldButton 		= new JToggleButton("Bold");
+		italicsButton	= new JToggleButton("Italics");
+		toolBar.add(boldButton);
+		toolBar.add(italicsButton);
+		
+		// set tool bar layout and location
+		GridBagConstraints toolbarConstraint = new GridBagConstraints();
+		toolbarConstraint.anchor 		= GridBagConstraints.NORTHWEST;
+		toolbarConstraint.gridx 			= 0;
+		toolbarConstraint.gridy 			= 0;
+		toolbarConstraint.fill 				= GridBagConstraints.NONE;
+		toolbarConstraint.gridheight	= 1;
+		toolbarConstraint.gridwidth	= 2;
+		toolbarConstraint.weighty 		= 0;
+		toolbarConstraint.weightx 		= 0;
+		this.add(toolBar, toolbarConstraint);
 	
-//ChatBar		
-		rightPanel= new JPanel(new BorderLayout());
+		// Chat Bar		
+		rightPanel = new JPanel(new BorderLayout());
 		rightPanel.setPreferredSize(new Dimension(400,300));
-		//rightPanel.setPreferredSize(new Dimension(400,300));
 		rightPanel.setMinimumSize(new Dimension(400,300));
 		rightPanel.setBackground(Color.BLUE);
-		GridBagConstraints c= new GridBagConstraints();
-		c.gridx=2;
-		c.gridy=2;
-		c.anchor=GridBagConstraints.PAGE_END;
-		c.gridheight=1;
-		c.weightx=1;
-		//Creates button to write on
-		openChat= new JButton("Open Chat!");
-		openChat.addActionListener(new chatButtonListener());
-		rightPanel.add(openChat, BorderLayout.SOUTH);
-		chatText= new JTextField();
+		GridBagConstraints chatConstraints = new GridBagConstraints();
+		chatConstraints.anchor 			= GridBagConstraints.SOUTHEAST;
+		chatConstraints.gridx 				= 2;
+		chatConstraints.gridy 				= 3;
+		chatConstraints.gridheight		= 1;
+		chatConstraints.weightx			= 1;
+
+		// Button to begin chat
+		openChatButton = new JButton("Open Chat!");
+		openChatButton.addActionListener(new chatButtonListener());
+		rightPanel.add(openChatButton, BorderLayout.SOUTH);
+		chatText = new JTextField();
 		chatText.addActionListener(new newTextListener());
 		chatText.setMaximumSize(new Dimension(100,10));
 		chatText.setVisible(false);
@@ -84,78 +105,58 @@ public class ClientGUI extends JFrame  {
 		
 		
 		rightPanel.add(chatText, BorderLayout.CENTER);
-		//Create textArea To write on
-		chatTextArea= new JTextArea();
+
+		// Create textArea To write on
+		chatTextArea = new JTextArea();
 		chatTextArea.setPreferredSize(new Dimension(100,2000));
 		chatTextArea.setLineWrap(true);
 		chatTextArea.setEditable(false);
-		//Create ScrollPane to put textAreaon
+
+		// Create ScrollPane to put textAreaon
 		chatScroll = new JScrollPane(chatTextArea);
 		chatScroll.setPreferredSize(new Dimension(100, 250));
 		chatScroll.setMinimumSize(new Dimension(100,175));
 		rightPanel.add(chatScroll, BorderLayout.NORTH);
 		chatScroll.setVisible(false);
-		this.add(rightPanel,c);
+		this.add(rightPanel, chatConstraints);
+		GridBagConstraints c = new GridBagConstraints();
 
 		
 		// in the Center set the Text Area
-		GridBagConstraints center= new GridBagConstraints();
-		c.gridx=1;
-		c.gridy=0;
-		c.gridheight=3;
-		c.gridwidth=1;
-		c.weightx=0;
-		//center.fill=center.HORIZONTAL;
-		//center.weightx=1;
-		//center.weighty=1;
+		c.gridx			= 1;
+		c.gridy			= 1;
+		c.gridheight	= 3;
+		c.gridwidth	= 1;
+		c.weightx		= 0;
+		c.weighty 	= 0.5;
+		c.anchor		= GridBagConstraints.FIRST_LINE_END;
+		c.fill				= GridBagConstraints.FIRST_LINE_END;
+
 		// Center Panel to put Text Area and JScrollPane one
-		screenPanel= new JPanel();
+		screenPanel = new JPanel();
 		screenPanel.setPreferredSize(windowSize);
-		//screenPanel.setPreferredSize(new Dimension(540,620));
-		screenPanel.setMinimumSize(new Dimension(540,620));
+
+		// screenPanel.setPreferredSize(new Dimension(540,620));
+		screenPanel.setMinimumSize(new Dimension((int)(screenWidth*0.7),(int)(screenHeight*0.9)));
 		screenPanel.setBackground(Color.GREEN);
-		//Size of the textArea
-		int textWidth= (int) (screenWidth*.5);
-		windowSize= new Dimension((int)textWidth+30, (int)screenHeight);
-		//Create textArea To write on
-		textArea= new JTextArea();
+
+		// Size of the textArea
+		int textWidth 	= (int) (screenWidth*.5);
+		windowSize		= new Dimension((int)textWidth+30, (int)screenHeight);
+	
+		// Create textArea To write on
+		textArea = new JTextArea();
 		textArea.setPreferredSize(new Dimension(textWidth+500,2000));
 		textArea.setLineWrap(true);
+
 		//Create ScrollPane to put textAreaon
 		scroll = new JScrollPane(textArea);
-		scroll.setPreferredSize(new Dimension(textWidth-30, 600));
+		scroll.setPreferredSize(new Dimension(textWidth-30, (int)(screenHeight*0.9)));
 		
 		//Adds center Panel with text to Jframe
 		screenPanel.setVisible(true);
 		screenPanel.add(scroll);
 		this.add(screenPanel,c);
-		
-		
-//		
-//		leftPanel= new JPanel();
-//		leftPanel.setPreferredSize(sideBar);
-//		leftPanel.setMinimumSize(sideBar);
-//
-//		leftPanel.setBackground(Color.MAGENTA);
-//		c.gridx=0;
-//		c.gridy=0;
-//		c.gridheight=3;
-//		
-//		this.add(leftPanel,c);
-//		
-//		
-		
-		
-		
-		//adds left Panel to JFrame
-		//leftPanel.setVisible(true);
-		//Adds right Panel to JFrame
-		rightPanel.setVisible(true);
-		//Sets frames min size and sets the GridBagConstraints
-		//this.setMinimumSize(new Dimension(textWidth+30,0));
-		//this.add(leftPanel,left);
-		//this.add(rightPanel, right);
-		//this.add(screenPanel,center);
 		this.setVisible(true);
 
 	}
@@ -188,16 +189,17 @@ public class ClientGUI extends JFrame  {
 			if(chatScroll.isVisible()){
 				chatScroll.setVisible(false);
 				chatText.setVisible(false);
-				openChat.setName("Close Chat");
+				openChatButton.setName("Close Chat");
 			}else{
 				chatScroll.setVisible(true);
 				chatText.setVisible(true);
-				openChat.setName("Open Chat");
+				openChatButton.setName("Open Chat");
 			}
 			ClientGUI.this.setVisible(true);	
 		}
 		
 	}
+
 	// testing
 	public static void main(String[] args) {
 		new ClientGUI();
