@@ -36,6 +36,10 @@ public class User implements Serializable {
 	public String getIDNum() {
 		return id;
 	}
+	
+	public String getPassword() {
+	   return password;
+	}
 
 	public boolean hasPermission(Object document) {
 		return documentsOwned.contains(document) || editableDocuments.contains(document);
