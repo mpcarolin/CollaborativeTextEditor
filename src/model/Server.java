@@ -63,6 +63,8 @@ class ClientHandler extends Thread {
       this.clients = clients;
       this.newClient = newClientOutStream;
       this.currentDoc = currentDoc;
+      
+      
       try {
          if (!authenticateUser()) {
             return;
@@ -71,13 +73,20 @@ class ClientHandler extends Thread {
             running = true;
             updateDoc();
          }
-      } catch (ClassNotFoundException | IOException e) {
+      } catch (IOException e) {
+         e.printStackTrace();
+         return;
+      } catch (ClassNotFoundException e) {
          e.printStackTrace();
          return;
       }
    }
 
    private boolean authenticateUser() throws ClassNotFoundException, IOException {
+      ServerCommand command = (ServerCommand) input.readObject();
+      if (command == ServerCommand.CREATE_ACCOUNT) {
+         // createAccount();
+      }
       
       User user = null;
       String userName = null;
@@ -99,6 +108,10 @@ class ClientHandler extends Thread {
       } while (trys < 3);
       return false;
    }
+   
+   private void createAccount() {
+      // create a new user account here;
+   }
 
    @Override
    public void run() {
@@ -112,6 +125,7 @@ class ClientHandler extends Thread {
             case DOC_TEXT:
                break;
             case LOGOUT:
+               running = false;
                break;
             default:
                break;
