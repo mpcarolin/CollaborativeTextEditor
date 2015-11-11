@@ -59,9 +59,15 @@ public class ClientGUI extends JFrame  {
 	private JComboBox<Integer> font;
 	private JToolBar  toolBar;
 	private JToggleButton boldButton, italicsButton,underLine;
-	private Boolean logInSuccess=false;
+	private synchronized Boolean logInSuccess=false;
 	
-	public ClientGUI() {
+	public ClientGUI() {		try {
+		toServer.writeObject(username);
+		toServer.writeObject(password);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 		int userResponse = JOptionPane.showConfirmDialog(null, "Do you have an Account?", null, JOptionPane.YES_NO_CANCEL_OPTION);
 		
 		// begin server connection 
@@ -74,6 +80,12 @@ public class ClientGUI extends JFrame  {
 //			password=  JOptionPane.showInputDialog("Create A Password?");
 //			writeUserAndPassToServer();
 //		}
+		try {
+			toServer.writeObject(ServerCommand.LOGIN);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if(userResponse==JOptionPane.YES_OPTION){
 			int count=0;
 			int tries=2;
@@ -114,8 +126,7 @@ public class ClientGUI extends JFrame  {
 		try {
 			toServer.writeObject(username);
 			toServer.writeObject(password);
-			logInSuccess= (Boolean) fromServer.readObject();
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -296,8 +307,13 @@ public class ClientGUI extends JFrame  {
 					//String newtext= (String) fromServer.readObject();
 					//String text= chatTextArea.getText();
 					//chatTextArea.setText(text + "\n"+ newtext);
-					String updatedText= (String) fromServer.readObject();
-					textArea.setText(updatedText);
+					if(!logInSuccess){
+						logInSuccess= (Boolean) fromServer.readObject();
+						String documents= (String) fromServer.readObject();
+					}else{
+						String updatedText= (String) fromServer.readObject();
+						textArea.setText(updatedText);
+					}
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
