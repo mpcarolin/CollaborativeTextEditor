@@ -24,7 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import model.DocumentServer;
+import model.Server;
 
 @SuppressWarnings("serial")
 public class ClientGUI extends JFrame  {
@@ -183,7 +183,7 @@ public class ClientGUI extends JFrame  {
 	 */
 	private void openConnection() {
 		try {
-				server = new Socket(ADDRESS, DocumentServer.SERVER_PORT);
+				server = new Socket(ADDRESS, Server.SERVER_PORT);
 				toServer = new ObjectOutputStream(server.getOutputStream());
 				fromServer = new ObjectInputStream(server.getInputStream());
 		} catch (IOException e) {
