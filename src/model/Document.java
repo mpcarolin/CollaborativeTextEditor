@@ -29,7 +29,7 @@ public class Document {
 	// num_revisions_stored limit
 	private void addToHistory(Document lastRevision) {
 		if (history.size() >= NUM_REVISIONS_STORED) {
-			
+			history.
 		}
 	}
 	
