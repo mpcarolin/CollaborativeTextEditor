@@ -35,7 +35,6 @@ import javax.swing.text.Element;
 import model.Server;
 import model.ServerCommand;
 
-
 @SuppressWarnings("serial")
 public class ClientGUI extends JFrame  {
 	

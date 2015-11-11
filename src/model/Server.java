@@ -21,9 +21,11 @@ public class Server {
    private static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    private static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
    // private static List<Object> documents = Collections.synchronizedList(new ArrayList<>());
-   private static StringBuilder currentDoc = new StringBuilder("");
+   private static Document currentDoc = new Document();
 
    public static void main(String[] args) throws IOException {
+
+      hardCodeUsers();
       sSocket = new ServerSocket(SERVER_PORT);
       System.out.println("Server started on port " + SERVER_PORT);
 
@@ -35,6 +37,14 @@ public class Server {
          System.out.println("Accepted a new connection from " + newClientSocket.getInetAddress());
       }
    }
+
+   private static void hardCodeUsers() {
+      allUsers.put("Daniel", new User("Daniel", "Avetian"));
+      allUsers.put("Micheal", new User("Michael", "Carolin"));
+      allUsers.put("Jacob", new User("Jacob", "Groh"));
+      allUsers.put("Filbert", new User("Filbert", "Johnson"));
+      allUsers.put("Orzy", new User("Orzy", "Hazan"));
+   }
 }
 
 class ClientHandler extends Thread {
@@ -43,11 +53,11 @@ class ClientHandler extends Thread {
    private ObjectInputStream input;
    private List<ObjectOutputStream> clients;
    private ObjectOutputStream newClient;
-   private StringBuilder currentDoc;
+   private Document currentDoc;
    private boolean running, remove;
 
    public ClientHandler(Map<String, User> allUsers, ObjectInputStream input, List<ObjectOutputStream> clients,
-         ObjectOutputStream newClientOutStream, StringBuilder currentDoc) {
+         ObjectOutputStream newClientOutStream, Document currentDoc) {
       this.allUsers = allUsers;
       this.input = input;
       this.clients = clients;
@@ -68,29 +78,25 @@ class ClientHandler extends Thread {
    }
 
    private boolean authenticateUser() throws ClassNotFoundException, IOException {
-      String userName = (String) input.readObject();
+      
       User user = null;
-      if ((user = allUsers.get(userName)) == null) {
-         newClient.writeObject("No user with that name found");
-         return false;
-      }
-
+      String userName = null;
       String password = null;
       int trys = 0;
       do {
-         if (trys == 3) {
-            newClient.writeObject("Incorrect password, please try again later.");
-            return false;
-         }
          password = (String) input.readObject();
-         if (password != user.getPassword()) {
-            newClient.writeObject("Incorrect password, please try again.");
+         userName = (String) input.readObject();
+         if ((user = allUsers.get(userName)) == null) {
             trys++;
+            newClient.writeObject(false);
+         } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
+            trys++;
+            newClient.writeObject(false);
          } else {
-            newClient.writeObject("Log in successfull.");
+            newClient.writeObject(true);
             return true;
          }
-      } while (password != user.getPassword());
+      } while (trys < 3);
       return false;
    }
 
@@ -98,25 +104,48 @@ class ClientHandler extends Thread {
    public void run() {
       while (true && running) {
          try {
-            currentDoc = (StringBuilder) input.readObject();
+            ServerCommand command = (ServerCommand) input.readObject();
+            switch (command) {
+            case CHAT_MSG:
+               readDoc();
+               break;
+            case DOC_TEXT:
+               break;
+            case LOGOUT:
+               break;
+            default:
+               break;
+            
+            }         
          } catch (IOException e) {
             running = false;
          } catch (ClassNotFoundException e) {
             e.printStackTrace();
          }
-         if (running) {
-            updateDoc();
+         if (!running) {
+            return;
          }
       }
    }
-
+   
+   private void readDoc() {
+      try {
+         currentDoc.replaceText((String) input.readObject());
+      } catch (ClassNotFoundException e) {
+         e.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+      updateDoc();
+   }
+   
    private void updateDoc() {
       remove = false;
       Set<ObjectOutputStream> closed = new HashSet<>();
       for (ObjectOutputStream client : clients) {
          try {
             client.reset();
-            client.writeObject(currentDoc);
+            client.writeObject(currentDoc.getText());
          } catch (IOException e) {
             remove = true;
             closed.add(client);
