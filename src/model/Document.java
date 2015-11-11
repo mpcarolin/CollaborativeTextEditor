@@ -14,10 +14,12 @@ public class Document {
 	}
 	
 	public void replaceText(String newText) {
+		addToHistory(this);
 		currentText = newText;
 	}
 	
 	public void append(String textToAppend) {
+		addToHistory(this);
 		currentText = currentText + textToAppend; 
 	}
 	
@@ -25,13 +27,19 @@ public class Document {
 		return currentText;
 	}
 	
+	public void revertToLastRevision() {
+	}
+	
 	// pushes to history, but manages the stack if length is beyond the 
 	// num_revisions_stored limit
 	private void addToHistory(Document lastRevision) {
 		if (history.size() >= NUM_REVISIONS_STORED) {
-			history.
+			history.remove(0);
 		}
+		history.push(lastRevision);
 	}
+	
+
 	
 	
 	
