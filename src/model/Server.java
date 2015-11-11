@@ -71,7 +71,8 @@ class ClientHandler extends Thread {
          } else {
             clients.add(newClient);
             running = true;
-            updateDoc();
+            // send the current text to the new client
+            setDoc();
          }
       } catch (IOException e) {
          e.printStackTrace();
@@ -143,6 +144,14 @@ class ClientHandler extends Thread {
          }
       }
    }
+   
+   private void setDoc() {
+      try {
+         newClient.writeObject(currentDoc.getText());
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
 
    private void readDoc() {
       try {
@@ -160,17 +169,16 @@ class ClientHandler extends Thread {
       Set<ObjectOutputStream> closed = new HashSet<>();
       for (ObjectOutputStream client : clients) {
          if (client == newClient) {
-            // why are we skipping the new client?
-         } else {
-            try {
-               client.reset();
-               client.writeObject(currentDoc.getText());
-            } catch (IOException e) {
-               remove = true;
-               closed.add(client);
-            }
+            continue;
+            // maybe this can be removed now?
          }
-
+         try {
+            client.reset();
+            client.writeObject(currentDoc.getText());
+         } catch (IOException e) {
+            remove = true;
+            closed.add(client);
+         }
          if (remove) {
             clients.removeAll(closed);
             remove = false;
