@@ -59,15 +59,10 @@ public class ClientGUI extends JFrame  {
 	private JComboBox<Integer> font;
 	private JToolBar  toolBar;
 	private JToggleButton boldButton, italicsButton,underLine;
-	private synchronized Boolean logInSuccess=false;
+	private Boolean logInSuccess=false;
 	
-	public ClientGUI() {		try {
-		toServer.writeObject(username);
-		toServer.writeObject(password);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+	public ClientGUI() {		
+
 		int userResponse = JOptionPane.showConfirmDialog(null, "Do you have an Account?", null, JOptionPane.YES_NO_CANCEL_OPTION);
 		
 		// begin server connection 
@@ -89,7 +84,7 @@ public class ClientGUI extends JFrame  {
 		if(userResponse==JOptionPane.YES_OPTION){
 			int count=0;
 			int tries=2;
-			while(!logInSuccess){
+			//while(!logInSuccess){
 				if(count!=0){
 					JOptionPane.showInputDialog("Incorrect Username or Password"+ "\n" + "You have "+ tries + " tries remaining");
 					tries--;
@@ -100,7 +95,7 @@ public class ClientGUI extends JFrame  {
 				count++;
 			}
 			
-		}
+		//}
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.8;
@@ -272,7 +267,8 @@ public class ClientGUI extends JFrame  {
 			chatTextArea.setText(text);
 			try {
 				toServer.writeObject(ServerCommand.DOC_TEXT);
-				toServer.writeObject(text);
+				System.out.print("hdofjdf");
+						toServer.writeObject(text);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

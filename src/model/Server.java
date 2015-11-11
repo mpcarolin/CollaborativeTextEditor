@@ -55,6 +55,7 @@ class ClientHandler extends Thread {
    private ObjectOutputStream newClient;
    private Document currentDoc;
    private boolean running, remove;
+   
 
    public ClientHandler(Map<String, User> allUsers, ObjectInputStream input, List<ObjectOutputStream> clients,
          ObjectOutputStream newClientOutStream, Document currentDoc) {
@@ -121,9 +122,11 @@ class ClientHandler extends Thread {
             command = (ServerCommand) input.readObject();
             switch (command) {
             case CHAT_MSG:
-               readDoc();
+                currentDoc.replaceText((String) input.readObject());	
                break;
             case DOC_TEXT:
+
+            	readDoc();
                break;
             case LOGOUT:
                running = false;
@@ -159,6 +162,9 @@ class ClientHandler extends Thread {
       remove = false;
       Set<ObjectOutputStream> closed = new HashSet<>();
       for (ObjectOutputStream client : clients) {
+    	  if(client==newClient){
+    		  
+    	  }else{
          try {
             client.reset();
             client.writeObject(currentDoc.getText());
@@ -167,10 +173,12 @@ class ClientHandler extends Thread {
             closed.add(client);
          }
       }
+      
       if (remove) {
          clients.removeAll(closed);
          remove = false;
          closed = new HashSet<ObjectOutputStream>();
+      	}
       }
    }
 }
