@@ -96,9 +96,11 @@ class ClientHandler extends Thread {
       do {
          userName = (String) input.readObject();
          password = (String) input.readObject();
+
          if ((user = allUsers.get(userName)) == null) {
             trys++;
             newClient.writeObject(false);
+
          } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
             trys++;
             newClient.writeObject(false);
@@ -107,6 +109,7 @@ class ClientHandler extends Thread {
             return true;
          }
       } while (trys < 3);
+
       return false;
    }
 

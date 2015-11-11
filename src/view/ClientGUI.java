@@ -69,6 +69,8 @@ public class ClientGUI extends JFrame  {
 		openConnection();
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
+		
+		
 //		 create new user
 //		if(userResponse==JOptionPane.NO_OPTION){
 //			username = JOptionPane.showInputDialog("Create A Username?");
@@ -82,20 +84,10 @@ public class ClientGUI extends JFrame  {
 			e.printStackTrace();
 		}
 		if(userResponse==JOptionPane.YES_OPTION){
-			int count=0;
-			int tries=2;
-			//while(!logInSuccess){
-				if(count!=0){
-					JOptionPane.showInputDialog("Incorrect Username or Password"+ "\n" + "You have "+ tries + " tries remaining");
-					tries--;
-				}
-				username = JOptionPane.showInputDialog("Username:");
-				password=  JOptionPane.showInputDialog("Password:");
-				writeUserAndPassToServer();
-				count++;
-			}
-			
-		//}
+			logIntoServer();
+			}		
+	}
+	public void loggedIn(){
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.8;
@@ -109,12 +101,27 @@ public class ClientGUI extends JFrame  {
 		layoutGUI();
 		this.setVisible(true);
 
-		
 	}
+	private int count=1;
+	private int tries=2;
 	//need to log into server
 	private void logIntoServer() {
 		// TODO Auto-generated method stub
-		
+			if(count!=1){
+				if(count!=4){
+					JOptionPane.showConfirmDialog(null,"Incorrect Username or Password"+ "\n" + "You have "+ tries + " tries remaining", null, JOptionPane.OK_OPTION);
+				}
+				tries--;
+			}
+			if(count==4){
+				JOptionPane.showConfirmDialog(null,"Run out of attempts, Try Later", null, JOptionPane.OK_OPTION);
+
+			}else{
+				username = JOptionPane.showInputDialog("Username:");
+				password=  JOptionPane.showInputDialog("Password:");
+				writeUserAndPassToServer();
+				count++;
+			}
 		
 	}
 	private void writeUserAndPassToServer() {
@@ -267,7 +274,6 @@ public class ClientGUI extends JFrame  {
 			chatTextArea.setText(text);
 			try {
 				toServer.writeObject(ServerCommand.DOC_TEXT);
-				System.out.print("hdofjdf");
 						toServer.writeObject(text);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -305,7 +311,12 @@ public class ClientGUI extends JFrame  {
 					//chatTextArea.setText(text + "\n"+ newtext);
 					if(!logInSuccess){
 						logInSuccess= (Boolean) fromServer.readObject();
-						String documents= (String) fromServer.readObject();
+						if(!logInSuccess){
+							logIntoServer();
+						}else{
+							loggedIn();
+							String documents= (String) fromServer.readObject();
+						}
 					}else{
 						String updatedText= (String) fromServer.readObject();
 						textArea.setText(updatedText);
