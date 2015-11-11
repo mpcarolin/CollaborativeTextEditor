@@ -93,8 +93,8 @@ class ClientHandler extends Thread {
       String password = null;
       int trys = 0;
       do {
-         password = (String) input.readObject();
          userName = (String) input.readObject();
+         password = (String) input.readObject();
          if ((user = allUsers.get(userName)) == null) {
             trys++;
             newClient.writeObject(false);
