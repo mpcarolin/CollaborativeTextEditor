@@ -20,7 +20,8 @@ public class Server {
 
    private static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    private static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
-   // private static List<Object> documents = Collections.synchronizedList(new ArrayList<>());
+   // private static List<Object> documents = Collections.synchronizedList(new
+   // ArrayList<>());
    private static Document currentDoc = new Document();
 
    public static void main(String[] args) throws IOException {
@@ -55,7 +56,6 @@ class ClientHandler extends Thread {
    private ObjectOutputStream newClient;
    private Document currentDoc;
    private boolean running, remove;
-   
 
    public ClientHandler(Map<String, User> allUsers, ObjectInputStream input, List<ObjectOutputStream> clients,
          ObjectOutputStream newClientOutStream, Document currentDoc) {
@@ -64,8 +64,7 @@ class ClientHandler extends Thread {
       this.clients = clients;
       this.newClient = newClientOutStream;
       this.currentDoc = currentDoc;
-      
-      
+
       try {
          if (!authenticateUser()) {
             return;
@@ -88,7 +87,7 @@ class ClientHandler extends Thread {
       if (command == ServerCommand.CREATE_ACCOUNT) {
          // createAccount();
       }
-      
+
       User user = null;
       String userName = null;
       String password = null;
@@ -109,7 +108,7 @@ class ClientHandler extends Thread {
       } while (trys < 3);
       return false;
    }
-   
+
    private void createAccount() {
       // create a new user account here;
    }
@@ -122,19 +121,17 @@ class ClientHandler extends Thread {
             command = (ServerCommand) input.readObject();
             switch (command) {
             case CHAT_MSG:
-                currentDoc.replaceText((String) input.readObject());	
                break;
             case DOC_TEXT:
-
-            	readDoc();
+               readDoc();
                break;
             case LOGOUT:
                running = false;
                break;
             default:
                break;
-            
-            }         
+
+            }
          } catch (IOException e) {
             running = false;
             e.printStackTrace();
@@ -146,7 +143,7 @@ class ClientHandler extends Thread {
          }
       }
    }
-   
+
    private void readDoc() {
       try {
          currentDoc.replaceText((String) input.readObject());
@@ -157,28 +154,28 @@ class ClientHandler extends Thread {
       }
       updateDoc();
    }
-   
+
    private void updateDoc() {
       remove = false;
       Set<ObjectOutputStream> closed = new HashSet<>();
       for (ObjectOutputStream client : clients) {
-    	  if(client==newClient){
-    		  
-    	  }else{
-         try {
-            client.reset();
-            client.writeObject(currentDoc.getText());
-         } catch (IOException e) {
-            remove = true;
-            closed.add(client);
+         if (client == newClient) {
+            // why are we skipping the new client?
+         } else {
+            try {
+               client.reset();
+               client.writeObject(currentDoc.getText());
+            } catch (IOException e) {
+               remove = true;
+               closed.add(client);
+            }
          }
-      }
-      
-      if (remove) {
-         clients.removeAll(closed);
-         remove = false;
-         closed = new HashSet<ObjectOutputStream>();
-      	}
+
+         if (remove) {
+            clients.removeAll(closed);
+            remove = false;
+            closed = new HashSet<ObjectOutputStream>();
+         }
       }
    }
 }
