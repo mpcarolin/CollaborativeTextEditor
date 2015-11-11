@@ -34,7 +34,7 @@ public class User implements Serializable {
 		return username;
 	}
 
-	public int getIDNum() {
+	public int getID() {
 		return id;
 	}
 
