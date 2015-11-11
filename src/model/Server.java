@@ -116,8 +116,9 @@ class ClientHandler extends Thread {
    @Override
    public void run() {
       while (true && running) {
+         ServerCommand command;
          try {
-            ServerCommand command = (ServerCommand) input.readObject();
+            command = (ServerCommand) input.readObject();
             switch (command) {
             case CHAT_MSG:
                readDoc();
@@ -133,6 +134,7 @@ class ClientHandler extends Thread {
             }         
          } catch (IOException e) {
             running = false;
+            e.printStackTrace();
          } catch (ClassNotFoundException e) {
             e.printStackTrace();
          }
