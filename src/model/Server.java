@@ -20,8 +20,7 @@ public class Server {
 
    private static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    private static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
-   // private static List<Object> documents = Collections.synchronizedList(new
-   // ArrayList<>());
+   // private static List<Object> documents = Collections.synchronizedList(new ArrayList<>());
    private static Document currentDoc = new Document();
 
    public static void main(String[] args) throws IOException {
@@ -69,10 +68,11 @@ class ClientHandler extends Thread {
          if (!authenticateUser()) {
             return;
          } else {
+            newClient.writeObject(true);
             clients.add(newClient);
-            running = true;
             // send the current text to the new client
             setDoc();
+            running = true;
          }
       } catch (IOException e) {
          e.printStackTrace();
@@ -86,7 +86,7 @@ class ClientHandler extends Thread {
    private boolean authenticateUser() throws ClassNotFoundException, IOException {
       ServerCommand command = (ServerCommand) input.readObject();
       if (command == ServerCommand.CREATE_ACCOUNT) {
-         // createAccount();
+         return createAccount();
       }
 
       User user = null;
@@ -100,12 +100,10 @@ class ClientHandler extends Thread {
          if ((user = allUsers.get(userName)) == null) {
             trys++;
             newClient.writeObject(false);
-
          } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
             trys++;
             newClient.writeObject(false);
          } else {
-            newClient.writeObject(true);
             return true;
          }
       } while (trys < 3);
@@ -113,23 +111,36 @@ class ClientHandler extends Thread {
       return false;
    }
 
-   private void createAccount() {
-      // create a new user account here;
+   private boolean createAccount() {
+      try {
+         String userName = (String) input.readObject();
+         String password = (String) input.readObject();
+         allUsers.put(userName, new User(userName, password));
+      } catch (ClassNotFoundException e) {
+         e.printStackTrace();
+         return false;
+      } catch (IOException e) {
+         e.printStackTrace();
+         return false;
+      }
+      return true;
    }
 
    @Override
    public void run() {
+      ServerCommand command;
       while (true && running) {
-         ServerCommand command;
          try {
             command = (ServerCommand) input.readObject();
             switch (command) {
             case CHAT_MSG:
+               updateChat();
                break;
             case DOC_TEXT:
                readDoc();
                break;
             case LOGOUT:
+               clients.remove(newClient);
                running = false;
                break;
             default:
@@ -137,9 +148,11 @@ class ClientHandler extends Thread {
 
             }
          } catch (IOException e) {
+            clients.remove(newClient);
             running = false;
             e.printStackTrace();
          } catch (ClassNotFoundException e) {
+            running = false;
             e.printStackTrace();
          }
          if (!running) {
@@ -188,5 +201,9 @@ class ClientHandler extends Thread {
             closed = new HashSet<ObjectOutputStream>();
          }
       }
+   }
+   
+   private void updateChat() {
+      // update the chat window on all clients
    }
 }
