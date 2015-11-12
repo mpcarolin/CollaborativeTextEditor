@@ -1,3 +1,7 @@
+/*
+ * Code that handles everything for the server (for now)
+ */
+
 package model;
 
 import java.io.IOException;
@@ -20,7 +24,8 @@ public class Server {
 
    private static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    private static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
-   // private static List<Object> documents = Collections.synchronizedList(new ArrayList<>());
+   // private static List<Object> documents = Collections.synchronizedList(new
+   // ArrayList<>());
    private static Document currentDoc = new Document();
 
    public static void main(String[] args) throws IOException {
@@ -37,7 +42,11 @@ public class Server {
          System.out.println("Accepted a new connection from " + newClientSocket.getInetAddress());
       }
    }
-
+   
+   
+   /*
+    * Hard code some users for testing purposes
+    */
    private static void hardCodeUsers() {
       allUsers.put("Daniel", new User("Daniel", "Avetian"));
       allUsers.put("Micheal", new User("Michael", "Carolin"));
@@ -47,14 +56,19 @@ public class Server {
    }
 }
 
+
+/*
+ * Client handler that is created and started each time a new connection is created
+ * Handles everything for one client (for now)
+ */
 class ClientHandler extends Thread {
 
-   private Map<String, User> allUsers;
-   private ObjectInputStream input;
-   private List<ObjectOutputStream> clients;
-   private ObjectOutputStream newClient;
-   private Document currentDoc;
-   private boolean running, remove;
+   private Map<String, User> allUsers;          // list of all user accounts
+   private ObjectInputStream input;             // input stream of the new client
+   private List<ObjectOutputStream> clients;    // list of all of the client output streams
+   private ObjectOutputStream newClient;        // output stream of the new client (not in list yet)
+   private Document currentDoc;                 // current document being edited (temporary)
+   private boolean running, remove;             // booleans...
 
    public ClientHandler(Map<String, User> allUsers, ObjectInputStream input, List<ObjectOutputStream> clients,
          ObjectOutputStream newClientOutStream, Document currentDoc) {
@@ -64,9 +78,11 @@ class ClientHandler extends Thread {
       this.newClient = newClientOutStream;
       this.currentDoc = currentDoc;
 
+      // Try to authenticate the user, or create a new account
+      // If this fails, set running to false to kill the thread
       try {
          if (!authenticateUser()) {
-            return;
+            running = false;
          } else {
             newClient.writeObject(true);
             clients.add(newClient);
@@ -74,51 +90,64 @@ class ClientHandler extends Thread {
             setDoc();
             running = true;
          }
-      } catch (IOException e) {
-         e.printStackTrace();
-         return;
       } catch (ClassNotFoundException e) {
          e.printStackTrace();
-         return;
+      } catch (IOException e) {
+         e.printStackTrace();
+         running = false;
       }
    }
 
+   
+   /*
+    * Checks if the user already has an account or not
+    * Calls create account if the user does not already have an account
+    * If the do have one, gets their credentials and checks if they match an existing account
+    * Allows 3 tries before the connection is closed
+    * Returns a boolean indicating whether the user successfully logged in (or created a new account) 
+    */
    private boolean authenticateUser() throws ClassNotFoundException, IOException {
+      // Read the ServerCommand to see if the user needs to create a new account
+      // If they do, call createAccount() and return its return value
       ServerCommand command = (ServerCommand) input.readObject();
       if (command == ServerCommand.CREATE_ACCOUNT) {
          return createAccount();
       }
 
       User user = null;
-      String userName = null;
+      String username = null;
       String password = null;
-      int trys = 0;
+      int tries = 0;
       do {
-         userName = (String) input.readObject();
+         username = (String) input.readObject();
          password = (String) input.readObject();
 
-         if ((user = allUsers.get(userName)) == null) {
-            trys++;
+         if ((user = allUsers.get(username)) == null) {
+            tries++;
             newClient.writeObject(false);
          } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
-            trys++;
+            tries++;
             newClient.writeObject(false);
          } else {
             return true;
          }
-      } while (trys < 3);
+      } while (tries < 3);
 
       return false;
    }
 
+   
+   /*
+    * Gets the username and password from the client, and creates a new userAccount
+    * Returns a boolean indicating whether the account was successfully created or not
+    */
    private boolean createAccount() {
       try {
-         String userName = (String) input.readObject();
+         String username = (String) input.readObject();
          String password = (String) input.readObject();
-         allUsers.put(userName, new User(userName, password));
+         allUsers.put(username, new User(username, password));
       } catch (ClassNotFoundException e) {
          e.printStackTrace();
-         return false;
       } catch (IOException e) {
          e.printStackTrace();
          return false;
@@ -128,6 +157,9 @@ class ClientHandler extends Thread {
 
    @Override
    public void run() {
+      
+      // While the thread is still running, get the next ServerCommand from the client,
+      // and call the respective method
       ServerCommand command;
       while (true && running) {
          try {
@@ -145,13 +177,11 @@ class ClientHandler extends Thread {
                break;
             default:
                break;
-
             }
+         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
          } catch (IOException e) {
             clients.remove(newClient);
-            running = false;
-            e.printStackTrace();
-         } catch (ClassNotFoundException e) {
             running = false;
             e.printStackTrace();
          }
@@ -160,7 +190,11 @@ class ClientHandler extends Thread {
          }
       }
    }
+
    
+   /*
+    * Sends the current document to the new client
+    */
    private void setDoc() {
       try {
          newClient.writeObject(currentDoc.getText());
@@ -168,7 +202,12 @@ class ClientHandler extends Thread {
          e.printStackTrace();
       }
    }
-
+   
+   
+   /*
+    * Read the updated document from the client
+    * Calls updateDoc() if the document is successfully read
+    */
    private void readDoc() {
       try {
          currentDoc.replaceText((String) input.readObject());
@@ -176,10 +215,18 @@ class ClientHandler extends Thread {
          e.printStackTrace();
       } catch (IOException e) {
          e.printStackTrace();
+         clients.remove(newClient);
+         running = false;
+         return;
       }
       updateDoc();
    }
-
+   
+   
+   /*
+    * Sends the current document to all of the clients in the clients list
+    * Keeps track of the clients that have disconnected and removes them
+    */
    private void updateDoc() {
       remove = false;
       Set<ObjectOutputStream> closed = new HashSet<>();
@@ -203,7 +250,43 @@ class ClientHandler extends Thread {
       }
    }
    
+   
+   /*
+    * Reads in the new chat message from the client, and sends it to all of the clients in the client list
+    * Keeps track of the clients that have disconnected and removes them
+    */
    private void updateChat() {
-      // update the chat window on all clients
+      String chatMessage = null;
+      try {
+         chatMessage = (String) input.readObject();
+      } catch (ClassNotFoundException e1) {
+         e1.printStackTrace();
+      } catch (IOException e1) {
+         e1.printStackTrace();
+         clients.remove(newClient);
+         running = false;
+         return;
+      }
+
+      remove = false;
+      Set<ObjectOutputStream> closed = new HashSet<>();
+      for (ObjectOutputStream client : clients) {
+         try {
+            client.reset();
+            client.writeObject(chatMessage);
+         } catch (IOException e) {
+            remove = true;
+            closed.add(client);
+         }
+         if (remove) {
+            clients.removeAll(closed);
+            remove = false;
+            closed = new HashSet<ObjectOutputStream>();
+         }
+      }
+   }
+   
+   private void closeConnection() {
+      // going to need to close things properly eventually
    }
 }
