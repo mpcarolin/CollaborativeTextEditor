@@ -37,15 +37,10 @@ public class ClientGUI extends JFrame {
 
 	private double screenWidth;
 	private double screenHeight;
-	// private String username;
-	// private String password;
-	// Client and server socket configuration
 	private static final String ADDRESS = "localhost";
-
 	private Socket server;
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
-
 	private JEditorPane textArea;
 	// Java Swing Components
 	private JTextArea chatTextArea;
@@ -63,19 +58,8 @@ public class ClientGUI extends JFrame {
 		// begin server connection
 		openConnection();
 
-		// create new user
-		// if(userResponse==JOptionPane.NO_OPTION){
-		// username = JOptionPane.showInputDialog("Create A Username?");
-		// password= JOptionPane.showInputDialog("Create A Password?");
-		// writeUserAndPassToServer();
-		// }
 		int userResponse = JOptionPane.showConfirmDialog(null, "Do you have an Account?", null,
 				JOptionPane.YES_NO_CANCEL_OPTION);
-		// try {
-		// toServer.writeObject(ServerCommand.LOGIN);
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
 		boolean loginResult = false;
 		if (userResponse == JOptionPane.YES_OPTION) {
 			loginResult = logIntoServer(ServerCommand.LOGIN);
@@ -105,9 +89,9 @@ public class ClientGUI extends JFrame {
 				toServer.writeObject(username);
 				toServer.writeObject(password);
 				logInSuccess = (boolean) fromServer.readObject();
-				if(!logInSuccess){
-					JOptionPane.showMessageDialog(null, "Sorry, You Suck and have an unknown amount of tries...."
-							+ "Please Try Again!");
+				if (!logInSuccess) {
+					JOptionPane.showMessageDialog(null,
+							"Sorry, You Suck and have an unknown amount of tries...." + "Please Try Again!");
 				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(null, "Maximum login attempts reached: Please try again later.");
@@ -134,45 +118,6 @@ public class ClientGUI extends JFrame {
 		this.setVisible(true);
 
 	}
-
-	// private int count = 1;
-	// private int tries = 2;
-	//
-	// // need to log into server
-	// private void logIntoServer() {
-	// // TODO Auto-generated method stub
-	// if (count != 1) {
-	// if (count != 4) {
-	// JOptionPane.showConfirmDialog(null,
-	// "Incorrect Username or Password" + "\n" + "You have " + tries + " tries
-	// remaining", null,
-	// JOptionPane.OK_OPTION);
-	// }
-	// tries--;
-	// }
-	// if (count == 4) {
-	// JOptionPane.showConfirmDialog(null, "Run out of attempts, Try Later",
-	// null, JOptionPane.OK_OPTION);
-	//
-	// } else {
-	// username = JOptionPane.showInputDialog("Username:");
-	// password = JOptionPane.showInputDialog("Password:");
-	// writeUserAndPassToServer();
-	// count++;
-	// }
-	//
-	// }
-	//
-	// private void writeUserAndPassToServer() {
-	// try {
-	// toServer.writeObject(username);
-	// toServer.writeObject(password);
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	//
-	// }
 
 	public void layoutGUI() {
 		int windowWidth = (int) (screenWidth * 0.75);
@@ -277,7 +222,7 @@ public class ClientGUI extends JFrame {
 		// Create textArea To write on
 		textArea = new JEditorPane();
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
-		//textArea.setLineWrap(true);
+		// textArea.setLineWrap(true);
 		// textArea.getDocument().addDocumentListener(new myDocumentListener());
 		textArea.addKeyListener(new characterListener());
 		// Create ScrollPane to put textAreaon
@@ -299,25 +244,21 @@ public class ClientGUI extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			// TODO Auto-generated method stub
 			String text = "";
 			text = textArea.getText();
 			// textArea.setText(text);
-			//chatTextArea.setText(text);
+			// chatTextArea.setText(text);
 			try {
 				toServer.writeObject(ServerCommand.DOC_TEXT);
 				toServer.writeObject(text);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
-
 	}
 
 	/*
@@ -351,16 +292,12 @@ public class ClientGUI extends JFrame {
 				}
 			}
 		}
-
 	}
 
 	// chatbox listener to send text to collaborators
 	private class newTextListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO 8: When the enter button is pressed, send the contents of
-			// the
-			// JTextField to the server (add the username for extra style!)
 
 			String text;
 			text = chatText.getText();
@@ -385,7 +322,6 @@ public class ClientGUI extends JFrame {
 	private class chatButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			if (chatScroll.isVisible()) {
 				chatScroll.setVisible(false);
 				chatText.setVisible(false);
@@ -397,12 +333,10 @@ public class ClientGUI extends JFrame {
 			}
 			ClientGUI.this.setVisible(true);
 		}
-
 	}
 
 	// testing
 	public static void main(String[] args) {
 		ClientGUI jake = new ClientGUI();
 	}
-
 }
