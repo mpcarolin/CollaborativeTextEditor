@@ -91,11 +91,11 @@ class ClientHandler extends Thread {
             command = (ServerCommand) input.readObject();
             switch (command) {
             case LOGIN:
-               authenticateUser();
+               running = authenticateUser();
                setDoc();
                break;
             case CREATE_ACCOUNT:
-               createAccount();
+               running = createAccount();
                setDoc();
                break;
             case CHAT_MSG:
@@ -150,11 +150,12 @@ class ClientHandler extends Thread {
             tries++;
             newClient.writeObject(false);
          } else {
+            clients.add(newClient);
             newClient.writeObject(true);
             return true;
          }
       } while (tries < 3);
-
+      
       return false;
    }
 
@@ -168,6 +169,7 @@ class ClientHandler extends Thread {
          String username = (String) input.readObject();
          String password = (String) input.readObject();
          allUsers.put(username, new User(username, password));
+         clients.add(newClient);
          newClient.writeObject(true);
       } catch (ClassNotFoundException e) {
          e.printStackTrace();
