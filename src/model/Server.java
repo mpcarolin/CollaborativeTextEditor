@@ -77,6 +77,7 @@ class ClientHandler extends Thread {
       this.clients = clients;
       this.newClient = newClientOutStream;
       this.currentDoc = currentDoc;
+      this.running = true;
    }
    
    
@@ -174,7 +175,6 @@ class ClientHandler extends Thread {
          e.printStackTrace();
          return false;
       }
-
       return true;
    }
 
