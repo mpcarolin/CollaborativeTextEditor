@@ -58,14 +58,12 @@ public class ClientGUI extends JFrame {
 	private JComboBox<Integer> font;
 	private JToolBar toolBar;
 	private JToggleButton boldButton, italicsButton, underLine;
-//	private Boolean logInSuccess = false;
+	// private Boolean logInSuccess = false;
 
 	public ClientGUI() {
 
 		// begin server connection
 		openConnection();
-		ServerListener serverListener = new ServerListener();
-		serverListener.start();
 
 		// create new user
 		// if(userResponse==JOptionPane.NO_OPTION){
@@ -75,16 +73,22 @@ public class ClientGUI extends JFrame {
 		// }
 		int userResponse = JOptionPane.showConfirmDialog(null, "Do you have an Account?", null,
 				JOptionPane.YES_NO_CANCEL_OPTION);
-//		try {
-//			toServer.writeObject(ServerCommand.LOGIN);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// toServer.writeObject(ServerCommand.LOGIN);
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		boolean loginResult = false;
 		if (userResponse == JOptionPane.YES_OPTION) {
-			logIntoServer(ServerCommand.LOGIN);
+			loginResult = logIntoServer(ServerCommand.LOGIN);
+		} else if (userResponse == JOptionPane.NO_OPTION) {
+			loginResult = logIntoServer(ServerCommand.CREATE_ACCOUNT);
 		}
-		if (userResponse == JOptionPane.NO_OPTION) {
-			logIntoServer(ServerCommand.CREATE_ACCOUNT);
+
+		if (loginResult) {
+			loggedIn();
+			ServerListener serverListener = new ServerListener();
+			serverListener.start();
 		}
 	}
 
@@ -92,20 +96,27 @@ public class ClientGUI extends JFrame {
 		boolean logInSuccess = false;
 		try {
 			toServer.writeObject(command);
-			String username = JOptionPane.showInputDialog("Username:");
-			String password = JOptionPane.showInputDialog("Password:");
-			toServer.writeObject(username);
-			toServer.writeObject(password);
-			logInSuccess = (boolean) fromServer.readObject();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		while (!logInSuccess) {
+			try {
+				String username = JOptionPane.showInputDialog("Username:");
+				String password = JOptionPane.showInputDialog("Password:");
+				toServer.writeObject(username);
+				toServer.writeObject(password);
+				logInSuccess = (boolean) fromServer.readObject();
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Maximum login attempts reached: Please try again later.");
+				System.exit(1);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 		return logInSuccess;
 	}
 
-	public void loggedIn() {
+	private void loggedIn() {
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.8;
@@ -328,26 +339,11 @@ public class ClientGUI extends JFrame {
 			while (true) {
 				// obtain updated doc text from server in a try-catch
 				try {
-					// String newtext= (String) fromServer.readObject();
-					// String text= chatTextArea.getText();
-					// chatTextArea.setText(text + "\n"+ newtext);
-					if (!logInSuccess) {
-						logInSuccess = (Boolean) fromServer.readObject();
-						if (!logInSuccess) {
-							logIntoServer();
-						} else {
-							loggedIn();
-							String documents = (String) fromServer.readObject();
-						}
-					} else {
-						String updatedText = (String) fromServer.readObject();
-						textArea.setText(updatedText);
-					}
+					String updatedText = (String) fromServer.readObject();
+					textArea.setText(updatedText);
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
