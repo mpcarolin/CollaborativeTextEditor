@@ -338,5 +338,6 @@ public class ClientGUI extends JFrame {
 	// testing
 	public static void main(String[] args) {
 		ClientGUI jake = new ClientGUI();
+		// test test test
 	}
 }
