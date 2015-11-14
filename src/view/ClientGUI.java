@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +18,7 @@ import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,9 +28,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.Element;
 
 import model.Server;
 import model.ServerCommand;
@@ -49,8 +46,9 @@ public class ClientGUI extends JFrame {
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
 
+	private JEditorPane textArea;
 	// Java Swing Components
-	private JTextArea textArea, chatTextArea;
+	private JTextArea chatTextArea;
 	private JScrollPane scroll, chatScroll;
 	private JPanel screenPanel, leftPanel, rightPanel;
 	private JButton openChatButton;
@@ -85,6 +83,7 @@ public class ClientGUI extends JFrame {
 			loginResult = logIntoServer(ServerCommand.CREATE_ACCOUNT);
 		}
 
+		System.out.println(loginResult);
 		if (loginResult) {
 			loggedIn();
 			ServerListener serverListener = new ServerListener();
@@ -106,6 +105,10 @@ public class ClientGUI extends JFrame {
 				toServer.writeObject(username);
 				toServer.writeObject(password);
 				logInSuccess = (boolean) fromServer.readObject();
+				if(!logInSuccess){
+					JOptionPane.showMessageDialog(null, "Sorry, You Suck and have an unknown amount of tries...."
+							+ "Please Try Again!");
+				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(null, "Maximum login attempts reached: Please try again later.");
 				System.exit(1);
@@ -272,9 +275,9 @@ public class ClientGUI extends JFrame {
 		windowSize = new Dimension((int) textWidth + 30, (int) screenHeight);
 
 		// Create textArea To write on
-		textArea = new JTextArea();
+		textArea = new JEditorPane();
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
-		textArea.setLineWrap(true);
+		//textArea.setLineWrap(true);
 		// textArea.getDocument().addDocumentListener(new myDocumentListener());
 		textArea.addKeyListener(new characterListener());
 		// Create ScrollPane to put textAreaon
@@ -305,7 +308,7 @@ public class ClientGUI extends JFrame {
 			String text = "";
 			text = textArea.getText();
 			// textArea.setText(text);
-			chatTextArea.setText(text);
+			//chatTextArea.setText(text);
 			try {
 				toServer.writeObject(ServerCommand.DOC_TEXT);
 				toServer.writeObject(text);
