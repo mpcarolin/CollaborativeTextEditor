@@ -77,87 +77,11 @@ class ClientHandler extends Thread {
       this.clients = clients;
       this.newClient = newClientOutStream;
       this.currentDoc = currentDoc;
-
-      // Try to authenticate the user, or create a new account
-      // If this fails, set running to false to kill the thread
-      try {
-         if (!authenticateUser()) {
-            running = false;
-         } else {
-            newClient.writeObject(true);
-            clients.add(newClient);
-            // send the current text to the new client
-            setDoc();
-            running = true;
-         }
-      } catch (ClassNotFoundException e) {
-         e.printStackTrace();
-      } catch (IOException e) {
-         e.printStackTrace();
-         running = false;
-      }
    }
-
    
-   /*
-    * Checks if the user already has an account or not
-    * Calls create account if the user does not already have an account
-    * If the do have one, gets their credentials and checks if they match an existing account
-    * Allows 3 tries before the connection is closed
-    * Returns a boolean indicating whether the user successfully logged in (or created a new account) 
-    */
-   private boolean authenticateUser() throws ClassNotFoundException, IOException {
-      // Read the ServerCommand to see if the user needs to create a new account
-      // If they do, call createAccount() and return its return value
-      ServerCommand command = (ServerCommand) input.readObject();
-      if (command == ServerCommand.CREATE_ACCOUNT) {
-         return createAccount();
-      }
-
-      User user = null;
-      String username = null;
-      String password = null;
-      int tries = 0;
-      do {
-         username = (String) input.readObject();
-         password = (String) input.readObject();
-
-         if ((user = allUsers.get(username)) == null) {
-            tries++;
-            newClient.writeObject(false);
-         } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
-            tries++;
-            newClient.writeObject(false);
-         } else {
-            return true;
-         }
-      } while (tries < 3);
-
-      return false;
-   }
-
    
-   /*
-    * Gets the username and password from the client, and creates a new userAccount
-    * Returns a boolean indicating whether the account was successfully created or not
-    */
-   private boolean createAccount() {
-      try {
-         String username = (String) input.readObject();
-         String password = (String) input.readObject();
-         allUsers.put(username, new User(username, password));
-      } catch (ClassNotFoundException e) {
-         e.printStackTrace();
-      } catch (IOException e) {
-         e.printStackTrace();
-         return false;
-      }
-      return true;
-   }
-
    @Override
-   public void run() {
-      
+   public void run() {  
       // While the thread is still running, get the next ServerCommand from the client,
       // and call the respective method
       ServerCommand command;
@@ -165,6 +89,14 @@ class ClientHandler extends Thread {
          try {
             command = (ServerCommand) input.readObject();
             switch (command) {
+            case LOGIN:
+               authenticateUser();
+               setDoc();
+               break;
+            case CREATE_ACCOUNT:
+               createAccount();
+               setDoc();
+               break;
             case CHAT_MSG:
                updateChat();
                break;
@@ -189,6 +121,61 @@ class ClientHandler extends Thread {
             return;
          }
       }
+   }
+
+   
+   /*
+    * Checks if the user already has an account or not
+    * Calls create account if the user does not already have an account
+    * If the do have one, gets their credentials and checks if they match an existing account
+    * Allows 3 tries before the connection is closed
+    * Returns a boolean indicating whether the user successfully logged in (or created a new account) 
+    */
+   private boolean authenticateUser() throws ClassNotFoundException, IOException {
+      // Read the ServerCommand to see if the user needs to create a new account
+      // If they do, call createAccount() and return its return value
+      User user = null;
+      String username = null;
+      String password = null;
+      int tries = 0;
+      do {
+         username = (String) input.readObject();
+         password = (String) input.readObject();
+
+         if ((user = allUsers.get(username)) == null) {
+            tries++;
+            newClient.writeObject(false);
+         } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
+            tries++;
+            newClient.writeObject(false);
+         } else {
+            newClient.writeObject(true);
+            return true;
+         }
+      } while (tries < 3);
+
+      return false;
+   }
+
+   
+   /*
+    * Gets the username and password from the client, and creates a new userAccount
+    * Returns a boolean indicating whether the account was successfully created or not
+    */
+   private boolean createAccount() {
+      try {
+         String username = (String) input.readObject();
+         String password = (String) input.readObject();
+         allUsers.put(username, new User(username, password));
+         newClient.writeObject(true);
+      } catch (ClassNotFoundException e) {
+         e.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
+         return false;
+      }
+
+      return true;
    }
 
    
