@@ -42,8 +42,8 @@ public class Server {
          System.out.println("Accepted a new connection from " + newClientSocket.getInetAddress());
       }
    }
-   
-   
+
+
    /*
     * Hard code some users for testing purposes
     */
@@ -79,10 +79,10 @@ class ClientHandler extends Thread {
       this.currentDoc = currentDoc;
       this.running = true;
    }
-   
-   
+
+
    @Override
-   public void run() {  
+   public void run() {
       // While the thread is still running, get the next ServerCommand from the client,
       // and call the respective method
       ServerCommand command;
@@ -124,13 +124,13 @@ class ClientHandler extends Thread {
       }
    }
 
-   
+
    /*
     * Checks if the user already has an account or not
     * Calls create account if the user does not already have an account
     * If the do have one, gets their credentials and checks if they match an existing account
     * Allows 3 tries before the connection is closed
-    * Returns a boolean indicating whether the user successfully logged in (or created a new account) 
+    * Returns a boolean indicating whether the user successfully logged in (or created a new account)
     */
    private boolean authenticateUser() throws ClassNotFoundException, IOException {
       // Read the ServerCommand to see if the user needs to create a new account
@@ -159,7 +159,7 @@ class ClientHandler extends Thread {
       return false;
    }
 
-   
+
    /*
     * Gets the username and password from the client, and creates a new userAccount
     * Returns a boolean indicating whether the account was successfully created or not
@@ -180,7 +180,7 @@ class ClientHandler extends Thread {
       return true;
    }
 
-   
+
    /*
     * Sends the current document to the new client
     */
@@ -191,8 +191,8 @@ class ClientHandler extends Thread {
          e.printStackTrace();
       }
    }
-   
-   
+
+
    /*
     * Read the updated document from the client
     * Calls updateDoc() if the document is successfully read
@@ -210,8 +210,8 @@ class ClientHandler extends Thread {
       }
       updateDoc();
    }
-   
-   
+
+
    /*
     * Sends the current document to all of the clients in the clients list
     * Keeps track of the clients that have disconnected and removes them
@@ -238,8 +238,8 @@ class ClientHandler extends Thread {
          }
       }
    }
-   
-   
+
+
    /*
     * Reads in the new chat message from the client, and sends it to all of the clients in the client list
     * Keeps track of the clients that have disconnected and removes them
@@ -274,7 +274,9 @@ class ClientHandler extends Thread {
          }
       }
    }
+
    
+
    private void closeConnection() {
       // going to need to close things properly eventually
    }

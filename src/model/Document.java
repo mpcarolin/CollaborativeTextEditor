@@ -5,46 +5,46 @@ import java.util.Stack;
 public class Document {
 	
 	private static final int NUM_REVISIONS_STORED = 20;
-	private Stack<String> history = new Stack<String>();
-	
+	private Stack<Revision> history; 
 	private String currentText;
 	
 	public Document() {
+		history = new Stack<Revision>();
 		currentText = "";
 	}
 	
+	@Deprecated	// Dan: use the new method that specifies the revising user as an arg
 	public void replaceText(String newText) {
 		currentText = newText;
-		addToHistory(currentText);
 	}
 	
-	public void append(String textToAppend) {
+	public void replaceText(String newText, String revisingUser) {
+		addToHistory(newText, revisingUser);
+		currentText = newText;
+	}
+	
+	// appends a string to the end of the doc; no spaces are inserted
+	public void append(String textToAppend, String revisingUser) {
+		addToHistory(currentText + textToAppend, revisingUser);
 		currentText = currentText + textToAppend; 
-		addToHistory(currentText);
 	}
 	
 	public String getText() {
 		return currentText;
 	}
 	
-	public void getLastRevision() {
-		currentText = history.pop();
+	public Revision getLastRevision() {
+		return history.pop();
 	}
 	
-	// pushes to history, but manages the stack if length is beyond the 
-	// num_revisions_stored limit
-	private void addToHistory(String lastRevision) {
+	// pushes to history, but resizes the stack if its length surpasses the limit
+	private void addToHistory(String newText, String revisingUser) {
+
 		if (history.size() >= NUM_REVISIONS_STORED) {
 			history.remove(0);
 		}
-		
-		history.push(lastRevision);
+
+		Revision revision = new Revision(newText, currentText, revisingUser); 
+		history.push(revision);
 	}
-	
-
-	
-	
-	
-	
-
 }
