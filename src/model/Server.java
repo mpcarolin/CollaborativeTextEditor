@@ -85,10 +85,10 @@ class ClientHandler extends Thread {
    public void run() {
       // While the thread is still running, get the next ServerCommand from the client,
       // and call the respective method
-      ServerCommand command;
+      ClientRequest command;
       while (true && running) {
          try {
-            command = (ServerCommand) input.readObject();
+            command = (ClientRequest) input.readObject();
             switch (command) {
             case LOGIN:
                running = authenticateUser();
