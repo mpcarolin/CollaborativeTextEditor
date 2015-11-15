@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,6 +29,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import model.Server;
 import model.ServerCommand;
@@ -51,6 +55,7 @@ public class ClientGUI extends JFrame {
 	private JComboBox<Integer> font;
 	private JToolBar toolBar;
 	private JToggleButton boldButton, italicsButton, underLine;
+	private boolean bold,underline,italic;
 	// private Boolean logInSuccess = false;
 
 	public ClientGUI() {
@@ -145,6 +150,10 @@ public class ClientGUI extends JFrame {
 		toolBar.add(underLine);
 		toolBar.add(new JLabel("Font Size:"));
 		toolBar.add(font);
+		// Set listener
+		boldButton.addActionListener(new boldButtonListener());
+		underLine.addActionListener(new underLineButtonListener());
+		italicsButton.addActionListener(new italicsButtonListener());
 
 		// set tool bar layout and location
 		GridBagConstraints toolbarConstraint = new GridBagConstraints();
@@ -221,6 +230,8 @@ public class ClientGUI extends JFrame {
 
 		// Create textArea To write on
 		textArea = new JEditorPane();
+		textArea.setContentType("text/html");
+
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
 		// textArea.setLineWrap(true);
 		// textArea.getDocument().addDocumentListener(new myDocumentListener());
@@ -236,30 +247,359 @@ public class ClientGUI extends JFrame {
 		this.setVisible(true);
 	}
 
-	private class characterListener implements KeyListener {
+	
+	
+	private class boldButtonListener implements ActionListener{
 
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			bold=!bold;
+		}
+		
+	}
+	private class underLineButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			underline=!underline;
+		}
+		
+	}	private class italicsButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			italic=!italic;
+		}
+		
+	}
+	//private StringBuilder list= new StringBuilder();
+	private ArrayList<String> list= new ArrayList<String>();
+	private boolean isbold=false,isunderlined=false,isitalics=false;
+	private StringBuilder addToList,noTagString,stringWithTags;
+	
+
+	private class characterListener implements KeyListener {
+		private int carrotPosition;
+		//ascii-48-126
 		@Override
 		public void keyTyped(KeyEvent e) {
+			if(e.getKeyChar()>47&&e.getKeyChar()<125 && bold||underline||italic){
+				e.consume();
+				addToList.insert(addToList.length(),e.getKeyChar());
+			}
 		}
-
 		@Override
 		public void keyPressed(KeyEvent e) {
+			if(e.getKeyChar()>47&&e.getKeyChar()<125 && bold||underline||italic){
+				e.consume();
+				carrotPosition= textArea.getCaretPosition();
+				//used to create inserting key typed
+				addToList= new StringBuilder();
+				if(bold){
+					addToList.insert(addToList.length(),"<b>");
+				}
+				if(italic){
+					addToList.insert(addToList.length(),"<i>");
+				}			
+				if(underline){
+					addToList.insert(addToList.length(),"<u>");
+				}
+			}
+
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			String text = "";
-			text = textArea.getText();
-			// textArea.setText(text);
-			// chatTextArea.setText(text);
+			if(e.getKeyChar()>47&&e.getKeyChar()<125 && bold||underline||italic){
+				e.consume();
+//			System.out.println(textArea.getText());
+///use mouse courser as the relative position so just add /b first than string than b than move curser
+//according to counter. 
+
+
+// take two strings, one with <b> tags and one without. Than add element to one without, go through loop to parse it with the tags, update cursor position, than set text
+
+			if(underline){
+				addToList.insert(addToList.length(),"</u>");
+			}
+			if(italic){
+				addToList.insert(addToList.length(),"</i>");
+			}	
+			if(bold){
+				addToList.insert(addToList.length(),"</b>");
+			}
+
+			// has string to be inserted in correct format!!!
+			String text=addToList.toString();
+
+
+System.out.println(text);
+			// create two String builders
+			noTagString=new StringBuilder();
+			stringWithTags=new StringBuilder();
+
+			//make noTagString hold no html tags
+			Whitelist deleteAllHTML= new Whitelist();
+			noTagString= noTagString.append(Jsoup.clean(textArea.getText(), deleteAllHTML));
+			
+			// corner case, if user clicks very end of document text, it will fix the alighning issues
+			if(textArea.getCaretPosition()>noTagString.length()){
+				textArea.setCaretPosition(noTagString.length()+1);	
+			}
+			
+			//wierd corner case with inital caret positions. Done to print current key typed in the 
+			//right format to be pasted into the right location of the noHTML string
+			if(textArea.getCaretPosition()==0){
+				carrotPosition= textArea.getCaretPosition();
+			}else{
+				carrotPosition= textArea.getCaretPosition()-1;
+			}
+			System.out.print(carrotPosition);
+			noTagString.insert(carrotPosition, text);
+//			System.out.println("This is noTagString: "+ noTagString.toString());
+			
+			
+			// sets the String with tags to only consis of letters and b,u,i tags
+			Whitelist allowable= new Whitelist();
+			allowable.addTags("b");
+			allowable.addTags("i");
+			allowable.addTags("u");
+			System.out.print("text: "+ textArea.getText());
+			String withTags= Jsoup.clean(textArea.getText(),allowable);
+			//withTags= stringWithTags.toString().replace("/n","");
+			System.out.println("this is frusterating : "+ withTags);
+			stringWithTags= stringWithTags.insert(0, withTags);
+
+			System.out.print("fjaklfjlajdflkajfklkslfjklasjflkjfkj"+ stringWithTags.toString());
+			// goal of next part is to 
+			// parse the two strings together with carrot Position being taken into effect
+			// should only increase when a non tag is inserted
+				int increment=0;		// increment will only increase when a key(not a tag) is copied
+				int stopper= stringWithTags.length();
+				//while(i<stopper){
+				for(int i=0;i<stringWithTags.length();i++){
+//System.out.println( "increment" + increment + "carrot "+ carrotPosition+ "string length: " + stringWithTags.length());
+System.out.println("stringWithTags " +stringWithTags.toString());
+System.out.println("notagString    " +noTagString.toString());
+					// suppose to insert new tag into right location
+System.out.println(increment);
+					// idea is to insert string into String with tags when increment=carrot 
+					// and copy rest of carrot into 
+
+					if(increment==carrotPosition){
+						stringWithTags.insert(i, text);
+						increment=increment+text.length();
+						i=i+text.length();
+						System.out.println("this value of i = "+ i);
+						// Another idea is to Break and just copy the rest of the string since it's going to be the same...
+					}
+					// inserts tags into string with no tags
+					// while < is read (this only does one character at a time... inefficient... 
+					while((stringWithTags.charAt(i)+"").equals("<")){
+						System.out.print("twotimes?");
+						// make sure stringBuilder Array's have capacity
+						if(noTagString.length()<=i+6){
+							noTagString.setLength(i+15);
+						}
+						if(stringWithTags.length()<=i+6){
+							stringWithTags.setLength(i+15);
+						}
+						// this if says that if the thing after < is not equal do the loop
+						if(!(stringWithTags.charAt(i+1)+"").equals(noTagString.charAt(i+1)+"")){
+							
+							if(!(stringWithTags.charAt(i+1)+"").equals("/")){
+								System.out.println("value of i = "+ i);
+
+								noTagString.insert(i, "<");
+								i++;
+								noTagString.insert(i, stringWithTags.charAt(i));
+								//set tag to true
+								if((stringWithTags.charAt(i)+"").equals("b")){
+									isbold=true;
+								}
+								if((stringWithTags.charAt(i)+"").equals("i")){
+									isitalics=true;
+								}
+								if((stringWithTags.charAt(i)+"").equals("u")){
+									isunderlined=true;
+								}
+
+								i++;
+
+								noTagString.insert(i, ">");
+								i++;
+								// go through the characters until you find a <
+								while(!(stringWithTags.charAt(i)+"").equals("<")){
+									i++;
+									// copy rest of array over
+									if(i+1>stringWithTags.length()-1){
+										int currentLocation=noTagString.length();
+										while(stringWithTags.length()>noTagString.length()){
+											noTagString.insert(currentLocation, stringWithTags.charAt(currentLocation));
+											currentLocation++;
+											//System.out.println("final noTagString: " + noTagString.toString());
+										}
+										System.out.println("final noTagString: " + noTagString.toString());
+
+										break;
+									}
+
+									System.out.println((stringWithTags.charAt(i)+"").equals("<"));
+									System.out.println((stringWithTags.charAt(i+1)+"").equals("/"));
+
+									increment++;
+									// if inserting in middle of bold or ita, or under, insert.
+						//This loop fixes inserting in middle but causes it to never become unbold or ui or uu...  			
+									if(increment==carrotPosition){
+										// here search for end tags before inserting text than insert begining tags
+										//use is bold, italics, underlined
+										System.out.println("with no changes- stringWithTags:"+ stringWithTags.toString());
+										System.out.println("with no changes- noTagString:"+ noTagString.toString());
+										if(isbold){
+											stringWithTags.insert(i, "</b>");
+											noTagString.insert(i, "</b>");
+											i=i+4;
+										}
+										if(isunderlined){
+											stringWithTags.insert(i, "</u>");
+											noTagString.insert(i, "</u>");
+											i=i+4;
+										}
+										if(isitalics){
+											stringWithTags.insert(i, "</i>");
+											noTagString.insert(i, "</i>");
+											i=i+4;
+										}
+										stringWithTags.insert(i, text);
+										increment=increment+text.length();
+										i=i+text.length();
+										System.out.println("this value of i is from this loop = "+ i);
+										System.out.println("afterinsert- stringWithTags:"+ stringWithTags.toString());
+										System.out.println("afterinsert- noTagString:"+ noTagString.toString());
+										
+										//add the tags back to the strings
+										if(isbold){
+											stringWithTags.insert(i, "<b>");
+											noTagString.insert(i, "<b>");
+											i=i+4;
+										}
+										if(isunderlined){
+											stringWithTags.insert(i, "<u>");
+											noTagString.insert(i, "<u>");
+											i=i+4;
+										}
+										if(isitalics){
+											stringWithTags.insert(i, "<i>");
+											noTagString.insert(i, "<i>");
+											i=i+4;
+										}
+										System.out.println("with changes- stringWithTags:"+ stringWithTags.toString());
+										System.out.println("with changes- noTagString:"+ noTagString.toString());
+
+										// Another idea is to Break and just copy the rest of the string since it's going to be the same...
+									}
+								}
+						//to here. However without it, it acts correctlyish with each button, but cant edit from 
+						// middle.
+
+							}else{
+								System.out.println("Kjdflkjdf");
+								noTagString.insert(i, "</");
+								i++;
+								i++;
+								noTagString.insert(i, stringWithTags.charAt(i));
+								if((stringWithTags.charAt(i)+"").equals("b")){
+									isbold=false;
+								}
+								if((stringWithTags.charAt(i)+"").equals("i")){
+									isitalics=false;
+								}
+								if((stringWithTags.charAt(i)+"").equals("u")){
+									isunderlined=false;
+								}
+								i++;
+								noTagString.insert(i, ">");	
+								i++;
+								System.out.println("i is equal to=" +i);
+								System.out.println("just curious with changes- stringWithTags:"+ stringWithTags.toString());
+								System.out.println("just curious with changes- noTagString:"+ noTagString.toString());
+
+								System.out.println("this string is equal to: "+(stringWithTags.charAt(i)+""));
+
+								System.out.println((stringWithTags.charAt(i)+"").equals("<"));
+								
+							}
+						}else{
+							i++;
+						}						
+					}
+					increment++;
+					i++;
+				}
+	//		}
+//			System.out.println(noTagString.toString());
+//			System.out.println(stringWithTags.toString());
+
+			carrotPosition= textArea.getCaretPosition();
+			textArea.setText(noTagString.toString());
+			//textArea.setText(list.toString());
+			//textArea.setText(wholetext);
+			if(carrotPosition==0){
+				textArea.setCaretPosition(carrotPosition+2);
+			}else{
+				textArea.setCaretPosition(carrotPosition+1);
+			}
+
+			
+			
+			
+			
+			
+			
+			
+			
+				System.out.println();
+				System.out.println();
+//				System.out.print("stringBuilder= " + string);
+				System.out.println();
+				System.out.println();
+
+				
+				
+			//takes text from chat and past it into the other docs 
+			//textArea.setText(text);
+			//textArea.setText(text);
+			//chatTextArea.setText(text);
 			try {
 				toServer.writeObject(ServerCommand.DOC_TEXT);
-				toServer.writeObject(text);
+						toServer.writeObject(noTagString.toString());
 			} catch (IOException e1) {
+				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+//			
+//			
+			
+			
+			
+			}
+			try {
+				toServer.writeObject(ServerCommand.DOC_TEXT);
+						toServer.writeObject(textArea.getText());
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 		}
-	}
+	}	
+			
+		
+		
+
 
 	/*
 	 * Connects to a server
@@ -338,6 +678,5 @@ public class ClientGUI extends JFrame {
 	// testing
 	public static void main(String[] args) {
 		ClientGUI jake = new ClientGUI();
-		// test test test
 	}
 }
