@@ -33,8 +33,9 @@ import javax.swing.JToolBar;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
+import model.ClientRequest;
 import model.Server;
-import model.ServerCommand;
+//import model.ServerCommand;
 
 @SuppressWarnings("serial")
 public class ClientGUI extends JFrame {
@@ -67,9 +68,9 @@ public class ClientGUI extends JFrame {
 				JOptionPane.YES_NO_CANCEL_OPTION);
 		boolean loginResult = false;
 		if (userResponse == JOptionPane.YES_OPTION) {
-			loginResult = logIntoServer(ServerCommand.LOGIN);
+			loginResult = logIntoServer(ClientRequest.LOGIN);
 		} else if (userResponse == JOptionPane.NO_OPTION) {
-			loginResult = logIntoServer(ServerCommand.CREATE_ACCOUNT);
+			loginResult = logIntoServer(ClientRequest.CREATE_ACCOUNT);
 		}
 
 		System.out.println(loginResult);
@@ -80,7 +81,7 @@ public class ClientGUI extends JFrame {
 		}
 	}
 
-	private boolean logIntoServer(ServerCommand command) {
+	private boolean logIntoServer(ClientRequest command) {
 		boolean logInSuccess = false;
 		try {
 			toServer.writeObject(command);
@@ -574,7 +575,7 @@ System.out.println(increment);
 			//textArea.setText(text);
 			//chatTextArea.setText(text);
 			try {
-				toServer.writeObject(ServerCommand.DOC_TEXT);
+				toServer.writeObject(ClientRequest.DOC_TEXT);
 						toServer.writeObject(noTagString.toString());
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -587,7 +588,7 @@ System.out.println(increment);
 			
 			}
 			try {
-				toServer.writeObject(ServerCommand.DOC_TEXT);
+				toServer.writeObject(ClientRequest.DOC_TEXT);
 						toServer.writeObject(textArea.getText());
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
