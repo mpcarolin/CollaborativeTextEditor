@@ -192,7 +192,7 @@ class ClientHandler extends Thread {
    private void createDocument() {
       try {
          String docName = (String) clientIn.readObject();
-         Server.currentDoc = new Document();
+         Server.currentDoc = new Document(docName, currentUser.getName());
       } catch (ClassNotFoundException e) {
          e.printStackTrace();
       } catch (IOException e) {
