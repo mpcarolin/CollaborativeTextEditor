@@ -48,6 +48,10 @@ public class Document {
 		return history.pop();
 	}
 	
+	public String getDocumentName() {
+		return documentName;
+	}
+	
 	// pushes to history, but resizes the stack if its length surpasses the limit
 	private void addToHistory(String newText, String revisingUser) {
 
