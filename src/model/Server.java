@@ -64,11 +64,11 @@ public class Server {
  */
 class ClientHandler extends Thread {
 
-   private ObjectInputStream clientIn;          // clientIn stream of the new client
-   private ObjectOutputStream clientOut;        // output stream of the new client (not in list yet)
-   private User currentUser;                    // current user logged in
-   private Document currentDocument;            // current document being edited by the user
-   private boolean threadRunning, removeStreams;       // booleans...
+   private ObjectInputStream clientIn;             // clientIn stream of the new client
+   private ObjectOutputStream clientOut;           // output stream of the new client (not in list yet)
+   private User currentUser;                       // current user logged in
+   private Document currentDocument;               // current document being edited by the user
+   private boolean threadRunning, removeStreams;   // booleans...
 
    public ClientHandler(ObjectInputStream clientIn, ObjectOutputStream clientOutOutStream) {
       this.clientIn = clientIn;
