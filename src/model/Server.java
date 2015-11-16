@@ -20,30 +20,24 @@ import java.util.Set;
 public class Server {
 
    public static final int SERVER_PORT = 9001;
-   private static ServerSocket sSocket;
 
    static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
-   static List<Document> allDocuments = Collections.synchronizedList(new ArrayList<>());
+   static Map<String, Document> allDocuments = Collections.synchronizedMap(new HashMap<>());
    static List<Document> openDocuments = Collections.synchronizedList(new ArrayList<>());
-   
+
    static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
    static Document currentDoc;
 
    public static void main(String[] args) throws IOException {
 
       hardCodeUsers();
-      sSocket = new ServerSocket(SERVER_PORT);
-      System.out.println("Server started on port " + SERVER_PORT);
-
-      while (true) {
-         Socket clientOutSocket = sSocket.accept();
-         ObjectInputStream inStream = new ObjectInputStream(clientOutSocket.getInputStream());
-         ObjectOutputStream clientOutOutStream = new ObjectOutputStream(clientOutSocket.getOutputStream());
-         new ClientHandler(inStream, clientOutOutStream).start();
-         System.out.println("Accepted a new connection from " + clientOutSocket.getInetAddress());
+      try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
+         System.out.println("Server started on port " + SERVER_PORT);
+         while (true) {
+            new ClientHandler(serverSocket.accept()).start();
+         }
       }
    }
-
 
    /*
     * Hard code some users for testing purposes
@@ -57,40 +51,48 @@ public class Server {
    }
 }
 
-
 /*
- * Client handler that is created and started each time a new connection is created
- * Handles everything for one client (for now)
+ * Client handler that is created and started each time a new connection is
+ * created Handles everything for one client (for now)
  */
 class ClientHandler extends Thread {
+   
+   private Socket clientSocket;
+   private ObjectInputStream clientIn;     // clientIn stream of the new client
+   private ObjectOutputStream clientOut;   // output stream of the new client (not
+                                           // in list yet)
+   private User currentUser;               // current user logged in
+   private Document currentDocument;       // current document being edited by the
+                                           // user
+   private boolean isRunning, removeStreams; // booleans...
 
-   private ObjectInputStream clientIn;             // clientIn stream of the new client
-   private ObjectOutputStream clientOut;           // output stream of the new client (not in list yet)
-   private User currentUser;                       // current user logged in
-   private Document currentDocument;               // current document being edited by the user
-   private boolean threadRunning, removeStreams;   // booleans...
-
-   public ClientHandler(ObjectInputStream clientIn, ObjectOutputStream clientOutOutStream) {
-      this.clientIn = clientIn;
-      this.clientOut = clientOutOutStream;
-      this.threadRunning = true;
+   public ClientHandler(Socket clientSocket) {
+      this.clientSocket = clientSocket;
+      try {
+         clientIn = new ObjectInputStream(clientSocket.getInputStream());
+         clientOut = new ObjectOutputStream(clientSocket.getOutputStream());
+         this.isRunning = true;
+         System.out.println("Accepted a new connection from " + clientSocket.getInetAddress());
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
    }
-
 
    @Override
    public void run() {
-      // While the thread is still threadRunning, get the next ClientRequest from the client,
+      // While the thread is still isRunning, get the next ClientRequest
+      // from the client,
       // and call the respective method
       ClientRequest command;
-      while (true && threadRunning) {
+      while (true && isRunning) {
          try {
             command = (ClientRequest) clientIn.readObject();
             switch (command) {
             case LOGIN:
-               threadRunning = authenticateUser();
+               isRunning = authenticateUser();
                break;
             case CREATE_ACCOUNT:
-               threadRunning = createAccount();
+               isRunning = createAccount();
                break;
             case CHAT_MSG:
                updateChat();
@@ -117,19 +119,18 @@ class ClientHandler extends Thread {
             e.printStackTrace();
          } catch (IOException e) {
             Server.clientOutStreams.remove(clientOut);
-            threadRunning = false;
+            isRunning = false;
             e.printStackTrace();
          }
-         if (!threadRunning) {
+         if (!isRunning) {
             return;
          }
       }
    }
 
-
    /*
-    * Gets the credentials from the client and checks if the match a user account
-    * Verifies that the user is not already logged in
+    * Gets the credentials from the client and checks if the match a user
+    * account Verifies that the user is not already logged in
     */
    private boolean authenticateUser() throws ClassNotFoundException, IOException {
       User user = null;
@@ -145,8 +146,7 @@ class ClientHandler extends Thread {
             clientOut.writeObject(ServerResponse.INCORRECT_USERNAME);
          } else if (user.isLoggedIn()) {
             clientOut.writeObject(ServerResponse.LOGGED_IN);
-         }
-         else if ((user.getID() + password).hashCode() != user.getHashPass()) {
+         } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
             tries++;
             clientOut.writeObject(ServerResponse.INCORRECT_PASSWORD);
          } else {
@@ -157,15 +157,14 @@ class ClientHandler extends Thread {
             return true;
          }
       } while (tries < 3);
-      
+
       return false;
    }
 
-
    /*
-    * Gets the username and password from the client, and creates a new userAccount
-    * Verifies that the username is unique
-    * Returns a boolean indicating whether the account was successfully created or not
+    * Gets the username and password from the client, and creates a new
+    * userAccount Verifies that the username is unique Returns a boolean
+    * indicating whether the account was successfully created or not
     */
    private boolean createAccount() {
       try {
@@ -189,7 +188,7 @@ class ClientHandler extends Thread {
       }
       return true;
    }
-   
+
    private void createDocument() {
       try {
          String docName = (String) clientIn.readObject();
@@ -199,43 +198,37 @@ class ClientHandler extends Thread {
       } catch (IOException e) {
          e.printStackTrace();
       }
-      
-   }
-   
-   /*
-    * These are the methods that will be used when documents are created, opened, and closed,
-    * rather than the current "one" document being used for testing.
-    */
-   
-   private void openDocument() {
-      
-   }
-   
-   private void updateDocument() {
-      
-   }
-   
-   private void closeDocument() {
-      
+
    }
 
+   /*
+    * These are the methods that will be used when documents are created,
+    * opened, and closed, rather than the current "one" document being used for
+    * testing.
+    */
+
+   private void openDocument() {
+
+   }
+
+   private void updateDocument() {
+
+   }
+
+   private void closeDocument() {
+
+   }
 
    /*
     * Sends the current document to the new client
     *
-   private void setDoc() {
-      try {
-         clientOut.writeObject(currentDoc.getText());
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
-   }
-   */
-
+    * private void setDoc() { try { clientOut.writeObject(currentDoc.getText());
+    * } catch (IOException e) { e.printStackTrace(); } }
+    */
 
    /*
-    * Read the updated document from the client
-    * Calls updateDoc() if the document is successfully read
+    * Read the updated document from the client Calls updateDoc() if the
+    * document is successfully read
     */
    private void readDoc() {
       try {
@@ -245,16 +238,16 @@ class ClientHandler extends Thread {
       } catch (IOException e) {
          e.printStackTrace();
          Server.clientOutStreams.remove(clientOut);
-         threadRunning = false;
+         isRunning = false;
          return;
       }
       updateDoc();
    }
 
-
    /*
-    * Sends the current document to all of the clientOutStreams in the clientOutStreams list
-    * Keeps track of the clientOutStreams that have disconnected and removes them
+    * Sends the current document to all of the clientOutStreams in the
+    * clientOutStreams list Keeps track of the clientOutStreams that have
+    * disconnected and removes them
     */
    private void updateDoc() {
       removeStreams = false;
@@ -279,10 +272,10 @@ class ClientHandler extends Thread {
       }
    }
 
-
    /*
-    * Reads in the new chat message from the client, and sends it to all of the clientOutStreams in the client list
-    * Keeps track of the clientOutStreams that have disconnected and removes them
+    * Reads in the new chat message from the client, and sends it to all of the
+    * clientOutStreams in the client list Keeps track of the clientOutStreams
+    * that have disconnected and removes them
     */
    private void updateChat() {
       String chatMessage = null;
@@ -293,7 +286,7 @@ class ClientHandler extends Thread {
       } catch (IOException e1) {
          e1.printStackTrace();
          Server.clientOutStreams.remove(clientOut);
-         threadRunning = false;
+         isRunning = false;
          return;
       }
 
@@ -318,11 +311,15 @@ class ClientHandler extends Thread {
    private void logout() {
       Server.clientOutStreams.remove(clientOut);
       currentUser.setLogin(false);
-      threadRunning = false;
+      isRunning = false;
       closeConnection();
    }
 
    private void closeConnection() {
-      // going to need to close things properly eventually
+      try {
+         clientSocket.close();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
    }
 }
