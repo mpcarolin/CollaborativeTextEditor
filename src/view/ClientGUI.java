@@ -34,7 +34,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
 import model.Server;
-import model.ServerCommand;
 
 @SuppressWarnings("serial")
 public class ClientGUI extends JFrame {
