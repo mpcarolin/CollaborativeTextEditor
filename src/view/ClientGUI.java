@@ -44,7 +44,7 @@ public class ClientGUI extends JFrame {
 
 	private double screenWidth;
 	private double screenHeight;
-	private static final String ADDRESS = "localhost";
+	public static final String ADDRESS = "localhost";
 	private Socket server;
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
@@ -185,6 +185,7 @@ public class ClientGUI extends JFrame {
 		toolBar.add(underLine);
 		toolBar.add(new JLabel("Font Size:"));
 		toolBar.add(font);
+
 		// Set listener
 		boldButton.addActionListener(new boldButtonListener());
 		underLine.addActionListener(new underLineButtonListener());
@@ -249,8 +250,8 @@ public class ClientGUI extends JFrame {
 		c.weighty = 0.5;
 		c.anchor = GridBagConstraints.FIRST_LINE_END;
 		c.anchor = GridBagConstraints.CENTER;
-
 		c.fill = GridBagConstraints.VERTICAL;
+		
 		// Center Panel to put Text Area and JScrollPane one
 		screenPanel = new JPanel();
 		screenPanel.setPreferredSize(new Dimension((int) (screenWidth * .5), 1500));
