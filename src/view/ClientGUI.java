@@ -35,7 +35,7 @@ import org.jsoup.safety.Whitelist;
 
 import model.ClientRequest;
 import model.Document;
-
+import model.DocumentSelectGUI;
 import model.Server;
 
 @SuppressWarnings("serial")
@@ -76,10 +76,18 @@ public class ClientGUI extends JFrame {
 
       System.out.println(loginResult);
       if (loginResult) {
-         int response = JOptionPane.showConfirmDialog(null, "Create new document?", null, JOptionPane.YES_NO_OPTION);
-         if (response == JOptionPane.YES_OPTION) {
-            String theDoc = documentSelect(ClientRequest.CREATE_DOC);
-         }
+    	  ObjectInputStream ownedDocIn = null, editableDocIn = null;
+    	  try {
+			ownedDocIn = (ObjectInputStream) fromServer.readObject();
+			editableDocIn = (ObjectInputStream) fromServer.readObject();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+    	  new DocumentSelectGUI(ownedDocIn, editableDocIn);
+//         int response = JOptionPane.showConfirmDialog(null, "Create new document?", null, JOptionPane.YES_NO_OPTION);
+//         if (response == JOptionPane.YES_OPTION) {
+//            String theDoc = documentSelect(ClientRequest.CREATE_DOC);
+//         }
          loggedIn();
          ServerListener serverListener = new ServerListener();
          serverListener.start();
