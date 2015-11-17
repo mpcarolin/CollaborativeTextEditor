@@ -5,16 +5,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.ObjectInputStream;
-import java.util.List;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.RowSorter;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -22,8 +19,8 @@ import javax.swing.table.TableRowSorter;
 public class DocumentSelectGUI extends JFrame {
 
 	private JPanel thePanel;
-	private JPanel leftPanel, rightPanel, optionPanel, docPanel;
-	private static DefaultListModel<String> ownedList, editList;
+	private JPanel optionPanel, docPanel;
+//	private static DefaultListModel<String> ownedList, editList;
 	private ObjectInputStream ownedDocuments, editableDocuments;
 //	private static TableModel ownedTable, editTable;
 
@@ -73,14 +70,7 @@ public class DocumentSelectGUI extends JFrame {
 		optionLabel.setFont(new Font("default", Font.BOLD, 13));
 		optionPanel.add(optionLabel, BorderLayout.NORTH);
 
-		JPanel holder = new JPanel();
-		holder.setLayout(new BorderLayout());
-		docPanel.add(holder);
-		JTabbedPane tabbedDocs = new JTabbedPane();
-		tabbedDocs.add("Owned Documents", null);
-		tabbedDocs.add("Editable Documents", null);
-		tabbedDocs.setBackground(Color.GREEN);
-		holder.add(tabbedDocs);
+		
 
 		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
 		documentLabel.setFont(new Font("default", Font.BOLD, 13));
@@ -94,7 +84,7 @@ public class DocumentSelectGUI extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(owned);
 		TableRowSorter<TableModel> tableSort = new TableRowSorter<TableModel>();
 		tableSort.setModel(ownedTable);
-		RowSorter<TableModel> rowSort = tableSort;
+//		RowSorter<TableModel> rowSort = tableSort;
 		owned.setAutoCreateRowSorter(true);
 		owned.getSelectionModel().setSelectionInterval(0, 0);
 
@@ -104,9 +94,18 @@ public class DocumentSelectGUI extends JFrame {
 		JScrollPane scrollPaneEdit = new JScrollPane(edit);
 		TableRowSorter<TableModel> tableSortEdit = new TableRowSorter<TableModel>();
 		tableSortEdit.setModel(editTable);
-		RowSorter<TableModel> rowSortEdit = tableSortEdit;
+//		RowSorter<TableModel> rowSortEdit = tableSortEdit;
 		edit.setAutoCreateRowSorter(true);
 		edit.getSelectionModel().setSelectionInterval(0, 0);
+		
+		JPanel holder = new JPanel();
+		holder.setLayout(new BorderLayout());
+		docPanel.add(holder);
+		JTabbedPane tabbedDocs = new JTabbedPane();
+		tabbedDocs.add("Owned Documents", scrollPane);
+		tabbedDocs.add("Editable Documents", scrollPaneEdit);
+		tabbedDocs.setBackground(Color.GREEN);
+		holder.add(tabbedDocs);
 
 	}
 }
