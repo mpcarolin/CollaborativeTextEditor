@@ -58,13 +58,11 @@ public class Server {
 class ClientHandler extends Thread {
 
    private Socket clientSocket;
-   private ObjectInputStream clientIn; // clientIn stream of the new client
-   private ObjectOutputStream clientOut; // output stream of the new client (not
-                                         // in list yet)
-   private User currentUser; // current user logged in
-   private Document currentDocument; // current document being edited by the
-                                     // user
-   private boolean isRunning, removeStreams; // booleans...
+   private ObjectInputStream clientIn;        // clientIn stream of the new client
+   private ObjectOutputStream clientOut;      // output stream of the new client (not in list yet)
+   private User currentUser;                  // current user logged in
+   private OpenDocument currentDocument;      // current document being edited by the user
+   private boolean isRunning, removeStreams;  // booleans...
 
    public ClientHandler(Socket clientSocket) {
       this.clientSocket = clientSocket;
@@ -81,9 +79,7 @@ class ClientHandler extends Thread {
 
    @Override
    public void run() {
-      // While the thread is still isRunning, get the next ClientRequest
-      // from the client,
-      // and call the respective method
+      // While the thread is still isRunning, get the next ClientRequest from the client, and call the respective method
       ClientRequest command;
       while (true && isRunning) {
          try {
@@ -95,6 +91,7 @@ class ClientHandler extends Thread {
                break;
             case CREATE_ACCOUNT:
                createAccount();
+               // not sure if this needs to be here, the user wont have any documents yet
                sendDocumentList();
                break;
             case CHAT_MSG:
@@ -116,6 +113,9 @@ class ClientHandler extends Thread {
                logout();
                break;
             default:
+               System.out.println("Catastrophic Failure.");
+               System.out.flush();
+               System.exit(1);
                break;
             }
          } catch (ClassNotFoundException e) {
@@ -146,7 +146,7 @@ class ClientHandler extends Thread {
             clientOut.writeObject(ServerResponse.INCORRECT_USERNAME);
          } else if (user.isLoggedIn()) {
             clientOut.writeObject(ServerResponse.LOGGED_IN);
-         } else if ((user.getID() + password).hashCode() != user.getHashPass()) {
+         } else if ((user.getSalt() + password).hashCode() != user.getHashPass()) {
             clientOut.writeObject(ServerResponse.INCORRECT_PASSWORD);
          } else {
             user.setLogin(true);
@@ -159,9 +159,8 @@ class ClientHandler extends Thread {
    }
 
    public void sendDocumentList() throws IOException {
-      List<String> docNameList = new ArrayList<String>();
-      docNameList.addAll(Server.allDocuments.keySet());
-      clientOut.writeObject(docNameList);
+      clientOut.writeObject(currentUser.getOwnedDocuments());
+      clientOut.writeObject(currentUser.getEditableDocuments());
    }
 
    /*
@@ -201,6 +200,7 @@ class ClientHandler extends Thread {
    private void openDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       Document openingDoc = Server.allDocuments.get(docName);
+      
    }
 
    private void updateDocument() {
@@ -247,6 +247,16 @@ class ClientHandler extends Thread {
          }
       }
    }
+   
+   private void readChat() {
+      
+   }
+   
+   private void writeChat() {
+      
+   }
+   
+   
 
    /*
     * Reads in the new chat message from the client, and sends it to all of the

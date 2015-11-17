@@ -1,6 +1,8 @@
 package model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -14,11 +16,11 @@ public class User implements Serializable {
     * make sure these are the same id+password hash stored 8 digits
     */
    private String username;
-   private int id;
+   private int salt;
    private int hashPass;
    private boolean loggedIn;
-   private List<Object> documentsOwned;
-   private List<Object> editableDocuments;
+   private List<String> ownedDocuments;
+   private List<String> editableDocuments;
 
    public User(String newUser, String pass) {
       this.username = newUser;
@@ -27,17 +29,19 @@ public class User implements Serializable {
 
    public void setPassword(String pass) {
       Random rng = new Random();
-      this.id = rng.nextInt(90000000);
-      this.hashPass = (id + pass).hashCode();
-      this.loggedIn = false;
+      salt = rng.nextInt(90000000);
+      hashPass = (salt + pass).hashCode();
+      ownedDocuments = Collections.synchronizedList(new ArrayList<String>());
+      editableDocuments = Collections.synchronizedList(new ArrayList<String>()); 
+      loggedIn = false;
    }
 
    public String getName() {
       return username;
    }
 
-   public int getID() {
-      return id;
+   public int getSalt() {
+      return salt;
    }
 
    public int getHashPass() {
@@ -52,12 +56,27 @@ public class User implements Serializable {
       return loggedIn;
    }
 
-   public boolean hasPermission(Object document) {
-      return documentsOwned.contains(document) || editableDocuments.contains(document);
+   public boolean hasPermission(String documentName) {
+      return ownedDocuments.contains(documentName) || editableDocuments.contains(documentName);
+   }
+   
+   public void addOwnedDocument(String documentName) {
+      ownedDocuments.add(documentName);
    }
 
-   public void givePermission(Object document) {
-      editableDocuments.add(document);
+   public void givePermission(String documentName) {
+      editableDocuments.add(documentName);
    }
-
+   
+   public List<String> getOwnedDocuments() {
+      List<String> copy = new ArrayList<String>();
+      copy.addAll(ownedDocuments);
+      return copy;
+   }
+   
+   public List<String> getEditableDocuments() {
+      List<String> copy = new ArrayList<String>();
+      copy.addAll(editableDocuments);
+      return copy;
+   }
 }
