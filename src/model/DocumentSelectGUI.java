@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.util.HashMap;
+import java.io.ObjectInputStream;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -24,21 +24,26 @@ public class DocumentSelectGUI extends JFrame {
 	private JPanel thePanel;
 	private JPanel leftPanel, rightPanel, optionPanel, docPanel;
 	private static DefaultListModel<String> ownedList, editList;
+	private ObjectInputStream ownedDocuments, editableDocuments;
 //	private static TableModel ownedTable, editTable;
 
-	public static void main(String[] args) {
-		DocumentSelectGUI myGui = new DocumentSelectGUI();
-		myGui.setVisible(true);
-		myGui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
+//	public static void main(String[] args) {
+//		DocumentSelectGUI myGui = new DocumentSelectGUI();
+//		myGui.setVisible(true);
+//		myGui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//	}
 
-	public DocumentSelectGUI() {
+	public DocumentSelectGUI(ObjectInputStream ownedDocs, ObjectInputStream editDocs) {
+		this.ownedDocuments = ownedDocs;
+		this.editableDocuments = editDocs;
 		layoutGUI();
 		// registerListeners();
 	}
 
 	private void layoutGUI() {
 		// Create the document GUI
+		this.setVisible(true);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Documents");
 		setSize(900, 500);
 		setLocation(300, 80);
@@ -83,7 +88,7 @@ public class DocumentSelectGUI extends JFrame {
 		documentLabel.setLocation(300, 0);
 		thePanel.add(documentLabel);
 
-		TableModel ownedTable = (List) fromServer.readObject();
+		TableModel ownedTable = (TableModel) ownedDocuments;
 		JTable owned = new JTable(ownedTable);
 		owned.setModel(ownedTable);
 		JScrollPane scrollPane = new JScrollPane(owned);
@@ -93,7 +98,7 @@ public class DocumentSelectGUI extends JFrame {
 		owned.setAutoCreateRowSorter(true);
 		owned.getSelectionModel().setSelectionInterval(0, 0);
 
-		TableModel editTable = (List) fromServer.readObject();
+		TableModel editTable = (TableModel) editableDocuments;
 		JTable edit = new JTable(editTable);
 		edit.setModel(editTable);
 		JScrollPane scrollPaneEdit = new JScrollPane(edit);
