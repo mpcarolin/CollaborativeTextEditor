@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,15 +21,13 @@ public class DocumentSelectGUI extends JFrame {
 
 	private JPanel thePanel;
 	private JPanel optionPanel, docPanel;
-//	private static DefaultListModel<String> ownedList, editList;
 	private ObjectInputStream ownedDocuments, editableDocuments;
-//	private static TableModel ownedTable, editTable;
+	// private static DefaultListModel<String> ownedList, editList;
+	// private static TableModel ownedTable, editTable;
 
-//	public static void main(String[] args) {
-//		DocumentSelectGUI myGui = new DocumentSelectGUI();
-//		myGui.setVisible(true);
-//		myGui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//	}
+//	 public static void main(String[] args) {
+//	 new DocumentSelectGUI(null, null);
+//	 }
 
 	public DocumentSelectGUI(ObjectInputStream ownedDocs, ObjectInputStream editDocs) {
 		this.ownedDocuments = ownedDocs;
@@ -70,8 +69,6 @@ public class DocumentSelectGUI extends JFrame {
 		optionLabel.setFont(new Font("default", Font.BOLD, 13));
 		optionPanel.add(optionLabel, BorderLayout.NORTH);
 
-		
-
 		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
 		documentLabel.setFont(new Font("default", Font.BOLD, 13));
 		documentLabel.setSize(600, 20);
@@ -84,7 +81,7 @@ public class DocumentSelectGUI extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(owned);
 		TableRowSorter<TableModel> tableSort = new TableRowSorter<TableModel>();
 		tableSort.setModel(ownedTable);
-//		RowSorter<TableModel> rowSort = tableSort;
+		// RowSorter<TableModel> rowSort = tableSort;
 		owned.setAutoCreateRowSorter(true);
 		owned.getSelectionModel().setSelectionInterval(0, 0);
 
@@ -94,10 +91,10 @@ public class DocumentSelectGUI extends JFrame {
 		JScrollPane scrollPaneEdit = new JScrollPane(edit);
 		TableRowSorter<TableModel> tableSortEdit = new TableRowSorter<TableModel>();
 		tableSortEdit.setModel(editTable);
-//		RowSorter<TableModel> rowSortEdit = tableSortEdit;
+		// RowSorter<TableModel> rowSortEdit = tableSortEdit;
 		edit.setAutoCreateRowSorter(true);
 		edit.getSelectionModel().setSelectionInterval(0, 0);
-		
+
 		JPanel holder = new JPanel();
 		holder.setLayout(new BorderLayout());
 		docPanel.add(holder);
