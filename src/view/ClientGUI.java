@@ -33,6 +33,10 @@ import javax.swing.JToolBar;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
+
+import model.ClientRequest;
+import model.Document;
+
 import model.Server;
 
 @SuppressWarnings("serial")
@@ -73,6 +77,10 @@ public class ClientGUI extends JFrame {
 
 		System.out.println(loginResult);
 		if (loginResult) {
+			int response = JOptionPane.showConfirmDialog(null, "Create new document?", null, JOptionPane.YES_NO_OPTION);
+			if (response == JOptionPane.YES_OPTION) {
+				String theDoc = documentSelect(ClientRequest.CREATE_DOC);
+			}
 			loggedIn();
 			ServerListener serverListener = new ServerListener();
 			serverListener.start();
@@ -107,6 +115,34 @@ public class ClientGUI extends JFrame {
 		return logInSuccess;
 	}
 
+	private String documentSelect(ClientRequest command) {
+		boolean documentSelectSuccess = false;
+		String docName = "";
+		try {
+			toServer.writeObject(command);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		while (!documentSelectSuccess) {
+			try {
+				docName = JOptionPane.showInputDialog("Enter the document name.");
+				toServer.writeObject(docName);
+//				toServer.writeObject();
+				documentSelectSuccess = (boolean) fromServer.readObject();
+				if (!documentSelectSuccess) {
+					JOptionPane.showMessageDialog(null,
+							"The document does not exist.");
+				}
+			} catch (IOException e) {
+				System.exit(1);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return docName;
+	}
+	
 	private void loggedIn() {
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
