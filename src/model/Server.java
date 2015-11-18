@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 public class Server {
 
    public static final int SERVER_PORT = 9001;
@@ -88,15 +90,20 @@ class ClientHandler extends Thread {
             switch (command) {
             case LOGIN:
                if (authenticateUser()) {
+                  JOptionPane.showMessageDialog(null, "User " + currentUser.getName() + " successfully logged in.");
                   sendDocumentList();
                }
+               JOptionPane.showMessageDialog(null, "Log in failed.");
                break;
             case CREATE_ACCOUNT:
                if (createAccount()) {
+                  JOptionPane.showMessageDialog(null,
+                        "User account " + currentUser.getName() + " created successfully.");
                   // not sure if this needs to be here, the user wont have any
                   // documents yet
                   sendDocumentList();
                }
+               JOptionPane.showMessageDialog(null, "Account created failed");
                break;
             case CHAT_MSG:
                updateChat();
@@ -108,7 +115,7 @@ class ClientHandler extends Thread {
                openDocument();
                break;
             case DOC_TEXT:
-               readDoc();
+               updateDocument();
                break;
             case CLOSE_DOC:
                closeDocument();
@@ -185,12 +192,18 @@ class ClientHandler extends Thread {
       return false;
    }
 
-   private void createDocument() throws ClassNotFoundException, IOException {
+   private boolean createDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
+      if (Server.allDocuments.get(docName) != null) {
+         clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
+         return false;
+      }
       Document newDocument = new Document(docName, currentUser.getName());
       Server.allDocuments.put(docName, newDocument);
       currentOpenDoc = new OpenDocument(newDocument, clientOut);
       Server.openDocuments.put(docName, currentOpenDoc);
+      clientOut.writeObject(ServerResponse.DOCUMENT_CREATED);
+      return true;
    }
 
    /*
@@ -208,25 +221,30 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else {
          currentOpenDoc = Server.openDocuments.get(docName);
-         currentOpenDoc = currentOpenDoc == null ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
+         currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
       }
    }
 
-   private void updateDocument() {
-
-   }
-
-   private void closeDocument() {
-
+   private void updateDocument() throws ClassNotFoundException, IOException {
+      readDocument();
+      writeDocument();
    }
 
    /*
     * Read the updated document from the client Calls updateDoc() if the
     * document is successfully read
     */
-   private void readDoc() throws ClassNotFoundException, IOException {
+   private void readDocument() throws ClassNotFoundException, IOException {
       currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
       updateDoc();
+   }
+   
+   public void writeDocument() {
+      
+   }
+   
+   private void closeDocument() {
+
    }
 
    /*

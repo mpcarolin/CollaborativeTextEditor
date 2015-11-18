@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
@@ -74,7 +75,14 @@ public class DocumentSelectGUI extends JFrame {
 		documentLabel.setLocation(300, 0);
 		thePanel.add(documentLabel);
 
-		TableModel ownedTable = (TableModel) fromServer;
+		TableModel ownedTable = null;
+		try {
+			ownedTable = (TableModel) fromServer.readObject();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		JTable owned = new JTable(ownedTable);
 		owned.setModel(ownedTable);
 		JScrollPane scrollPane = new JScrollPane(owned);
@@ -84,7 +92,14 @@ public class DocumentSelectGUI extends JFrame {
 		owned.setAutoCreateRowSorter(true);
 		owned.getSelectionModel().setSelectionInterval(0, 0);
 
-		TableModel editTable = (TableModel) fromServer;
+		TableModel editTable = null;
+		try {
+			editTable = (TableModel) fromServer.readObject();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		JTable edit = new JTable(editTable);
 		edit.setModel(editTable);
 		JScrollPane scrollPaneEdit = new JScrollPane(edit);
