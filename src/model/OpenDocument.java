@@ -10,8 +10,8 @@ public class OpenDocument {
    private Document document;
    private List<ObjectOutputStream> editingUsers = Collections.synchronizedList(new ArrayList<ObjectOutputStream>());
    
-   public OpenDocument(ObjectOutputStream openingUser, Document docToOpen) {
-      this.document = docToOpen;
+   public OpenDocument(Document document, ObjectOutputStream openingUser) {
+      this.document = document;
       addEditor(openingUser);
    }
    
@@ -21,5 +21,13 @@ public class OpenDocument {
    
    public void removeEditor(ObjectOutputStream oldEditor) {
       editingUsers.remove(oldEditor);
+   }
+   
+   public String getText() {
+      return document.getText();
+   }
+   
+   public void updateText(String text, String editor) {
+      document.replaceText(text, editor);
    }
 }

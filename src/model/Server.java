@@ -23,10 +23,8 @@ public class Server {
 
    static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    static Map<String, Document> allDocuments = Collections.synchronizedMap(new HashMap<>());
-   static List<Document> openDocuments = Collections.synchronizedList(new ArrayList<>());
-
+   static Map<String, OpenDocument> openDocuments = Collections.synchronizedMap(new HashMap<>());
    static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
-   static Document currentDoc;
 
    public static void main(String[] args) throws IOException {
 
@@ -58,11 +56,13 @@ public class Server {
 class ClientHandler extends Thread {
 
    private Socket clientSocket;
-   private ObjectInputStream clientIn;        // clientIn stream of the new client
-   private ObjectOutputStream clientOut;      // output stream of the new client (not in list yet)
-   private User currentUser;                  // current user logged in
-   private OpenDocument currentDocument;      // current document being edited by the user
-   private boolean isRunning, removeStreams;  // booleans...
+   private ObjectInputStream clientIn; // clientIn stream of the new client
+   private ObjectOutputStream clientOut; // output stream of the new client (not
+                                         // in list yet)
+   private User currentUser; // current user logged in
+   private OpenDocument currentOpenDoc; // current document being edited by the
+                                        // user
+   private boolean isRunning, removeStreams; // booleans...
 
    public ClientHandler(Socket clientSocket) {
       this.clientSocket = clientSocket;
@@ -79,20 +79,24 @@ class ClientHandler extends Thread {
 
    @Override
    public void run() {
-      // While the thread is still isRunning, get the next ClientRequest from the client, and call the respective method
+      // While the thread is still isRunning, get the next ClientRequest from
+      // the client, and call the respective method
       ClientRequest command;
-      while (true && isRunning) {
+      while (isRunning) {
          try {
             command = (ClientRequest) clientIn.readObject();
             switch (command) {
             case LOGIN:
-               authenticateUser();
-               sendDocumentList();
+               if (authenticateUser()) {
+                  sendDocumentList();
+               }
                break;
             case CREATE_ACCOUNT:
-               createAccount();
-               // not sure if this needs to be here, the user wont have any documents yet
-               sendDocumentList();
+               if (createAccount()) {
+                  // not sure if this needs to be here, the user wont have any
+                  // documents yet
+                  sendDocumentList();
+               }
                break;
             case CHAT_MSG:
                updateChat();
@@ -121,41 +125,37 @@ class ClientHandler extends Thread {
          } catch (ClassNotFoundException e) {
             e.printStackTrace();
          } catch (IOException e) {
+            e.printStackTrace();
             Server.clientOutStreams.remove(clientOut);
             isRunning = false;
-            e.printStackTrace();
-         }
-         if (!isRunning) {
-            closeConnection();
-            return;
          }
       }
+      closeConnection();
    }
 
    /*
     * Gets the credentials from the client and checks if the match a user
     * account Verifies that the user is not already logged in
     */
-   private void authenticateUser() throws ClassNotFoundException, IOException {
+   private boolean authenticateUser() throws ClassNotFoundException, IOException {
       User user = null;
-      do {
-         String username = (String) clientIn.readObject();
-         String password = (String) clientIn.readObject();
+      String username = (String) clientIn.readObject();
+      String password = (String) clientIn.readObject();
 
-         if ((user = Server.allUsers.get(username)) == null) {
-            clientOut.writeObject(ServerResponse.INCORRECT_USERNAME);
-         } else if (user.isLoggedIn()) {
-            clientOut.writeObject(ServerResponse.LOGGED_IN);
-         } else if ((user.getSalt() + password).hashCode() != user.getHashPass()) {
-            clientOut.writeObject(ServerResponse.INCORRECT_PASSWORD);
-         } else {
-            user.setLogin(true);
-            currentUser = user;
-            Server.clientOutStreams.add(clientOut);
-            clientOut.writeObject(ServerResponse.LOGIN_SUCCESS);
-            return;
-         }
-      } while (true);
+      if ((user = Server.allUsers.get(username)) == null) {
+         clientOut.writeObject(ServerResponse.INCORRECT_USERNAME);
+      } else if (user.isLoggedIn()) {
+         clientOut.writeObject(ServerResponse.LOGGED_IN);
+      } else if ((user.getSalt() + password).hashCode() != user.getHashPass()) {
+         clientOut.writeObject(ServerResponse.INCORRECT_PASSWORD);
+      } else {
+         user.setLogin(true);
+         currentUser = user;
+         Server.clientOutStreams.add(clientOut);
+         clientOut.writeObject(ServerResponse.LOGIN_SUCCESS);
+         return true;
+      }
+      return false;
    }
 
    public void sendDocumentList() throws IOException {
@@ -168,27 +168,29 @@ class ClientHandler extends Thread {
     * userAccount Verifies that the username is unique Returns a boolean
     * indicating whether the account was successfully created or not
     */
-   private void createAccount() throws ClassNotFoundException, IOException {
-      do {
-         String username = (String) clientIn.readObject();
-         String password = (String) clientIn.readObject();
-         if (Server.allUsers.get(username) != null) {
-            clientOut.writeObject(ServerResponse.ACCOUNT_EXISTS);
-         } else {
-            User newUser = new User(username, password);
-            Server.allUsers.put(username, newUser);
-            newUser.setLogin(true);
-            currentUser = newUser;
-            Server.clientOutStreams.add(clientOut);
-            clientOut.writeObject(ServerResponse.ACCOUNT_CREATED);
-            return;
-         }
-      } while (true);
+   private boolean createAccount() throws ClassNotFoundException, IOException {
+      String username = (String) clientIn.readObject();
+      String password = (String) clientIn.readObject();
+      if (Server.allUsers.get(username) != null) {
+         clientOut.writeObject(ServerResponse.ACCOUNT_EXISTS);
+      } else {
+         User newUser = new User(username, password);
+         Server.allUsers.put(username, newUser);
+         newUser.setLogin(true);
+         currentUser = newUser;
+         Server.clientOutStreams.add(clientOut);
+         clientOut.writeObject(ServerResponse.ACCOUNT_CREATED);
+         return true;
+      }
+      return false;
    }
 
    private void createDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
-      Server.currentDoc = new Document(docName, currentUser.getName());
+      Document newDocument = new Document(docName, currentUser.getName());
+      Server.allDocuments.put(docName, newDocument);
+      currentOpenDoc = new OpenDocument(newDocument, clientOut);
+      Server.openDocuments.put(docName, currentOpenDoc);
    }
 
    /*
@@ -200,7 +202,14 @@ class ClientHandler extends Thread {
    private void openDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       Document openingDoc = Server.allDocuments.get(docName);
-      
+      if (openingDoc == null) {
+         clientOut.writeObject(ServerResponse.NO_DOCUMENT);
+      } else if (!currentUser.hasPermission(docName)) {
+         clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
+      } else {
+         currentOpenDoc = Server.openDocuments.get(docName);
+         currentOpenDoc = currentOpenDoc == null ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
+      }
    }
 
    private void updateDocument() {
@@ -216,7 +225,7 @@ class ClientHandler extends Thread {
     * document is successfully read
     */
    private void readDoc() throws ClassNotFoundException, IOException {
-      Server.currentDoc.replaceText((String) clientIn.readObject(), currentUser.getName());
+      currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
       updateDoc();
    }
 
@@ -235,7 +244,7 @@ class ClientHandler extends Thread {
          }
          try {
             client.reset();
-            client.writeObject(Server.currentDoc.getText());
+            client.writeObject(currentOpenDoc.getText());
          } catch (IOException e) {
             removeStreams = true;
             closed.add(client);
@@ -247,16 +256,14 @@ class ClientHandler extends Thread {
          }
       }
    }
-   
+
    private void readChat() {
-      
+
    }
-   
+
    private void writeChat() {
-      
+
    }
-   
-   
 
    /*
     * Reads in the new chat message from the client, and sends it to all of the
