@@ -99,7 +99,6 @@ public class LoginGUI extends JFrame {
 			bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 			bottomPanel.add(instructionLabel, BorderLayout.CENTER);
 
-			
 			// add everything to the parent JFrame
 			this.add(usernamePanel, BorderLayout.NORTH);
 			this.add(passwordPanel, BorderLayout.CENTER);
@@ -137,7 +136,7 @@ public class LoginGUI extends JFrame {
 						instructionLabel.setText("Login Successful");
 						instructionLabel.setForeground(Color.BLACK);
 						// open the Document Selector GUI
-						new DocumentSelectGUI(fromServer, fromServer);
+						new DocumentSelectGUI(fromServer);
 						LoginGUI.this.setVisible(false);
 						break;
 
