@@ -21,7 +21,7 @@ public class DocumentSelectGUI extends JFrame {
 
 	private JPanel thePanel;
 	private JPanel optionPanel, docPanel;
-	private ObjectInputStream ownedDocuments, editableDocuments;
+	private ObjectInputStream fromServer;
 	// private static DefaultListModel<String> ownedList, editList;
 	// private static TableModel ownedTable, editTable;
 
@@ -29,9 +29,8 @@ public class DocumentSelectGUI extends JFrame {
 //	 new DocumentSelectGUI(null, null);
 //	 }
 
-	public DocumentSelectGUI(ObjectInputStream ownedDocs, ObjectInputStream editDocs) {
-		this.ownedDocuments = ownedDocs;
-		this.editableDocuments = editDocs;
+	public DocumentSelectGUI(ObjectInputStream fromServer) {
+		this.fromServer = fromServer;
 		layoutGUI();
 		// registerListeners();
 	}
@@ -75,7 +74,7 @@ public class DocumentSelectGUI extends JFrame {
 		documentLabel.setLocation(300, 0);
 		thePanel.add(documentLabel);
 
-		TableModel ownedTable = (TableModel) ownedDocuments;
+		TableModel ownedTable = (TableModel) fromServer;
 		JTable owned = new JTable(ownedTable);
 		owned.setModel(ownedTable);
 		JScrollPane scrollPane = new JScrollPane(owned);
@@ -85,7 +84,7 @@ public class DocumentSelectGUI extends JFrame {
 		owned.setAutoCreateRowSorter(true);
 		owned.getSelectionModel().setSelectionInterval(0, 0);
 
-		TableModel editTable = (TableModel) editableDocuments;
+		TableModel editTable = (TableModel) fromServer;
 		JTable edit = new JTable(editTable);
 		edit.setModel(editTable);
 		JScrollPane scrollPaneEdit = new JScrollPane(edit);

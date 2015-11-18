@@ -76,14 +76,14 @@ public class ClientGUI extends JFrame {
 
       System.out.println(loginResult);
       if (loginResult) {
-    	  ObjectInputStream ownedDocIn = null, editableDocIn = null;
-    	  try {
-			ownedDocIn = (ObjectInputStream) fromServer.readObject();
-			editableDocIn = (ObjectInputStream) fromServer.readObject();
-		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}
-    	  new DocumentSelectGUI(ownedDocIn, editableDocIn);
+//    	  ObjectInputStream ownedDocIn = null, editableDocIn = null;
+//    	  try {
+//			ownedDocIn = (ObjectInputStream) fromServer.readObject();
+//			editableDocIn = (ObjectInputStream) fromServer.readObject();
+//		} catch (ClassNotFoundException | IOException e) {
+//			e.printStackTrace();
+//		}
+    	  new DocumentSelectGUI(fromServer);
 //         int response = JOptionPane.showConfirmDialog(null, "Create new document?", null, JOptionPane.YES_NO_OPTION);
 //         if (response == JOptionPane.YES_OPTION) {
 //            String theDoc = documentSelect(ClientRequest.CREATE_DOC);
