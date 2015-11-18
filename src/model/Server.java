@@ -44,7 +44,7 @@ public class Server {
     */
    private static void hardCodeUsers() {
       allUsers.put("Daniel", new User("Daniel", "Avetian"));
-      allUsers.put("Micheal", new User("Michael", "Carolin"));
+      allUsers.put("Michael", new User("Michael", "Carolin"));
       allUsers.put("Jacob", new User("Jacob", "Groh"));
       allUsers.put("Filbert", new User("Filbert", "Johnson"));
       allUsers.put("Orzy", new User("Orzy", "Hazan"));
