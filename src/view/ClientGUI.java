@@ -65,34 +65,35 @@ public class ClientGUI extends JFrame {
       // begin server connection
       openConnection();
 
-      int userResponse = JOptionPane.showConfirmDialog(null, "Do you have an Account?", null,
-            JOptionPane.YES_NO_CANCEL_OPTION);
-      boolean loginResult = false;
-      if (userResponse == JOptionPane.YES_OPTION) {
-         loginResult = logIntoServer(ClientRequest.LOGIN);
-      } else if (userResponse == JOptionPane.NO_OPTION) {
-         loginResult = logIntoServer(ClientRequest.CREATE_ACCOUNT);
-      }
-
-      System.out.println(loginResult);
-      if (loginResult) {
-    	  ObjectInputStream ownedDocIn = null, editableDocIn = null;
-    	  try {
-			ownedDocIn = (ObjectInputStream) fromServer.readObject();
-			editableDocIn = (ObjectInputStream) fromServer.readObject();
-		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}
-    	  new DocumentSelectGUI(ownedDocIn, editableDocIn);
+//      int userResponse = JOptionPane.showConfirmDialog(null, "Do you have an Account?", null,
+//           JOptionPane.YES_NO_CANCEL_OPTION);
+//      boolean loginResult = false;
+//      if (userResponse == JOptionPane.YES_OPTION) {
+//         loginResult = logIntoServer(ClientRequest.LOGIN);
+//      } else if (userResponse == JOptionPane.NO_OPTION) {
+//         loginResult = logIntoServer(ClientRequest.CREATE_ACCOUNT);
+//      }
+//      System.out.println(loginResult);
+//      if (loginResult) {
+//    	  ObjectInputStream ownedDocIn = null, editableDocIn = null;
+//    	  try {
+//			ownedDocIn = (ObjectInputStream) fromServer.readObject();
+//			editableDocIn = (ObjectInputStream) fromServer.readObject();
+//		} catch (ClassNotFoundException | IOException e) {
+//			e.printStackTrace();
+//		}
+//    	  new DocumentSelectGUI(ownedDocIn, editableDocIn);
 //         int response = JOptionPane.showConfirmDialog(null, "Create new document?", null, JOptionPane.YES_NO_OPTION);
 //         if (response == JOptionPane.YES_OPTION) {
 //            String theDoc = documentSelect(ClientRequest.CREATE_DOC);
 //         }
+      
+      	LoginGUI loginWindow = new LoginGUI(fromServer, toServer);
+
          loggedIn();
          ServerListener serverListener = new ServerListener();
          serverListener.start();
       }
-   }
 
    private boolean logIntoServer(ClientRequest command) {
       boolean logInSuccess = false;
@@ -149,6 +150,7 @@ public class ClientGUI extends JFrame {
       return docName;
    }
 
+   // TODO: this needs to be refactored; really confusing method name
    private void loggedIn() {
       // get screen size for proportional gui elements
       Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -161,7 +163,7 @@ public class ClientGUI extends JFrame {
       this.setDefaultCloseOperation(EXIT_ON_CLOSE);
       this.setLayout(new GridBagLayout());
       layoutGUI();
-      this.setVisible(true);
+      this.setVisible(false);
 
    }
 
@@ -285,7 +287,6 @@ public class ClientGUI extends JFrame {
       screenPanel.setVisible(true);
       screenPanel.add(scroll);
       this.add(screenPanel, c);
-      this.setVisible(true);
    }
 
    private class boldButtonListener implements ActionListener {

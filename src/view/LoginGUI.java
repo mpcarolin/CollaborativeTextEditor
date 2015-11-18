@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -19,8 +20,10 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import model.ClientRequest;
+import model.DocumentSelectGUI;
 import model.Server;
 import model.ServerResponse;
 
@@ -30,11 +33,11 @@ public class LoginGUI extends JFrame {
 		private final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		
 		// JFrame components
-		public JButton loginButton, createAccountButton, resetPassButton; 
-		public JTextField usernameField;
-		public JPasswordField passwordField;
-		private JLabel usernameLabel, passwordLabel;
-		private JPanel usernamePanel, passwordPanel, buttonPanel;
+		private JButton loginButton, createAccountButton, resetPassButton; 
+		private JTextField usernameField;
+		private JPasswordField passwordField;
+		private JLabel usernameLabel, passwordLabel, instructionLabel;
+		private JPanel usernamePanel, passwordPanel, bottomPanel, buttonPanel ;
 		
 		// Server connection variables
 		private ObjectInputStream fromServer;
@@ -63,6 +66,9 @@ public class LoginGUI extends JFrame {
 			usernameField = new JTextField(10);
 			passwordField = new JPasswordField(10);
 			
+			// message label indicating what the user should do
+			instructionLabel = new JLabel("Enter login credentials to login or create a new account", SwingConstants.CENTER);
+
 			// center panels for fields 
 			usernamePanel = new JPanel(new FlowLayout());
 			passwordPanel = new JPanel(new FlowLayout());
@@ -78,16 +84,26 @@ public class LoginGUI extends JFrame {
 			createAccountButton = new JButton("Create New Account");
 			resetPassButton = new JButton("Reset Password");
 			
+			// button listeners
+			loginButton.addActionListener(new loginButtonListener());
+			createAccountButton.addActionListener(new createAccountButtonListener());
+			
 			// button panel
 			buttonPanel = new JPanel(new FlowLayout());
 			buttonPanel.add(loginButton);
 			buttonPanel.add(createAccountButton);
 			buttonPanel.add(resetPassButton);
 			
+			// bottom panel
+			bottomPanel = new JPanel(new BorderLayout());
+			bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
+			bottomPanel.add(instructionLabel, BorderLayout.CENTER);
+
+			
 			// add everything to the parent JFrame
 			this.add(usernamePanel, BorderLayout.NORTH);
 			this.add(passwordPanel, BorderLayout.CENTER);
-			this.add(buttonPanel, BorderLayout.SOUTH);
+			this.add(bottomPanel, BorderLayout.SOUTH);
 			
 			// parent JFrame defaults
 			this.setLocation((int)(screenSize.getWidth()/4), (int)(screenSize.getHeight()/4));
@@ -108,37 +124,90 @@ public class LoginGUI extends JFrame {
 					toServer.writeObject(ClientRequest.LOGIN);
 					toServer.writeObject(username);
 					toServer.writeObject(password);
-					
+				
 					// get response and process it
 					ServerResponse response = (ServerResponse)fromServer.readObject();
+					System.out.println(response);
+					System.out.println("hello");
+					System.out.flush();
+	
 					switch(response) {
+
 					case LOGIN_SUCCESS:
-						// call document selector gui
+						instructionLabel.setText("Login Successful");
+						instructionLabel.setForeground(Color.BLACK);
+						// open the Document Selector GUI
+						new DocumentSelectGUI(fromServer, fromServer);
+						LoginGUI.this.setVisible(false);
 						break;
+
+					case LOGGED_IN:
+						instructionLabel.setText("User " + username + " is already logged in.");
+						instructionLabel.setForeground(Color.RED);
+						break;
+
 					case INCORRECT_USERNAME:
 						usernameField.setText("");
 						passwordField.setText("");
-						JOptionPane.showMessageDialog(LoginGUI.this, 
-								"Incorrect Username. Please try again.");
+						instructionLabel.setText("You entered an invalid username.");
+						instructionLabel.setForeground(Color.RED);
 						break;
+
 					case INCORRECT_PASSWORD:
 						passwordField.setText("");
-						JOptionPane.showMessageDialog(LoginGUI.this, 
-								"Incorrect Password. Please try again.");
+						instructionLabel.setText("You entered an invalid Password.");
+						instructionLabel.setForeground(Color.RED);
 						break;
+
 					default:
 						break;
 					}
 				} catch (IOException exception) {
 					exception.printStackTrace();
 				} catch (ClassNotFoundException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
-				
 			}
+		}
+		
+		private class createAccountButtonListener implements ActionListener {
 			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String username = usernameField.getText();
+					String password = passwordField.getPassword().toString();
+					
+					// send server username and password
+					toServer.writeObject(ClientRequest.CREATE_ACCOUNT);
+					toServer.writeObject(username);
+					toServer.writeObject(password);
+					
+					// read server response and process
+					ServerResponse response = (ServerResponse)fromServer.readObject();
+					System.out.println(response);
+
+					switch(response) {
+
+					case ACCOUNT_CREATED:
+						instructionLabel.setText("Account successfully created. Login to begin editing documents");
+						instructionLabel.setForeground(Color.BLACK);
+						break;
+
+					case ACCOUNT_EXISTS:
+						instructionLabel.setText("The username you entered already exists. Try again.");
+						instructionLabel.setForeground(Color.RED);
+						break;
+
+					default:
+						break;
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
 		}
 		
 		
