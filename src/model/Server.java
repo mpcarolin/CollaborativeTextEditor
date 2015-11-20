@@ -142,6 +142,7 @@ class ClientHandler extends Thread {
             isRunning = false;
          }
       }
+      logout();
       closeConnection();
    }
 
@@ -178,6 +179,7 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.INCORRECT_USERNAME);
       } else {
          user.setPassword(newPassword);
+         clientOut.writeObject(ServerResponse.PASSWORD_CHANGED); 
       }
    }
 
