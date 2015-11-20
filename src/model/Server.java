@@ -44,7 +44,7 @@ public class Server {
     */
    private static void hardCodeUsers() {
       allUsers.put("Daniel", new User("Daniel", "Avetian"));
-      allUsers.put("Micheal", new User("Michael", "Carolin"));
+      allUsers.put("Michael", new User("Michael", "Carolin"));
       allUsers.put("Jacob", new User("Jacob", "Groh"));
       allUsers.put("Filbert", new User("Filbert", "Johnson"));
       allUsers.put("Orzy", new User("Orzy", "Hazan"));
@@ -92,8 +92,9 @@ class ClientHandler extends Thread {
                if (authenticateUser()) {
                   JOptionPane.showMessageDialog(null, "User " + currentUser.getName() + " successfully logged in.");
                   sendDocumentList();
+               } else {
+                  JOptionPane.showMessageDialog(null, "Log in failed.");
                }
-               JOptionPane.showMessageDialog(null, "Log in failed.");
                break;
             case CREATE_ACCOUNT:
                if (createAccount()) {
@@ -102,8 +103,9 @@ class ClientHandler extends Thread {
                   // not sure if this needs to be here, the user wont have any
                   // documents yet
                   sendDocumentList();
+               } else {
+                  JOptionPane.showMessageDialog(null, "Account created failed");
                }
-               JOptionPane.showMessageDialog(null, "Account created failed");
                break;
             case CHANGE_PASSWORD:
                changePassword();
@@ -167,7 +169,7 @@ class ClientHandler extends Thread {
       }
       return false;
    }
-
+   
    private void changePassword() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String newPassword = (String) clientIn.readObject();
