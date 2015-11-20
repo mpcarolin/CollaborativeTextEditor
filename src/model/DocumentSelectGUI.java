@@ -26,9 +26,9 @@ public class DocumentSelectGUI extends JFrame {
 	// private static DefaultListModel<String> ownedList, editList;
 	// private static TableModel ownedTable, editTable;
 
-//	 public static void main(String[] args) {
-//	 new DocumentSelectGUI(null, null);
-//	 }
+	// public static void main(String[] args) {
+	// new DocumentSelectGUI(null, null);
+	// }
 
 	public DocumentSelectGUI(ObjectInputStream fromServer) {
 		this.fromServer = fromServer;
@@ -40,7 +40,7 @@ public class DocumentSelectGUI extends JFrame {
 		// Create the document GUI
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Documents");
+		this.setTitle("Document Selector Hub");
 		setSize(900, 500);
 		setLocation(300, 80);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,26 +54,44 @@ public class DocumentSelectGUI extends JFrame {
 		optionPanel = new JPanel();
 		optionPanel.setLayout(new BorderLayout());
 		optionPanel.setSize(300, 500);
-		optionPanel.setLocation(0, 0);
+		optionPanel.setLocation(600, 0);
 		optionPanel.setBackground(Color.BLUE);
 		thePanel.add(optionPanel);
 
 		docPanel = new JPanel();
 		docPanel.setLayout(new GridLayout(1, 1, 2, 2));
 		docPanel.setSize(600, 480);
-		docPanel.setLocation(300, 20);
+		docPanel.setLocation(0, 20);
 		docPanel.setBackground(Color.GREEN);
 		thePanel.add(docPanel);
+
+		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
+		documentLabel.setFont(new Font("default", Font.BOLD, 13));
+		documentLabel.setSize(600, 20);
+		documentLabel.setLocation(0, 0);
+		thePanel.add(documentLabel);
 
 		JLabel optionLabel = new JLabel("Options", SwingConstants.CENTER);
 		optionLabel.setFont(new Font("default", Font.BOLD, 13));
 		optionPanel.add(optionLabel, BorderLayout.NORTH);
 
-		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
-		documentLabel.setFont(new Font("default", Font.BOLD, 13));
-		documentLabel.setSize(600, 20);
-		documentLabel.setLocation(300, 0);
-		thePanel.add(documentLabel);
+		JPanel optionPanelInner = new JPanel();
+		optionPanelInner.setLayout(new GridLayout(3, 1, 2, 2));
+		// JPanel typePanel = new JPanel();
+		// typePanel.setLayout(null);
+		JLabel ownedLabel = new JLabel("Owned: ");
+		// ownedLabel.setSize(100, 50);
+		// ownedLabel.setLocation(5, 5);
+		JLabel canEditLabel = new JLabel("Can Edit: ");
+		// canEditLabel.setSize(100, 50);
+		// canEditLabel.setLocation(5, 60);
+		JLabel canViewLabel = new JLabel("Can View: ");
+		// canViewLabel.setSize(100, 50);
+		// canViewLabel.setLocation(5, 115);
+		optionPanelInner.add(ownedLabel);
+		optionPanelInner.add(canEditLabel);
+		optionPanelInner.add(canViewLabel);
+		optionPanel.add(optionPanelInner, BorderLayout.CENTER);
 
 		TableModel ownedTable = null;
 		try {

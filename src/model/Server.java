@@ -105,6 +105,9 @@ class ClientHandler extends Thread {
                }
                JOptionPane.showMessageDialog(null, "Account created failed");
                break;
+            case CHANGE_PASSWORD:
+               changePassword();
+               break;
             case CHAT_MSG:
                updateChat();
                break;
@@ -165,7 +168,18 @@ class ClientHandler extends Thread {
       return false;
    }
 
-   public void sendDocumentList() throws IOException {
+   private void changePassword() throws ClassNotFoundException, IOException {
+      String username = (String) clientIn.readObject();
+      String newPassword = (String) clientIn.readObject();
+      User user = Server.allUsers.get(username);
+      if (user == null) {
+         clientOut.writeObject(ServerResponse.INCORRECT_USERNAME);
+      } else {
+         user.setPassword(newPassword);
+      }
+   }
+
+   private void sendDocumentList() throws IOException {
       clientOut.writeObject(currentUser.getOwnedDocuments());
       clientOut.writeObject(currentUser.getEditableDocuments());
    }
@@ -236,13 +250,30 @@ class ClientHandler extends Thread {
     */
    private void readDocument() throws ClassNotFoundException, IOException {
       currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
-      updateDoc();
    }
-   
+
    public void writeDocument() {
-      
+      removeStreams = false;
+      Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
+      for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
+         if (editorOutStream == clientOut) {
+            continue;
+            // maybe this can be removed now?
+         }
+         try {
+            editorOutStream.reset();
+            editorOutStream.writeObject(currentOpenDoc.getText());
+         } catch (IOException e) {
+            removeStreams = true;
+            closedEditors.add(editorOutStream);
+         }
+      }
+      if (removeStreams) {
+         currentOpenDoc.removeClosedEditorStreams(closedEditors);
+         removeStreams = false;
+      }
    }
-   
+
    private void closeDocument() {
 
    }
@@ -252,55 +283,15 @@ class ClientHandler extends Thread {
     * clientOutStreams list Keeps track of the clientOutStreams that have
     * disconnected and removes them
     */
-   private void updateDoc() {
-      removeStreams = false;
-      Set<ObjectOutputStream> closed = new HashSet<>();
-      for (ObjectOutputStream client : Server.clientOutStreams) {
-         if (client == clientOut) {
-            continue;
-            // maybe this can be removed now?
-         }
-         try {
-            client.reset();
-            client.writeObject(currentOpenDoc.getText());
-         } catch (IOException e) {
-            removeStreams = true;
-            closed.add(client);
-         }
-         if (removeStreams) {
-            Server.clientOutStreams.removeAll(closed);
-            removeStreams = false;
-            closed = new HashSet<ObjectOutputStream>();
-         }
-      }
-   }
 
-   private void readChat() {
-
-   }
-
-   private void writeChat() {
-
-   }
 
    /*
     * Reads in the new chat message from the client, and sends it to all of the
     * clientOutStreams in the client list Keeps track of the clientOutStreams
     * that have disconnected and removes them
     */
-   private void updateChat() {
-      String chatMessage = null;
-      try {
-         chatMessage = (String) clientIn.readObject();
-      } catch (ClassNotFoundException e1) {
-         e1.printStackTrace();
-      } catch (IOException e1) {
-         e1.printStackTrace();
-         Server.clientOutStreams.remove(clientOut);
-         isRunning = false;
-         return;
-      }
-
+   private void updateChat() throws ClassNotFoundException, IOException {
+      String chatMessage = (String) clientIn.readObject();
       removeStreams = false;
       Set<ObjectOutputStream> closed = new HashSet<>();
       for (ObjectOutputStream client : Server.clientOutStreams) {
@@ -314,7 +305,6 @@ class ClientHandler extends Thread {
          if (removeStreams) {
             Server.clientOutStreams.removeAll(closed);
             removeStreams = false;
-            closed = new HashSet<ObjectOutputStream>();
          }
       }
    }
