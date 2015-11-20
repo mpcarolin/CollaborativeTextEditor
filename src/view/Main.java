@@ -1,11 +1,16 @@
 package view;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 import model.DocumentSelectGUI;
+import model.Server;
 
 public class Main {
+
+   private static final String ADDRESS = "localhost";
 	
 	
 	public static void main(String[] args) {
@@ -13,14 +18,28 @@ public class Main {
 		// open connection
 		ObjectInputStream fromServer = null;
 		ObjectOutputStream toServer = null;
+		Socket server = null;
+
+	    try {
+	    		server = new Socket(ADDRESS, Server.SERVER_PORT);
+	    		toServer = new ObjectOutputStream(server.getOutputStream());
+	    		fromServer = new ObjectInputStream(server.getInputStream());
+	       } catch (IOException e) {
+	          e.printStackTrace();
+	       }
+
 	
 		LoginGUI login = new LoginGUI(fromServer, toServer);
-		boolean loginComplete = login.open();
-
-		if (loginComplete) {
-			DocumentSelectGUI selector = new DocumentSelectGUI(); 
-			boolean selectionComplete = selector.open();
+		
+		while (login.isVisible()) {
+			try {
+				Thread.sleep(3);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
+
+        DocumentSelectGUI selector = new DocumentSelectGUI(fromServer); 
 		
 	}
 

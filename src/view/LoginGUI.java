@@ -48,7 +48,7 @@ public class LoginGUI extends JFrame {
 			this.toServer = toServer;
 			layoutGUI();
 		}
-
+		
 		private void layoutGUI() {
 			// set program's dimensions
 			int windowWidth = (int) (screenSize.getWidth() * 0.35);
@@ -116,7 +116,7 @@ public class LoginGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// get username and password
 				String username = usernameField.getText();
-				String password = passwordField.getPassword().toString();
+				String password = passwordField.getText();
 				
 				try {
 					// send to server and wait response
@@ -126,9 +126,6 @@ public class LoginGUI extends JFrame {
 				
 					// get response and process it
 					ServerResponse response = (ServerResponse)fromServer.readObject();
-					System.out.println(response);
-					System.out.println("hello");
-					System.out.flush();
 	
 					switch(response) {
 
@@ -136,8 +133,9 @@ public class LoginGUI extends JFrame {
 						instructionLabel.setText("Login Successful");
 						instructionLabel.setForeground(Color.BLACK);
 						// open the Document Selector GUI
-						new DocumentSelectGUI(fromServer);
+						//new DocumentSelectGUI(fromServer);
 						LoginGUI.this.setVisible(false);
+						LoginGUI.this.dispose();
 						break;
 
 					case LOGGED_IN:
@@ -175,7 +173,7 @@ public class LoginGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					String username = usernameField.getText();
-					String password = passwordField.getPassword().toString();
+					String password = passwordField.getText();
 					
 					// send server username and password
 					toServer.writeObject(ClientRequest.CREATE_ACCOUNT);
@@ -189,8 +187,12 @@ public class LoginGUI extends JFrame {
 					switch(response) {
 
 					case ACCOUNT_CREATED:
-						instructionLabel.setText("Account successfully created. Login to begin editing documents");
+						instructionLabel.setText("Account successfully created.");
 						instructionLabel.setForeground(Color.BLACK);
+						
+						// server auto-logs user in after
+						LoginGUI.this.setVisible(false);
+						LoginGUI.this.dispose();
 						break;
 
 					case ACCOUNT_EXISTS:
