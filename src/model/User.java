@@ -16,6 +16,7 @@ public class User implements Serializable {
     * make sure these are the same id+password hash stored 8 digits
     */
    private String username;
+   private int id;
    private int salt;
    private int hashPass;
    private boolean loggedIn;
@@ -33,7 +34,6 @@ public class User implements Serializable {
       hashPass = (salt + pass).hashCode();
       ownedDocuments = Collections.synchronizedList(new ArrayList<String>());
       editableDocuments = Collections.synchronizedList(new ArrayList<String>()); 
-      loggedIn = false;
    }
 
    public String getName() {
