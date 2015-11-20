@@ -91,7 +91,6 @@ class ClientHandler extends Thread {
             case LOGIN:
                if (authenticateUser()) {
                   JOptionPane.showMessageDialog(null, "User " + currentUser.getName() + " successfully logged in.");
-                  sendDocumentList();
                } else {
                   JOptionPane.showMessageDialog(null, "Log in failed.");
                }
@@ -100,9 +99,6 @@ class ClientHandler extends Thread {
                if (createAccount()) {
                   JOptionPane.showMessageDialog(null,
                         "User account " + currentUser.getName() + " created successfully.");
-                  // not sure if this needs to be here, the user wont have any
-                  // documents yet
-                  sendDocumentList();
                } else {
                   JOptionPane.showMessageDialog(null, "Account created failed");
                }
@@ -110,6 +106,8 @@ class ClientHandler extends Thread {
             case CHANGE_PASSWORD:
                changePassword();
                break;
+            case GET_DOCS:
+               sendDocumentList();
             case CHAT_MSG:
                updateChat();
                break;
