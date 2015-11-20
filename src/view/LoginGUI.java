@@ -87,6 +87,7 @@ public class LoginGUI extends JFrame {
 			// button listeners
 			loginButton.addActionListener(new loginButtonListener());
 			createAccountButton.addActionListener(new createAccountButtonListener());
+			resetPassButton.addActionListener(new ResetAccountButtonListener());
 			
 			// button panel
 			buttonPanel = new JPanel(new FlowLayout());
@@ -131,7 +132,6 @@ public class LoginGUI extends JFrame {
 
 					case LOGIN_SUCCESS:
 						instructionLabel.setText("Login Successful");
-						instructionLabel.setForeground(Color.BLACK);
 						// open the Document Selector GUI
 						//new DocumentSelectGUI(fromServer);
 						LoginGUI.this.setVisible(false);
@@ -188,7 +188,7 @@ public class LoginGUI extends JFrame {
 
 					case ACCOUNT_CREATED:
 						instructionLabel.setText("Account successfully created.");
-						instructionLabel.setForeground(Color.BLACK);
+						instructionLabel.setForeground(Color.GREEN);
 						
 						// server auto-logs user in after
 						LoginGUI.this.setVisible(false);
@@ -208,6 +208,33 @@ public class LoginGUI extends JFrame {
 				} catch (ClassNotFoundException e1) {
 					e1.printStackTrace();
 				}
+			}
+		}
+		
+		private class ResetAccountButtonListener implements ActionListener {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+					String username = usernameField.getText();
+					String newPassword = passwordField.getText();
+				
+					toServer.writeObject(ClientRequest.CHANGE_PASSWORD);
+					toServer.writeObject(username);
+					toServer.writeObject(newPassword);
+					
+					ServerResponse response = (ServerResponse)fromServer.readObject();
+					switch (response) {
+						case PASSWORD_CHANGED:
+							instructionLabel.setText("Password reset for user " + username + " was successful.");
+							instructionLabel.setForeground(Color.GREEN);
+						case INCORRECT_USERNAME:
+							usernameField.setText("");
+							instructionLabel.setText("No account found for username " + username);
+							instructionLabel.setForeground(Color.RED);
+							break;
+						default:
+							break;
+					}
 			}
 		}
 		
