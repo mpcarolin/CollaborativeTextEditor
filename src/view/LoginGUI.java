@@ -218,23 +218,33 @@ public class LoginGUI extends JFrame {
 					String username = usernameField.getText();
 					String newPassword = passwordField.getText();
 				
-					toServer.writeObject(ClientRequest.CHANGE_PASSWORD);
-					toServer.writeObject(username);
-					toServer.writeObject(newPassword);
-					
-					ServerResponse response = (ServerResponse)fromServer.readObject();
-					switch (response) {
-						case PASSWORD_CHANGED:
-							instructionLabel.setText("Password reset for user " + username + " was successful.");
-							instructionLabel.setForeground(Color.GREEN);
-						case INCORRECT_USERNAME:
-							usernameField.setText("");
-							instructionLabel.setText("No account found for username " + username);
-							instructionLabel.setForeground(Color.RED);
-							break;
-						default:
-							break;
+					try {
+						toServer.writeObject(ClientRequest.CHANGE_PASSWORD);
+						toServer.writeObject(username);
+						toServer.writeObject(newPassword);
+						
+						ServerResponse response = (ServerResponse)fromServer.readObject();
+						switch (response) {
+							case PASSWORD_CHANGED:
+								instructionLabel.setText("Password reset for user " + username + " was successful.");
+								instructionLabel.setForeground(Color.GREEN);
+								break;
+							case INCORRECT_USERNAME:
+								usernameField.setText("");
+								instructionLabel.setText("No account found for username " + username);
+								instructionLabel.setForeground(Color.RED);
+								break;
+							default:
+								break;
+						}
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
+
 			}
 		}
 		
