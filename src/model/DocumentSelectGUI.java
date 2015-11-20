@@ -6,8 +6,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,8 +41,8 @@ public class DocumentSelectGUI extends JFrame {
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Document Selector Hub");
-		setSize(900, 500);
-		setLocation(300, 80);
+		this.setSize(900, 520);
+		this.setLocation(300, 80);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and add a panel to the document GUI
@@ -76,21 +76,33 @@ public class DocumentSelectGUI extends JFrame {
 		optionPanel.add(optionLabel, BorderLayout.NORTH);
 
 		JPanel optionPanelInner = new JPanel();
-		optionPanelInner.setLayout(new GridLayout(3, 1, 2, 2));
+		optionPanelInner.setLayout(new GridLayout(2, 1, 2, 2));
+		JPanel topInnerOption = new JPanel();
+		topInnerOption.setLayout(new BorderLayout());
+		JPanel bottomInnerOption = new JPanel();
+		bottomInnerOption.setLayout(new BorderLayout());
+
+		JButton removeUser = new JButton("Remove User");
+		JButton addUser = new JButton("Add User");
+		topInnerOption.add(removeUser, BorderLayout.SOUTH);
+		bottomInnerOption.add(addUser, BorderLayout.SOUTH);
+
 		// JPanel typePanel = new JPanel();
 		// typePanel.setLayout(null);
-		JLabel ownedLabel = new JLabel("Owned: ");
+		// JLabel ownedLabel = new JLabel("Owned: ");
 		// ownedLabel.setSize(100, 50);
 		// ownedLabel.setLocation(5, 5);
-		JLabel canEditLabel = new JLabel("Can Edit: ");
+		// JLabel canEditLabel = new JLabel("Can Edit: ");
 		// canEditLabel.setSize(100, 50);
 		// canEditLabel.setLocation(5, 60);
-		JLabel canViewLabel = new JLabel("Can View: ");
+		// JLabel canViewLabel = new JLabel("Can View: ");
 		// canViewLabel.setSize(100, 50);
 		// canViewLabel.setLocation(5, 115);
-		optionPanelInner.add(ownedLabel);
-		optionPanelInner.add(canEditLabel);
-		optionPanelInner.add(canViewLabel);
+		// optionPanelInner.add(ownedLabel);
+		// optionPanelInner.add(canEditLabel);
+		// optionPanelInner.add(canViewLabel);
+		optionPanelInner.add(topInnerOption);
+		optionPanelInner.add(bottomInnerOption);
 		optionPanel.add(optionPanelInner, BorderLayout.CENTER);
 
 		TableModel ownedTable = null;
