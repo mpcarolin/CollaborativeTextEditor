@@ -2,21 +2,18 @@ package model;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 public class DocumentSelectGUI extends JFrame {
 
@@ -44,25 +41,26 @@ public class DocumentSelectGUI extends JFrame {
 		this.setSize(900, 520);
 		this.setLocation(300, 80);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setResizable(false);
 
 		// Create and add a panel to the document GUI
 		thePanel = new JPanel();
 		thePanel.setLayout(null);
-		thePanel.setBackground(Color.RED);
+		// thePanel.setBackground(Color.LIGHT_GRAY);
 		this.add(thePanel);
 
 		optionPanel = new JPanel();
 		optionPanel.setLayout(new BorderLayout());
 		optionPanel.setSize(300, 500);
 		optionPanel.setLocation(600, 0);
-		optionPanel.setBackground(Color.BLUE);
+		// optionPanel.setBackground(Color.LIGHT_GRAY);
 		thePanel.add(optionPanel);
 
 		docPanel = new JPanel();
 		docPanel.setLayout(new GridLayout(1, 1, 2, 2));
 		docPanel.setSize(600, 480);
 		docPanel.setLocation(0, 20);
-		docPanel.setBackground(Color.GREEN);
+		// docPanel.setBackground(Color.LIGHT_GRAY);
 		thePanel.add(docPanel);
 
 		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
@@ -71,7 +69,7 @@ public class DocumentSelectGUI extends JFrame {
 		documentLabel.setLocation(0, 0);
 		thePanel.add(documentLabel);
 
-		JLabel optionLabel = new JLabel("Options", SwingConstants.CENTER);
+		JLabel optionLabel = new JLabel("Document Sharing", SwingConstants.CENTER);
 		optionLabel.setFont(new Font("default", Font.BOLD, 13));
 		optionPanel.add(optionLabel, BorderLayout.NORTH);
 
@@ -84,8 +82,22 @@ public class DocumentSelectGUI extends JFrame {
 
 		JButton removeUser = new JButton("Remove User");
 		JButton addUser = new JButton("Add User");
+		JPanel topHolder = new JPanel();
+		topHolder.setLayout(new BorderLayout());
+		JPanel bottomHolder = new JPanel();
+		bottomHolder.setLayout(new BorderLayout());
+		topInnerOption.add(topHolder, BorderLayout.CENTER);
 		topInnerOption.add(removeUser, BorderLayout.SOUTH);
+		bottomInnerOption.add(bottomHolder, BorderLayout.CENTER);
 		bottomInnerOption.add(addUser, BorderLayout.SOUTH);
+
+		// JList<String> userPanel = new JList<String>();
+		// userPanel.add(optionLabel);
+		// bottomHolder.add(userPanel, BorderLayout.CENTER);
+
+		JTextField searchBar = new JTextField();
+		searchBar.setText("Search for username here.");
+		bottomHolder.add(searchBar, BorderLayout.SOUTH);
 
 		// JPanel typePanel = new JPanel();
 		// typePanel.setLayout(null);
@@ -105,48 +117,62 @@ public class DocumentSelectGUI extends JFrame {
 		optionPanelInner.add(bottomInnerOption);
 		optionPanel.add(optionPanelInner, BorderLayout.CENTER);
 
-		TableModel ownedTable = null;
-		try {
-			ownedTable = (TableModel) fromServer.readObject();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		JTable owned = new JTable(ownedTable);
-		owned.setModel(ownedTable);
-		JScrollPane scrollPane = new JScrollPane(owned);
-		TableRowSorter<TableModel> tableSort = new TableRowSorter<TableModel>();
-		tableSort.setModel(ownedTable);
-		// RowSorter<TableModel> rowSort = tableSort;
-		owned.setAutoCreateRowSorter(true);
-		owned.getSelectionModel().setSelectionInterval(0, 0);
-
-		TableModel editTable = null;
-		try {
-			editTable = (TableModel) fromServer.readObject();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		JTable edit = new JTable(editTable);
-		edit.setModel(editTable);
-		JScrollPane scrollPaneEdit = new JScrollPane(edit);
-		TableRowSorter<TableModel> tableSortEdit = new TableRowSorter<TableModel>();
-		tableSortEdit.setModel(editTable);
-		// RowSorter<TableModel> rowSortEdit = tableSortEdit;
-		edit.setAutoCreateRowSorter(true);
-		edit.getSelectionModel().setSelectionInterval(0, 0);
-
+		// TableModel ownedTable = null;
+		// try {
+		// ownedTable = (TableModel) fromServer.readObject();
+		// } catch (ClassNotFoundException e) {
+		// e.printStackTrace();
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		// JTable owned = new JTable(ownedTable);
+		// owned.setModel(ownedTable);
+		// JScrollPane scrollPane = new JScrollPane(owned);
+		// TableRowSorter<TableModel> tableSort = new
+		// TableRowSorter<TableModel>();
+		// tableSort.setModel(ownedTable);
+		// // RowSorter<TableModel> rowSort = tableSort;
+		// owned.setAutoCreateRowSorter(true);
+		// owned.getSelectionModel().setSelectionInterval(0, 0);
+		//
+		// TableModel editTable = null;
+		// try {
+		// editTable = (TableModel) fromServer.readObject();
+		// } catch (ClassNotFoundException e) {
+		// e.printStackTrace();
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		// JTable edit = new JTable(editTable);
+		// edit.setModel(editTable);
+		// JScrollPane scrollPaneEdit = new JScrollPane(edit);
+		// TableRowSorter<TableModel> tableSortEdit = new
+		// TableRowSorter<TableModel>();
+		// tableSortEdit.setModel(editTable);
+		// // RowSorter<TableModel> rowSortEdit = tableSortEdit;
+		// edit.setAutoCreateRowSorter(true);
+		// edit.getSelectionModel().setSelectionInterval(0, 0);
 		JPanel holder = new JPanel();
 		holder.setLayout(new BorderLayout());
-		docPanel.add(holder);
+
+		JPanel docButtons = new JPanel();
+		docButtons.setLayout(new FlowLayout());
+		holder.add(docButtons, BorderLayout.SOUTH);
+		JButton createDoc = new JButton("Create Document");
+		JButton deleteDoc = new JButton("Delete Document");
+		JButton openDoc = new JButton("Open Document");
+		JButton refreshList = new JButton("Refresh List");
+		docButtons.add(createDoc);
+		docButtons.add(deleteDoc);
+		docButtons.add(openDoc);
+		docButtons.add(refreshList);
+
 		JTabbedPane tabbedDocs = new JTabbedPane();
-		tabbedDocs.add("Owned Documents", scrollPane);
-		tabbedDocs.add("Editable Documents", scrollPaneEdit);
-		tabbedDocs.setBackground(Color.GREEN);
-		holder.add(tabbedDocs);
+		tabbedDocs.add("Owned Documents", null);// scrollPane
+		tabbedDocs.add("Editable Documents", null);// scrollPaneEdit
+		tabbedDocs.setBackground(Color.DARK_GRAY);
+		holder.add(tabbedDocs, BorderLayout.CENTER);
+		docPanel.add(holder);
 
 	}
 }
