@@ -14,14 +14,16 @@ public class Revision {
 	private LocalTime revisingTime;
 	private LocalDate revisingDate;
 	private LinkedList<String> revisingActions;
+	private int caretPosition;
 	
 
-	public Revision(String newText, String oldText, String revisingUser) {
+	public Revision(String newText, String oldText, String revisingUser, int caretPosition) {
 		this.newText = newText;
 		this.revisingUser = revisingUser;
 		revisingTime = LocalTime.now();
 		revisingDate = LocalDate.now();
 		revisingActions = new LinkedList<String>();
+		this.caretPosition = caretPosition;
 
 		// gather the differences between newText and the oldText
 		diff_match_patch differences = new diff_match_patch();
@@ -84,7 +86,7 @@ public class Revision {
 	
 	// testing
 	public static void main(String[] args) {
-		Revision rev = new Revision("Hello world, planet earth", "ello wurld original whoooo", "James");
+		Revision rev = new Revision("Hello world, planet earth", "ello wurld original whoooo", "James", 20);
 		System.out.println(rev);
 	}
 
