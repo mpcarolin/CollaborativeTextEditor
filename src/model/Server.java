@@ -29,7 +29,10 @@ public class Server {
    static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
 
    public static void main(String[] args) throws IOException {
-
+      
+      JOptionPane.showMessageDialog(null, "Complete team breakdown.", "ERROR",
+            JOptionPane.ERROR_MESSAGE);
+      
       hardCodeUsers();
       try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
          System.out.println("Server started on port " + SERVER_PORT);
@@ -59,11 +62,9 @@ class ClientHandler extends Thread {
 
    private Socket clientSocket;
    private ObjectInputStream clientIn; // clientIn stream of the new client
-   private ObjectOutputStream clientOut; // output stream of the new client (not
-                                         // in list yet)
+   private ObjectOutputStream clientOut; // output stream of the new client 
    private User currentUser; // current user logged in
    private OpenDocument currentOpenDoc; // current document being edited by the
-                                        // user
    private boolean isRunning, removeStreams; // booleans...
 
    public ClientHandler(Socket clientSocket) {
@@ -141,9 +142,31 @@ class ClientHandler extends Thread {
          }
       }
       logout();
-      closeConnection();
+   }
+   
+   /*
+    * Gets the username and password from the client, and creates a new
+    * userAccount Verifies that the username is unique Returns a boolean
+    * indicating whether the account was successfully created or not
+    */
+   private boolean createAccount() throws ClassNotFoundException, IOException {
+      String username = (String) clientIn.readObject();
+      String password = (String) clientIn.readObject();
+      if (Server.allUsers.get(username) != null) {
+         clientOut.writeObject(ServerResponse.ACCOUNT_EXISTS);
+      } else {
+         User newUser = new User(username, password);
+         Server.allUsers.put(username, newUser);
+         newUser.setLogin(true);
+         currentUser = newUser;
+         Server.clientOutStreams.add(clientOut);
+         clientOut.writeObject(ServerResponse.ACCOUNT_CREATED);
+         return true;
+      }
+      return false;
    }
 
+   
    /*
     * Gets the credentials from the client and checks if the match a user
     * account Verifies that the user is not already logged in
@@ -186,28 +209,6 @@ class ClientHandler extends Thread {
       clientOut.writeObject(currentUser.getEditableDocuments());
    }
 
-   /*
-    * Gets the username and password from the client, and creates a new
-    * userAccount Verifies that the username is unique Returns a boolean
-    * indicating whether the account was successfully created or not
-    */
-   private boolean createAccount() throws ClassNotFoundException, IOException {
-      String username = (String) clientIn.readObject();
-      String password = (String) clientIn.readObject();
-      if (Server.allUsers.get(username) != null) {
-         clientOut.writeObject(ServerResponse.ACCOUNT_EXISTS);
-      } else {
-         User newUser = new User(username, password);
-         Server.allUsers.put(username, newUser);
-         newUser.setLogin(true);
-         currentUser = newUser;
-         Server.clientOutStreams.add(clientOut);
-         clientOut.writeObject(ServerResponse.ACCOUNT_CREATED);
-         return true;
-      }
-      return false;
-   }
-
    private boolean createDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       if (Server.allDocuments.get(docName) != null) {
@@ -240,31 +241,34 @@ class ClientHandler extends Thread {
          currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
       }
    }
+   
+   /*
+    * Reads in the new chat message from the client, and sends it to all of the
+    * clientOutStreams in the client list Keeps track of the clientOutStreams
+    * that have disconnected and removes them
+    */
+   private void updateChat() throws ClassNotFoundException, IOException {
+      String chatMessage = (String) clientIn.readObject();
+      sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage);
+   }
 
    private void updateDocument() throws ClassNotFoundException, IOException {
-      readDocument();
-      writeDocument();
-   }
-
-   /*
-    * Read the updated document from the client Calls updateDoc() if the
-    * document is successfully read
-    */
-   private void readDocument() throws ClassNotFoundException, IOException {
       currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
+      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText());
    }
 
-   public void writeDocument() {
+   public void sendUpdateToClients(ServerResponse response, String text) {
       removeStreams = false;
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
-         if (editorOutStream == clientOut) {
+         if (response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
             continue;
             // maybe this can be removed now?
          }
          try {
             editorOutStream.reset();
-            editorOutStream.writeObject(currentOpenDoc.getText());
+            editorOutStream.writeObject(response);
+            editorOutStream.writeObject(text);
          } catch (IOException e) {
             removeStreams = true;
             closedEditors.add(editorOutStream);
@@ -285,31 +289,6 @@ class ClientHandler extends Thread {
     * clientOutStreams list Keeps track of the clientOutStreams that have
     * disconnected and removes them
     */
-
-
-   /*
-    * Reads in the new chat message from the client, and sends it to all of the
-    * clientOutStreams in the client list Keeps track of the clientOutStreams
-    * that have disconnected and removes them
-    */
-   private void updateChat() throws ClassNotFoundException, IOException {
-      String chatMessage = (String) clientIn.readObject();
-      removeStreams = false;
-      Set<ObjectOutputStream> closed = new HashSet<>();
-      for (ObjectOutputStream client : Server.clientOutStreams) {
-         try {
-            client.reset();
-            client.writeObject(chatMessage);
-         } catch (IOException e) {
-            removeStreams = true;
-            closed.add(client);
-         }
-         if (removeStreams) {
-            Server.clientOutStreams.removeAll(closed);
-            removeStreams = false;
-         }
-      }
-   }
 
    private void logout() {
       Server.clientOutStreams.remove(clientOut);
