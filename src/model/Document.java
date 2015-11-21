@@ -20,10 +20,6 @@ public class Document {
 		currentText = "";
 	}
 	
-	@Deprecated	// Dan: use the new method that specifies the revising user as an arg
-	public void replaceText(String newText) {
-		currentText = newText;
-	}
 	
 	public void replaceText(String newText, String revisingUser) {
 		currentText = newText;
@@ -35,15 +31,11 @@ public class Document {
 	}
 	
 	// creates a new revision object with revising user and a caret location
-	public void makeRevision(String newText, String revisingUser, int caretLocation) {
+	public void saveRevision(String newText, String revisingUser) {
 		if (history.size() > NUM_REVISIONS_STORED) {
 			history.remove(0);
 		}
-		Revision revision = new Revision(newText, currentText, revisingUser,caretLocation);
-		this.currentText = newText;
-	}
-	
-	public void makeRevision(String newText) {
+		Revision revision = new Revision(newText, currentText, revisingUser);
 		this.currentText = newText;
 	}
 	
@@ -71,7 +63,7 @@ public class Document {
 			history.remove(0);
 		}
 
-		Revision revision = new Revision(newText, currentText, revisingUser, caretLocation); 
+		Revision revision = new Revision(newText, currentText, revisingUser); 
 		history.push(revision);
 	}
 	
