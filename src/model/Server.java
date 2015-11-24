@@ -43,7 +43,7 @@ public class Server {
    }
 
    /*
-    * Hard code some users for testing purposes
+    * Hard code some Users for testing purposes
     */
    private static void hardCodeUsers() {
       allUsers.put("Daniel", new User("Daniel", "Avetian"));
@@ -53,6 +53,9 @@ public class Server {
       allUsers.put("Orzy", new User("Orzy", "Hazan"));
    }
    
+   /*
+    * Hard code some Documents for testing purposes
+    */
    private static void hardCodeDocs() {
       allDocuments.put("DanielsDoc", new Document("DanielsDoc", "Daniel"));
       allDocuments.put("MichaelDoc", new Document("MichaelsDoc", "Michael"));

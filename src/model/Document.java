@@ -17,6 +17,7 @@ public class Document {
 	public Document(String documentName, String ownerName) {
 		this.documentName = documentName;
 		this.ownerName = ownerName;
+		editorNames = new LinkedList<String>();
 		editorNames.add(ownerName);
 		history = new Stack<Revision>();
 		currentText = "";
