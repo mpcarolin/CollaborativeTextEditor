@@ -1,5 +1,5 @@
 /*
- * Code that handles everything for the server (for now)
+ * Code that handles everything for the server
  */
 
 package model;
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,18 +22,18 @@ import javax.swing.JOptionPane;
 
 public class Server {
 
-   public static final int SERVER_PORT = 9001;
+   public static final int SERVER_PORT = 9002;
 
    static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    static Map<String, Document> allDocuments = Collections.synchronizedMap(new HashMap<>());
    static Map<String, OpenDocument> openDocuments = Collections.synchronizedMap(new HashMap<>());
    static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
 
+  
+   /*
+    * Listens for new incoming client connections, and creates a ClientHandler to deal with them. 
+    */
    public static void main(String[] args) throws IOException {
-      
-      JOptionPane.showMessageDialog(null, "Complete team breakdown.", "ERROR",
-            JOptionPane.ERROR_MESSAGE);
-      
       hardCodeUsers();
       try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
          System.out.println("Server started on port " + SERVER_PORT);
@@ -56,17 +57,21 @@ public class Server {
 
 /*
  * Client handler that is created and started each time a new connection is
- * created Handles everything for one client (for now)
+ * created. Handles everything for one client
  */
 class ClientHandler extends Thread {
 
    private Socket clientSocket;
    private ObjectInputStream clientIn; // clientIn stream of the new client
-   private ObjectOutputStream clientOut; // output stream of the new client 
+   private ObjectOutputStream clientOut; // output stream of the new client
    private User currentUser; // current user logged in
    private OpenDocument currentOpenDoc; // current document being edited by the
    private boolean isRunning, removeStreams; // booleans...
 
+   
+   /*
+    * Opens the Input and Output Streams. 
+    */
    public ClientHandler(Socket clientSocket) {
       this.clientSocket = clientSocket;
       try {
@@ -80,46 +85,49 @@ class ClientHandler extends Thread {
       }
    }
 
+   /*
+    * While the thread is still running, get the next ClientRequest from the
+    * client, and call the respective method.
+    */
    @Override
    public void run() {
-      // While the thread is still isRunning, get the next ClientRequest from
-      // the client, and call the respective method
       ClientRequest command;
       while (isRunning) {
          try {
             command = (ClientRequest) clientIn.readObject();
             switch (command) {
             case LOGIN:
-               if (authenticateUser()) {
-                  JOptionPane.showMessageDialog(null, "User " + currentUser.getName() + " successfully logged in.");
-               } else {
-                  JOptionPane.showMessageDialog(null, "Log in failed.");
-               }
+               authenticateUser();
                break;
             case CREATE_ACCOUNT:
-               if (createAccount()) {
-                  JOptionPane.showMessageDialog(null,
-                        "User account " + currentUser.getName() + " created successfully.");
-               } else {
-                  JOptionPane.showMessageDialog(null, "Account created failed");
-               }
+               createAccount();
                break;
             case CHANGE_PASSWORD:
                changePassword();
                break;
             case GET_DOCS:
                sendDocumentList();
+               break;
+            case GET_USERS:
+               searchUsers();
+               break;
             case CHAT_MSG:
                updateChat();
                break;
             case CREATE_DOC:
                createDocument();
                break;
+            case ADD_PERMISSION:
+               addPermission();
+               break;
             case OPEN_DOC:
                openDocument();
                break;
             case DOC_TEXT:
                updateDocument();
+               break;
+            case SAVE_REVISION:
+               saveRevision();
                break;
             case CLOSE_DOC:
                closeDocument();
@@ -143,11 +151,10 @@ class ClientHandler extends Thread {
       }
       logout();
    }
-   
+
    /*
-    * Gets the username and password from the client, and creates a new
-    * userAccount Verifies that the username is unique Returns a boolean
-    * indicating whether the account was successfully created or not
+    * Gets the username and password from the client, and creates a new User
+    * account. Verifies that the username is unique.
     */
    private boolean createAccount() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
@@ -166,10 +173,9 @@ class ClientHandler extends Thread {
       return false;
    }
 
-   
    /*
-    * Gets the credentials from the client and checks if the match a user
-    * account Verifies that the user is not already logged in
+    * Gets the credentials from the client and checks if the match a User
+    * account. Verifies that the User is not already logged in
     */
    private boolean authenticateUser() throws ClassNotFoundException, IOException {
       User user = null;
@@ -191,7 +197,10 @@ class ClientHandler extends Thread {
       }
       return false;
    }
-   
+
+   /*
+    * Changes the password associated with the User account.
+    */
    private void changePassword() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String newPassword = (String) clientIn.readObject();
@@ -200,15 +209,41 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.INCORRECT_USERNAME);
       } else {
          user.setPassword(newPassword);
-         clientOut.writeObject(ServerResponse.PASSWORD_CHANGED); 
+         clientOut.writeObject(ServerResponse.PASSWORD_CHANGED);
       }
    }
 
+   /*
+    * Sends a list of Documents owned by the User, and a list of Documents that
+    * the User has permission to edit.
+    */
    private void sendDocumentList() throws IOException {
       clientOut.writeObject(currentUser.getOwnedDocuments());
       clientOut.writeObject(currentUser.getEditableDocuments());
    }
 
+   /*
+    * Gets a String from the client, and creates a list of all User names that
+    * contain the specified text. Sends the list to the client.
+    */
+   private void searchUsers() throws IOException, ClassNotFoundException {
+      String searchFor = (String) clientIn.readObject();
+      Set<String> userNames = Server.allUsers.keySet();
+      Iterator<String> itr = userNames.iterator();
+      List<String> foundUsers = new ArrayList<String>();
+      String temp;
+      while (itr.hasNext()) {
+         if ((temp = itr.next()).contains(searchFor)) {
+            foundUsers.add(temp);
+         }
+      }
+      clientOut.writeObject(foundUsers);
+   }
+
+   /*
+    * Creates a new Document, with the current User as the owner. Verifies that
+    * the Document name is unique.
+    */
    private boolean createDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       if (Server.allDocuments.get(docName) != null) {
@@ -224,11 +259,26 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * These are the methods that will be used when documents are created,
-    * opened, and closed, rather than the current "one" document being used for
-    * testing.
+    * Adds permission for a User to edit a Document.
     */
+   private void addPermission() {
 
+   }
+
+   /*
+    * Removes permission for a User to edit a Document.
+    */
+   private void removePermission() {
+
+   }
+
+   /*
+    * Opens a Document for editing. Checks to see whether the Document exists,
+    * if the User has permission to edit it. ALso check if there is already an
+    * OpenDocument for the Document to open, which means the document is
+    * currently being edited by another User(s). If not it creates an
+    * OpenDocument for the Document to be opened.
+    */
    private void openDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       Document openingDoc = Server.allDocuments.get(docName);
@@ -241,22 +291,31 @@ class ClientHandler extends Thread {
          currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
       }
    }
-   
+
    /*
-    * Reads in the new chat message from the client, and sends it to all of the
-    * clientOutStreams in the client list Keeps track of the clientOutStreams
-    * that have disconnected and removes them
+    * Reads in the new chat message from the client.
     */
    private void updateChat() throws ClassNotFoundException, IOException {
       String chatMessage = (String) clientIn.readObject();
       sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage);
    }
 
+   /*
+    * Reads in the new Document update from the client.
+    */
    private void updateDocument() throws ClassNotFoundException, IOException {
       currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText());
    }
 
+   /*
+    * Takes in a ServerResponse, that indicates what type of update is being
+    * sent, (Document or chat), and a String containing the text of the update.
+    * Sends the ServerResponse and the text to all of the clients currently in
+    * the list of output streams in the OpenDocument. Keeps track of the clients
+    * that have disconnected and removes them from the list of OuputStreams in
+    * the current OpenDocument.
+    */
    public void sendUpdateToClients(ServerResponse response, String text) {
       removeStreams = false;
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
@@ -280,16 +339,23 @@ class ClientHandler extends Thread {
       }
    }
 
-   private void closeDocument() {
-
+   /*
+    * Saves a revision.
+    */
+   private void saveRevision() {
+      currentOpenDoc.saveRevision();
    }
 
    /*
-    * Sends the current document to all of the clientOutStreams in the
-    * clientOutStreams list Keeps track of the clientOutStreams that have
-    * disconnected and removes them
+    * Closes the current OpenDocument.
     */
+   private void closeDocument() {
+      Server.openDocuments.remove(currentOpenDoc);
+   }
 
+   /*
+    * Logs out the current user and closes the connection.
+    */
    private void logout() {
       Server.clientOutStreams.remove(clientOut);
       currentUser.setLogin(false);
@@ -297,6 +363,9 @@ class ClientHandler extends Thread {
       closeConnection();
    }
 
+   /*
+    * Closes the socket.
+    */
    private void closeConnection() {
       try {
          clientSocket.close();
