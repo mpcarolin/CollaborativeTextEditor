@@ -20,6 +20,10 @@ public class OpenDocument {
       editingUsers.add(newEditor);
    }
    
+   public void saveRevision() {
+      // 
+   }
+   
    public void removeClosedEditorStreams(Set<ObjectOutputStream> oldEditors) {
       editingUsers.removeAll(oldEditors);
    }

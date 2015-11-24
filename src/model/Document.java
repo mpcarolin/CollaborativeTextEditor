@@ -20,20 +20,23 @@ public class Document {
 		currentText = "";
 	}
 	
-	@Deprecated	// Dan: use the new method that specifies the revising user as an arg
-	public void replaceText(String newText) {
-		currentText = newText;
-	}
 	
 	public void replaceText(String newText, String revisingUser) {
-		addToHistory(newText, revisingUser);
 		currentText = newText;
 	}
 	
 	// appends a string to the end of the doc; no spaces are inserted
 	public void append(String textToAppend, String revisingUser) {
-		addToHistory(currentText + textToAppend, revisingUser);
 		currentText = currentText + textToAppend; 
+	}
+	
+	// creates a new revision object with revising user and a caret location
+	public void saveRevision(String newText, String revisingUser) {
+		if (history.size() > NUM_REVISIONS_STORED) {
+			history.remove(0);
+		}
+		Revision revision = new Revision(newText, currentText, revisingUser);
+		this.currentText = newText;
 	}
 	
 	public void addEditor(String editorUsername) {
@@ -52,8 +55,9 @@ public class Document {
 		return documentName;
 	}
 	
+	@Deprecated
 	// pushes to history, but resizes the stack if its length surpasses the limit
-	private void addToHistory(String newText, String revisingUser) {
+	private void addToHistory(String newText, String revisingUser, int caretLocation) {
 
 		if (history.size() >= NUM_REVISIONS_STORED) {
 			history.remove(0);

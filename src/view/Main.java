@@ -9,9 +9,8 @@ import model.DocumentSelectGUI;
 import model.Server;
 
 public class Main {
-
+   //private static final String ADDRESS = "helen.twilightparadox.com";
    private static final String ADDRESS = "localhost";
-	
 	
 	public static void main(String[] args) {
 		
