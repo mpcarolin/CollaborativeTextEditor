@@ -27,7 +27,7 @@ import javax.swing.event.DocumentListener;
 public class DocumentSelectGUI extends JFrame {
 
 	private JPanel thePanel;
-	private JPanel optionPanel, docPanel;
+	private JPanel optionPanel, docPanel, bottomHolder;
 	private ObjectInputStream fromServer;
 	protected ObjectOutputStream toServer;
 	private JTextField searchBar;
@@ -43,6 +43,11 @@ public class DocumentSelectGUI extends JFrame {
 		layoutGUI();
 		getDisplayList();
 		registerListeners();
+	}
+
+	private void getUserUpdates() {
+		userListJL.setModel(userListDLM);
+		bottomHolder.add(userListJL);
 	}
 
 	private void getDisplayList() {
@@ -63,7 +68,6 @@ public class DocumentSelectGUI extends JFrame {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void layoutGUI() {
@@ -104,7 +108,7 @@ public class DocumentSelectGUI extends JFrame {
 		removeUser = new JButton("Remove User");
 		addUser = new JButton("Add User");
 		JPanel topHolder = new JPanel();
-		JPanel bottomHolder = new JPanel();
+		bottomHolder = new JPanel();
 		searchBar = new JTextField();
 		JPanel holder = new JPanel();
 		JPanel docButtons = new JPanel();
@@ -196,8 +200,8 @@ public class DocumentSelectGUI extends JFrame {
 				if (str.contains(text))
 					userListDLM.addElement(str);
 			}
+			getUserUpdates();
 		}
-
 	}
 
 	private class CreateDocumentListener implements ActionListener {
@@ -212,9 +216,7 @@ public class DocumentSelectGUI extends JFrame {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-
 		}
-
 	}
 
 	private class RefreshListListener implements ActionListener {
@@ -223,6 +225,5 @@ public class DocumentSelectGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			getDisplayList();
 		}
-
 	}
 }
