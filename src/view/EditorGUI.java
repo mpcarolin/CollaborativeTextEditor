@@ -59,8 +59,6 @@ import javax.swing.text.html.HTMLEditorKit;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
-
-
 import model.ClientRequest;
 import model.ServerResponse;
 //import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
@@ -68,6 +66,7 @@ import model.ServerResponse;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
+	private boolean ifTrueDontUpdate = false;
 	private double screenWidth;
 	private double screenHeight;
 	private ObjectOutputStream toServer;
@@ -95,7 +94,8 @@ public class EditorGUI extends JFrame {
 	private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 	private Action ColorAction = new StyledEditorKit.ForegroundAction("colorButtonListener", color);
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", size);
-	private Action bulletAction= new HTMLEditorKit.InsertHTMLTextAction("bullet", "<ul><li></li></ul>", HTML.Tag.BODY, HTML.Tag.UL);
+	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("bullet", "<ul><li></li></ul>", HTML.Tag.BODY,
+			HTML.Tag.UL);
 
 	private Timer timer = new Timer(2000, new TimerListener());
 	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
@@ -220,13 +220,11 @@ public class EditorGUI extends JFrame {
 		textArea.setContentType("text/html");
 		textArea.setEditorKit(editor);
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
-		textArea.addKeyListener(new DocCharacterListener());
 
 		// Create ScrollPane to put textAreaon
 		scroll = new JScrollPane(textArea);
 		scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.9)));
 
-		
 		// button group toolbar
 		toolBar = new JMenuBar();
 		toolBar.setPreferredSize(new Dimension(windowWidth - 300, 20));
@@ -251,9 +249,9 @@ public class EditorGUI extends JFrame {
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		file.add(fileButton);
-		JMenu edit= new JMenu("Edit");
-		
-		//this.add(file);
+		JMenu edit = new JMenu("Edit");
+
+		// this.add(file);
 		font = new JComboBox<Integer>();
 		font.addItem(8);
 		font.addItem(9);
@@ -292,7 +290,7 @@ public class EditorGUI extends JFrame {
 		italicsButton.addActionListener(new italicsButtonListener());
 		font.addItemListener(new selectSizeListener());
 		fontStyle.addItemListener(new selectStyleListener());
-		
+
 		// // set tool bar layout and location
 		// GridBagConstraints toolbarConstraint = new GridBagConstraints();
 		// toolbarConstraint.anchor = GridBagConstraints.NORTHWEST;
@@ -305,7 +303,9 @@ public class EditorGUI extends JFrame {
 		// toolbarConstraint.weightx = 0;
 		// this.add(toolBar, toolbarConstraint);
 		this.setJMenuBar(toolBar);
+
 		textArea.addKeyListener(new DocCharacterListener());
+		//textArea.getDocument().addDocumentListener(new docListener());
 
 		fontSizeAction.setEnabled(true);
 		// Adds center Panel with text to Jframe
@@ -341,6 +341,7 @@ public class EditorGUI extends JFrame {
 		}
 
 	}
+
 	private class leftListener implements ActionListener {
 
 		@Override
@@ -405,6 +406,7 @@ public class EditorGUI extends JFrame {
 		}
 	}
 
+	//
 	private class DocCharacterListener implements KeyListener {
 		// ascii-48-126
 		@Override
@@ -430,32 +432,41 @@ public class EditorGUI extends JFrame {
 
 		}
 	}
-	// private class docListener implements DocumentListener {
-	//
-	// @Override
-	// public void insertUpdate(DocumentEvent e) {
-	// // TODO Auto-generated method stub
-	// startTimer();
-	// //System.out.println("i got to my doc Listener:" + textArea.getText());
-	// try {
-	// toServer.writeObject(ClientRequest.DOC_TEXT);
-	// toServer.writeObject(textArea.getText());
-	// } catch (IOException e1) {
-	// e1.printStackTrace();
-	// }
-	// }
-	// @Override
-	// public void removeUpdate(DocumentEvent e) {
-	// // TODO Auto-generated method stub
-	// startTimer();
-	// }
-	// @Override
-	// public void changedUpdate(DocumentEvent e) {
-	// // TODO Auto-generated method stub
-	// startTimer();
-	// }
-	//
-	// }
+//	private class docListener implements DocumentListener {
+//
+//		@Override
+//		public void insertUpdate(DocumentEvent e) {
+//			// TODO Auto-generated method stub
+//			if (ifTrueDontUpdate) {
+//				ifTrueDontUpdate = false;
+//			} else {
+//				startTimer();
+//				// System.out.println("i got to my doc Listener:" +
+//				// textArea.getText());
+//				try {
+//					toServer.writeObject(ClientRequest.DOC_TEXT);
+//					toServer.writeObject(textArea.getText());
+//					ifTrueDontUpdate=true;
+//
+//				} catch (IOException e1) {
+//					e1.printStackTrace();
+//				}
+//			}
+//		}
+//
+//		@Override
+//		public void removeUpdate(DocumentEvent e) {
+//			// TODO Auto-generated method stub
+//			startTimer();
+//		}
+//
+//		@Override
+//		public void changedUpdate(DocumentEvent e) {
+//			// TODO Auto-generated method stub
+//			startTimer();
+//		}
+//
+//	}
 
 	private class clickListener implements MouseListener {
 
@@ -654,7 +665,7 @@ public class EditorGUI extends JFrame {
 	}
 
 	public void updatechat(String text) {
-		chatString.append("/n" + text);
+		chatString.append("\n" + text);
 		chatTextArea.setText(chatString.toString());
 	}
 
@@ -666,13 +677,6 @@ public class EditorGUI extends JFrame {
 			String text;
 			text = chatText.getText();
 			chatText.setText("");
-
-			// if (chatTextArea.getText().equals("")) {
-			// chatTextArea.setText(text);
-			// } else {
-			// text = chatTextArea.getText() + "\n" + text;
-			// chatTextArea.setText(text);
-			// }
 
 			try {
 				toServer.writeObject(ClientRequest.CHAT_MSG);
