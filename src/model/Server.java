@@ -58,9 +58,12 @@ public class Server {
     */
    private static void hardCodeDocs() {
       allDocuments.put("DanielsDoc", new Document("DanielsDoc", "Daniel"));
-      allDocuments.put("MichaelDoc", new Document("MichaelsDoc", "Michael"));
+      allUsers.get("Daniel").addOwnedDocument("DanielsDoc");
+      allDocuments.put("MichaelsDoc", new Document("MichaelsDoc", "Michael"));
       allDocuments.put("JacobsDoc", new Document("JacobsDoc", "Jacob"));
+      
       allDocuments.put("FilbertsDoc", new Document("FilbertsDoc", "Filbert"));
+      
       allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
    }
 }
