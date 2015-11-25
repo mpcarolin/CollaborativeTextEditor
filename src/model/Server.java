@@ -27,9 +27,9 @@ public class Server {
    static Map<String, OpenDocument> openDocuments = Collections.synchronizedMap(new HashMap<>());
    static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
 
-  
    /*
-    * Listens for new incoming client connections, and creates a ClientHandler to deal with them. 
+    * Listens for new incoming client connections, and creates a ClientHandler
+    * to deal with them.
     */
    public static void main(String[] args) throws IOException {
       hardCodeUsers();
@@ -52,28 +52,28 @@ public class Server {
       allUsers.put("Filbert", new User("Filbert", "Johnson"));
       allUsers.put("Orzy", new User("Orzy", "Hazan"));
    }
-   
+
    /*
     * Hard code some Documents for testing purposes
     */
    private static void hardCodeDocs() {
       allDocuments.put("DanielsDoc", new Document("DanielsDoc", "Daniel"));
       allUsers.get("Daniel").addOwnedDocument("DanielsDoc");
-      
+
       allUsers.get("Michael").addEditableDocument("DanielsDoc");
       allUsers.get("Filbert").addEditableDocument("DanielsDoc");
       allUsers.get("Orzy").addEditableDocument("DanielsDoc");
       allUsers.get("Jacob").addEditableDocument("DanielsDoc");
-      
+
       allDocuments.put("MichaelsDoc", new Document("MichaelsDoc", "Michael"));
       allUsers.get("Michael").addOwnedDocument("MichaelsDoc");
-      
+
       allDocuments.put("JacobsDoc", new Document("JacobsDoc", "Jacob"));
       allUsers.get("Jacob").addOwnedDocument("JacobsDoc");
-      
+
       allDocuments.put("FilbertsDoc", new Document("FilbertsDoc", "Filbert"));
       allUsers.get("Filbert").addOwnedDocument("FilbertsDoc");
-      
+
       allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
       allUsers.get("Orzy").addOwnedDocument("OrzysDoc");
    }
@@ -92,9 +92,8 @@ class ClientHandler extends Thread {
    private OpenDocument currentOpenDoc; // current document being edited by the
    private boolean isRunning, removeStreams; // booleans...
 
-   
    /*
-    * Opens the Input and Output Streams. 
+    * Opens the Input and Output Streams.
     */
    public ClientHandler(Socket clientSocket) {
       this.clientSocket = clientSocket;
@@ -297,7 +296,7 @@ class ClientHandler extends Thread {
    private void removePermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String document = (String) clientIn.readObject();
-      
+
    }
 
    /*
@@ -316,10 +315,14 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else {
          currentOpenDoc = Server.openDocuments.get(docName);
-         currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
-         currentOpenDoc.addEditor(clientOut);
-         clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
-         clientOut.writeObject(currentOpenDoc.getText());
+         if (currentOpenDoc == null) {
+            currentOpenDoc = new OpenDocument(openingDoc, clientOut);
+            Server.openDocuments.put(docName, currentOpenDoc);
+         } else {
+            currentOpenDoc.addEditor(clientOut);
+            clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
+            clientOut.writeObject(currentOpenDoc.getText());
+         }
       }
    }
 
