@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class Server {
 
-   public static final int SERVER_PORT = 9002;
+   public static final int SERVER_PORT = 9001;
 
    static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    static Map<String, Document> allDocuments = Collections.synchronizedMap(new HashMap<>());
@@ -59,6 +59,10 @@ public class Server {
    private static void hardCodeDocs() {
       allDocuments.put("DanielsDoc", new Document("DanielsDoc", "Daniel"));
       allUsers.get("Daniel").addOwnedDocument("DanielsDoc");
+      
+      allUsers.get("Michael").addEditableDocument("DanielsDoc");
+      allUsers.get("Filbert").addEditableDocument("DanielsDoc");
+      allUsers.get("Orzy").addOwnedDocument("DanielsDoc");
       
       allDocuments.put("MichaelsDoc", new Document("MichaelsDoc", "Michael"));
       allUsers.get("Michael").addOwnedDocument("MichaelsDoc");
