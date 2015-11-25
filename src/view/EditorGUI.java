@@ -702,16 +702,6 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-<<<<<<< HEAD
-
-			 try {
-			 toServer.writeObject(ClientRequest.DOC_TEXT);
-			 toServer.writeObject(textArea.getText());
-			 } catch (IOException e1) {
-			 // TODO Auto-generated catch block
-			 e1.printStackTrace();
-			 }
-=======
 			try {
 				toServer.writeObject(ClientRequest.DOC_TEXT);
 				toServer.writeObject(textArea.getText());
@@ -721,7 +711,6 @@ public class EditorGUI extends JFrame {
 			
 			// starts a timer waiting for a pause to send the revision command
 			startTimer();
->>>>>>> 23a939af05148ee7ce58fdc60309b617b78f6adf
 
 		}
 
