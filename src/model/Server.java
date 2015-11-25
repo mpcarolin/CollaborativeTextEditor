@@ -346,6 +346,7 @@ class ClientHandler extends Thread {
     */
    public void sendUpdateToClients(ServerResponse response, String text) {
       removeStreams = false;
+
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
          if (response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
@@ -353,6 +354,7 @@ class ClientHandler extends Thread {
             // maybe this can be removed now?
          }
          try {
+
             editorOutStream.reset();
             editorOutStream.writeObject(response);
             editorOutStream.writeObject(text);
