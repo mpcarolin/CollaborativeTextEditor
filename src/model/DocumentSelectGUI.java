@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,13 +20,17 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import view.EditorGUI;
 
 public class DocumentSelectGUI extends JFrame {
 
@@ -77,6 +83,7 @@ public class DocumentSelectGUI extends JFrame {
 				editDocList.addElement(s);
 			}
 			ownDisplayList.setModel(ownedDocList);
+			System.out.println(ownDisplayList.getModel().getSize());
 			editDisplayList.setModel(editDocList);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -145,13 +152,14 @@ public class DocumentSelectGUI extends JFrame {
 		removeUser = new JButton("Remove User");
 		addUser = new JButton("Add User");
 		searchBar = new JTextField();
+		
+		// button listeners
+		openDoc.addActionListener(new OpenDocumentListener());
 
 		
 		bottomHolder = new JPanel();
 		
 		tabbedDocs = new JTabbedPane();
-		ownDisplayList = new JList<String>();
-		editDisplayList = new JList<String>();
 
 		documentLabel.setFont(new Font("default", Font.BOLD, 13));
 		documentLabel.setSize(600, 20);
@@ -194,7 +202,8 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	private void registerListeners() {
-		this.searchBar.getDocument().addDocumentListener(new SearchBarListener());
+		searchBar.addKeyListener(new searchBarListener());								
+		//this.searchBar.getDocument().addDocumentListener(new SearchBarListener());
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
 
@@ -204,25 +213,27 @@ public class DocumentSelectGUI extends JFrame {
 		return toServer;
 	}
 
-	private class SearchBarListener implements DocumentListener {
+	
+	
+	private class searchBarListener implements KeyListener{
 
 		@Override
-		public void insertUpdate(DocumentEvent e) {
-			updateUsers(searchBar.getText());
-			// send client request
-			// send text
-			// get list
-			// display list
-			// repeat
+		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+
 		}
 
 		@Override
-		public void removeUpdate(DocumentEvent e) {
-			updateUsers(searchBar.getText());
+		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		@Override
-		public void changedUpdate(DocumentEvent e) {
+		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
+			updateUsers(searchBar.getText());
+
 		}
 
 		private void updateUsers(String text) {
@@ -230,7 +241,7 @@ public class DocumentSelectGUI extends JFrame {
 				toServer.writeObject(ClientRequest.GET_USERS);
 				toServer.writeObject(text);
 				userList = (List<String>) fromServer.readObject();
-				System.out.println(userList.get(0));
+				//System.out.println(userList.get(0));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -243,7 +254,49 @@ public class DocumentSelectGUI extends JFrame {
 			}
 			getUserUpdates();
 		}
+
 	}
+	
+//	private class SearchBarListener implements DocumentListener {
+//
+//		@Override
+//		public void insertUpdate(DocumentEvent e) {
+//			updateUsers(searchBar.getText());
+//			// send client request
+//			// send text
+//			// get list
+//			// display list
+//			// repeat
+//		}
+//
+//		@Override
+//		public void removeUpdate(DocumentEvent e) {
+//			//updateUsers(searchBar.getText());
+//		}
+//
+//		@Override
+//		public void changedUpdate(DocumentEvent e) {
+//		}
+//
+//		private void updateUsers(String text) {
+//			try {
+//				toServer.writeObject(ClientRequest.GET_USERS);
+//				toServer.writeObject(text);
+//				userList = (List<String>) fromServer.readObject();
+//				System.out.println(userList.get(0));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (ClassNotFoundException e) {
+//				e.printStackTrace();
+//			}
+//			userListDLM.clear();
+//			for (String str : userList) {
+//				if (str.contains(text))
+//					userListDLM.addElement(str);
+//			}
+//			getUserUpdates();
+//		}
+//	}
 
 	private class CreateDocumentListener implements ActionListener {
 
@@ -253,7 +306,6 @@ public class DocumentSelectGUI extends JFrame {
 			// Open Pane to get the new document's name
 			try {
 				toServer.writeObject(ClientRequest.CREATE_DOC);
-
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -265,6 +317,55 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			getDisplayList();
+		}
+	}
+	
+	private class OpenDocumentListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			// obtain the document name from the currently opened tab
+			String docName = null;
+			if (ownDisplayList.isShowing()) {
+				int index = ownDisplayList.getSelectedIndex();
+				docName = ownedDocList.getElementAt(index);
+			} else {
+				int index = editDisplayList.getSelectedIndex();
+				docName = editDocList.getElementAt(index);
+			}
+				connectAndOpen(docName);
+		}
+		
+		private void connectAndOpen(String docName) {
+			try {
+
+				// tell the server we want to open the docName document
+				toServer.writeObject(ClientRequest.OPEN_DOC);
+				toServer.writeObject(docName);
+				
+				// receive and process server's response
+				ServerResponse response = (ServerResponse) fromServer.readObject();
+
+				switch (response) {
+				case PERMISSION_DENIED:
+					JOptionPane.showMessageDialog(null, "Permission Denied: You are not a member of the Document's Editors.");
+					return;
+				case NO_DOCUMENT:
+					JOptionPane.showMessageDialog(null, "Document does not exist.");
+					return;
+				case DOCUMENT_OPENED:
+					new EditorGUI(fromServer, toServer);
+					return;
+				default:
+					JOptionPane.showMessageDialog(null, "Incompatible server response.");
+					return;
+				}
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 }
