@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class Server {
 
-   public static final int SERVER_PORT = 9002;
+   public static final int SERVER_PORT = 9001;
 
    static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
    static Map<String, Document> allDocuments = Collections.synchronizedMap(new HashMap<>());

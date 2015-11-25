@@ -130,6 +130,8 @@ public class EditorGUI extends JFrame {
 		this.setVisible(true);
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
+		
+		
 	}
 
 	public void layoutGUI() {
@@ -655,13 +657,13 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 
-			// try {
-			// toServer.writeObject(ClientRequest.DOC_TEXT);
-			// toServer.writeObject(textArea.getText());
-			// } catch (IOException e1) {
-			// // TODO Auto-generated catch block
-			// e1.printStackTrace();
-			// }
+			 try {
+			 toServer.writeObject(ClientRequest.DOC_TEXT);
+			 toServer.writeObject(textArea.getText());
+			 } catch (IOException e1) {
+			 // TODO Auto-generated catch block
+			 e1.printStackTrace();
+			 }
 
 		}
 
@@ -677,24 +679,23 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void run() {
-			// while (true) {
-			// // obtain updated doc text from server in a try-catch
-			// try {
-			// ServerResponse whatToUpdate = (ServerResponse)
-			// fromServer.readObject();
-			// String updatedText = (String) fromServer.readObject();
-			// if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
-			// updatedoc(updatedText);
-			// } else {
-			// updatechat(updatedText);
-			// }
-			// textArea.setText(updatedText);
-			// } catch (ClassNotFoundException e) {
-			// e.printStackTrace();
-			// } catch (IOException e) {
-			// e.printStackTrace();
-			// }
-			// }
+			while (true) {
+				// obtain updated doc text from server in a try-catch
+				try {
+					ServerResponse whatToUpdate = (ServerResponse) fromServer.readObject();
+					String updatedText = (String) fromServer.readObject();
+					if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
+						updatedoc(updatedText);
+					} else {
+						updatechat(updatedText);
+					}
+					textArea.setText(updatedText);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -716,12 +717,12 @@ public class EditorGUI extends JFrame {
 			text = chatText.getText();
 			chatText.setText("");
 
-			if (chatTextArea.getText().equals("")) {
-				chatTextArea.setText(text);
-			} else {
-				text = chatTextArea.getText() + "\n" + text;
-				chatTextArea.setText(text);
-			}
+//			if (chatTextArea.getText().equals("")) {
+//				chatTextArea.setText(text);
+//			} else {
+//				text = chatTextArea.getText() + "\n" + text;
+//				chatTextArea.setText(text);
+//			}
 
 			try {
 				toServer.writeObject(ClientRequest.CHAT_MSG);

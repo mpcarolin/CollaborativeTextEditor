@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -194,7 +196,8 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	private void registerListeners() {
-		this.searchBar.getDocument().addDocumentListener(new SearchBarListener());
+		searchBar.addKeyListener(new searchBarListener());								
+		//this.searchBar.getDocument().addDocumentListener(new SearchBarListener());
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
 
@@ -204,25 +207,27 @@ public class DocumentSelectGUI extends JFrame {
 		return toServer;
 	}
 
-	private class SearchBarListener implements DocumentListener {
+	
+	
+	private class searchBarListener implements KeyListener{
 
 		@Override
-		public void insertUpdate(DocumentEvent e) {
-			updateUsers(searchBar.getText());
-			// send client request
-			// send text
-			// get list
-			// display list
-			// repeat
+		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+
 		}
 
 		@Override
-		public void removeUpdate(DocumentEvent e) {
-			updateUsers(searchBar.getText());
+		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		@Override
-		public void changedUpdate(DocumentEvent e) {
+		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
+			updateUsers(searchBar.getText());
+
 		}
 
 		private void updateUsers(String text) {
@@ -230,7 +235,7 @@ public class DocumentSelectGUI extends JFrame {
 				toServer.writeObject(ClientRequest.GET_USERS);
 				toServer.writeObject(text);
 				userList = (List<String>) fromServer.readObject();
-				System.out.println(userList.get(0));
+				//System.out.println(userList.get(0));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -243,7 +248,49 @@ public class DocumentSelectGUI extends JFrame {
 			}
 			getUserUpdates();
 		}
+
 	}
+	
+//	private class SearchBarListener implements DocumentListener {
+//
+//		@Override
+//		public void insertUpdate(DocumentEvent e) {
+//			updateUsers(searchBar.getText());
+//			// send client request
+//			// send text
+//			// get list
+//			// display list
+//			// repeat
+//		}
+//
+//		@Override
+//		public void removeUpdate(DocumentEvent e) {
+//			//updateUsers(searchBar.getText());
+//		}
+//
+//		@Override
+//		public void changedUpdate(DocumentEvent e) {
+//		}
+//
+//		private void updateUsers(String text) {
+//			try {
+//				toServer.writeObject(ClientRequest.GET_USERS);
+//				toServer.writeObject(text);
+//				userList = (List<String>) fromServer.readObject();
+//				System.out.println(userList.get(0));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (ClassNotFoundException e) {
+//				e.printStackTrace();
+//			}
+//			userListDLM.clear();
+//			for (String str : userList) {
+//				if (str.contains(text))
+//					userListDLM.addElement(str);
+//			}
+//			getUserUpdates();
+//		}
+//	}
 
 	private class CreateDocumentListener implements ActionListener {
 
