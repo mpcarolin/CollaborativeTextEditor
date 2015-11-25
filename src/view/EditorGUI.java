@@ -484,42 +484,76 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
-			try {
-				System.out.println(boldButton.isSelected());
+			System.out.println(boldButton.isSelected());
 
-				/*
-				 * 
-				 * 
-				 * 
-				 * 
-				 * Ask about this
-				 */
-				System.out.println(textArea.getCaretPosition() + "  " + Jsoup.clean(textArea.getText(), new Whitelist()).length());
-				if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()){
+			/*
+			 * 
+			 * 
+			 * 
+			 * 
+			 * Ask about this
+			 */
+			System.out.println(
+					textArea.getCaretPosition() + "  " + Jsoup.clean(textArea.getText(), new Whitelist()).length());
+			if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()) {
+				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
-					Object bold = attributeSet == null ? null : attributeSet.getAttribute(StyleConstants.Bold);
+					// Object bold = attributeSet == null ? null :
+					// attributeSet.getAttribute(StyleConstants.Bold);
+					Object bold;
+					if (attributeSet == null) {
+						bold = null;
+					} else {
+						bold = attributeSet.getAttribute(StyleConstants.Bold);
+					}
 					if (bold.equals(true)) {
 						boldButton.setSelected(true);
 					} else {
 						boldButton.setSelected(false);
 					}
-					Object underlined = attributeSet == null ? null
-							: attributeSet.getAttribute(StyleConstants.Underline);
+				} catch (Exception e1) {
+					System.out.print("this is not good");
+
+				}
+
+				try {
+					AttributeSet attributeSet = textArea.getCharacterAttributes();
+					Object underlined;
+					if (attributeSet == null) {
+						underlined = null;
+					} else {
+						underlined = attributeSet.getAttribute(StyleConstants.Underline);
+					}
 					if (underlined.equals(true)) {
 						underlineButton.setSelected(true);
 					} else {
 						underlineButton.setSelected(false);
 					}
-					Object italics = attributeSet == null ? null : attributeSet.getAttribute(StyleConstants.Italic);
+				} catch (Exception e1) {
+					System.out.println("this is slkdfjldsfjnot good");
+				}
+				try {
+					AttributeSet attributeSet = textArea.getCharacterAttributes();
+					Object italics;
+					if (attributeSet == null) {
+						italics = null;
+					} else {
+						italics = attributeSet.getAttribute(StyleConstants.Italic);
+					}
 					if (italics.equals(true)) {
+						System.out.print("hello");
 						italicsButton.setSelected(true);
 					} else {
 						italicsButton.setSelected(false);
 					}
+				} catch (Exception e1) {
+					System.out.print("hello");
 				}
-			} catch (Exception e1) {
-
 			}
+			// } catch (Exception e1) {
+			// System.out.print("this is not good");
+			//
+			// }
 			/*
 			 * 
 			 * 
