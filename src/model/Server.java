@@ -155,9 +155,6 @@ class ClientHandler extends Thread {
             case CLOSE_DOC:
                closeDocument();
                break;
-            case DELETE_DOC:
-               deleteDocument();
-               break;
             case LOGOUT:
                logout();
                break;
@@ -394,18 +391,7 @@ class ClientHandler extends Thread {
    
    private void deleteDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
-      Document toDelete = Server.allDocuments.get(docName);
-      if (toDelete == null) {
-         clientOut.writeObject(ServerResponse.NO_DOCUMENT);
-      } else if (!currentUser.owns(docName)) {
-         clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
-      } else if (Server.openDocuments.get(docName) != null) {
-         clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
-      } else {
-         Server.allDocuments.remove(docName);
-         currentUser.removeDocument(docName);
-         clientOut.writeObject(ServerResponse.DOCUMENT_DELETED);
-      }
+      Server.allDocuments.get(docName);
    }
 
    /*
