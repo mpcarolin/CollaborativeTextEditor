@@ -277,35 +277,47 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			if (ownDisplayList.isVisible()) {
+			
+			// obtain the document name from the currently opened tab
+			String docName = null;
+			if (ownDisplayList.isShowing()) {
 				int index = ownDisplayList.getSelectedIndex();
-				ListModel<String> model = ownDisplayList.getModel();
-				System.out.println(model.getSize());
-				String docName = ownedDocList.getElementAt(index);
-				try {
-					toServer.writeObject(ClientRequest.OPEN_DOC);
-					toServer.writeObject(docName);
-					ServerResponse response = (ServerResponse) fromServer.readObject();
-					System.out.println(response);
-					switch (response) {
-					case PERMISSION_DENIED:
-						JOptionPane.showMessageDialog(null, "Permission Denied: You cannot access this document");
-						return;
-					case NO_DOCUMENT:
-						JOptionPane.showMessageDialog(null, "Sorry, the document does not exist.");
-						return;
-					case DOCUMENT_OPENED:
-						new EditorGUI(fromServer, toServer);
-						return;
-						
-					}
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
-				}
+				docName = ownedDocList.getElementAt(index);
+			} else {
+				int index = editDisplayList.getSelectedIndex();
+				docName = editDocList.getElementAt(index);
+			}
+				connectAndOpen(docName);
+		}
+		
+		private void connectAndOpen(String docName) {
+			try {
+
+				// tell the server we want to open the docName document
+				toServer.writeObject(ClientRequest.OPEN_DOC);
+				toServer.writeObject(docName);
 				
+				// receive and process server's response
+				ServerResponse response = (ServerResponse) fromServer.readObject();
+
+				switch (response) {
+				case PERMISSION_DENIED:
+					JOptionPane.showMessageDialog(null, "Permission Denied: You are not a member of the Document's Editors.");
+					return;
+				case NO_DOCUMENT:
+					JOptionPane.showMessageDialog(null, "Document does not exist.");
+					return;
+				case DOCUMENT_OPENED:
+					new EditorGUI(fromServer, toServer);
+					return;
+				default:
+					JOptionPane.showMessageDialog(null, "Incompatible server response.");
+					return;
+				}
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
 			}
 		}
 	}
