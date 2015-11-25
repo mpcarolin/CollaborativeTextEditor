@@ -53,6 +53,9 @@ public class DocumentSelectGUI extends JFrame {
 		editDocList = new DefaultListModel<String>();
 		ownDisplayList = new JList<String>();
 		editDisplayList = new JList<String>();
+		
+		userListDLM = new DefaultListModel<String>();
+		userListJL = new JList<String>();
 	}
 
 	private void getUserUpdates() {
@@ -227,6 +230,7 @@ public class DocumentSelectGUI extends JFrame {
 				toServer.writeObject(ClientRequest.GET_USERS);
 				toServer.writeObject(text);
 				userList = (List<String>) fromServer.readObject();
+				System.out.println(userList.get(0));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
