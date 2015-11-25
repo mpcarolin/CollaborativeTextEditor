@@ -318,6 +318,11 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
+					new EditorGUI();
+					return;
+				default:
+					JOptionPane.showMessageDialog(null, "Incompatible server response.");
+					return;
 				}
 
 			} catch (IOException e1) {
