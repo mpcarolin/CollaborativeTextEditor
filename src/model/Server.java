@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 public class Server {
 
    public static final int SERVER_PORT = 9002;
@@ -35,6 +33,7 @@ public class Server {
     */
    public static void main(String[] args) throws IOException {
       hardCodeUsers();
+      hardCodeDocs();
       try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
          System.out.println("Server started on port " + SERVER_PORT);
          while (true) {
@@ -44,7 +43,7 @@ public class Server {
    }
 
    /*
-    * Hard code some users for testing purposes
+    * Hard code some Users for testing purposes
     */
    private static void hardCodeUsers() {
       allUsers.put("Daniel", new User("Daniel", "Avetian"));
@@ -52,6 +51,17 @@ public class Server {
       allUsers.put("Jacob", new User("Jacob", "Groh"));
       allUsers.put("Filbert", new User("Filbert", "Johnson"));
       allUsers.put("Orzy", new User("Orzy", "Hazan"));
+   }
+   
+   /*
+    * Hard code some Documents for testing purposes
+    */
+   private static void hardCodeDocs() {
+      allDocuments.put("DanielsDoc", new Document("DanielsDoc", "Daniel"));
+      allDocuments.put("MichaelDoc", new Document("MichaelsDoc", "Michael"));
+      allDocuments.put("JacobsDoc", new Document("JacobsDoc", "Jacob"));
+      allDocuments.put("FilbertsDoc", new Document("FilbertsDoc", "Filbert"));
+      allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
    }
 }
 
@@ -261,14 +271,18 @@ class ClientHandler extends Thread {
    /*
     * Adds permission for a User to edit a Document.
     */
-   private void addPermission() {
-
+   private void addPermission() throws ClassNotFoundException, IOException {
+      String username = (String) clientIn.readObject();
+      String document = (String) clientIn.readObject();
    }
 
    /*
     * Removes permission for a User to edit a Document.
     */
-   private void removePermission() {
+   private void removePermission() throws ClassNotFoundException, IOException {
+      String username = (String) clientIn.readObject();
+      String document = (String) clientIn.readObject();
+      
 
    }
 
