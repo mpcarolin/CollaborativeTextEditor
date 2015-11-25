@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -265,6 +266,37 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			getDisplayList();
+		}
+	}
+	
+	private class OpenDocumentListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if (ownDisplayList.isVisible()) {
+				String searchFor = ownDisplayList.getSelectedValue();
+				try {
+					toServer.writeObject(ClientRequest.OPEN_DOC);
+					toServer.writeObject(searchFor);
+					ServerResponse response = (ServerResponse) fromServer.readObject();
+					switch (response) {
+					case PERMISSION_DENIED:
+						JOptionPane.showMessageDialog(null, "Permission Denied: You cannot access this document");
+						return;
+					case NO_DOCUMENT:
+						JOptionPane.showMessageDialog(null, "Sorry, the document does not exist.");
+						return;
+					case DOCUMENT_OPENED:
+						
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
 		}
 	}
 }
