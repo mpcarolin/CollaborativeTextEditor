@@ -143,6 +143,9 @@ class ClientHandler extends Thread {
             case ADD_PERMISSION:
                addPermission();
                break;
+            case REMOVE_PERMISSION:
+               removePermission();
+               break;
             case OPEN_DOC:
                openDocument();
                break;
@@ -290,7 +293,17 @@ class ClientHandler extends Thread {
     */
    private void addPermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
-      String document = (String) clientIn.readObject();
+      String docName = (String) clientIn.readObject();
+      Document document = Server.allDocuments.get(docName);
+      if (document == null) {
+         clientOut.writeObject(ServerResponse.NO_DOCUMENT);
+      } else if (!currentUser.owns(docName)) {
+         clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
+      } else {
+         Server.allUsers.get(username).addEditableDocument(docName);
+         document.addEditor(username);
+         clientOut.writeObject(ServerResponse.PERMISSION_ADDED);
+      }
    }
 
    /*
@@ -299,7 +312,6 @@ class ClientHandler extends Thread {
    private void removePermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String document = (String) clientIn.readObject();
-
    }
 
    /*
@@ -333,7 +345,7 @@ class ClientHandler extends Thread {
     * Reads in the new chat message from the client.
     */
    private void updateChat() throws ClassNotFoundException, IOException {
-      String chatMessage = (String) clientIn.readObject();
+      String chatMessage = currentUser.getName() + ": " + (String) clientIn.readObject();
       sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage);
    }
 
@@ -355,7 +367,6 @@ class ClientHandler extends Thread {
     */
    public void sendUpdateToClients(ServerResponse response, String text) {
       removeStreams = false;
-
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
          if (response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
