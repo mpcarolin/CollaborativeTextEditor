@@ -246,7 +246,6 @@ public class DocumentSelectGUI extends JFrame {
 			// Open Pane to get the new document's name
 			try {
 				toServer.writeObject(ClientRequest.CREATE_DOC);
-
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
