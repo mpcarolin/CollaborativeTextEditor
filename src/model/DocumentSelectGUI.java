@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -18,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -26,8 +28,8 @@ import javax.swing.event.DocumentListener;
 
 public class DocumentSelectGUI extends JFrame {
 
-	private JPanel thePanel;
-	private JPanel optionPanel, docPanel, bottomHolder;
+	private JPanel optionPanel, docPanel, bottomHolder, thePanel, editDocPanel;
+	private JScrollPane ownedDocPanel;
 	private ObjectInputStream fromServer;
 	protected ObjectOutputStream toServer;
 	private JTextField searchBar;
@@ -40,9 +42,17 @@ public class DocumentSelectGUI extends JFrame {
 	public DocumentSelectGUI(ObjectInputStream fromServer, ObjectOutputStream toServer) {
 		this.fromServer = fromServer;
 		this.toServer = toServer;
+		instantiateLists();
 		layoutGUI();
-		getDisplayList();
+		// getDisplayList();
 		registerListeners();
+	}
+
+	private void instantiateLists() {
+		ownedDocList = new DefaultListModel<String>();
+		editDocList = new DefaultListModel<String>();
+		ownDisplayList = new JList<String>();
+		editDisplayList = new JList<String>();
 	}
 
 	private void getUserUpdates() {
@@ -84,34 +94,52 @@ public class DocumentSelectGUI extends JFrame {
 		thePanel.setLayout(null);
 		this.add(thePanel);
 
+		// Create and add the Options panel to the right side of the view
 		optionPanel = new JPanel();
 		optionPanel.setLayout(new BorderLayout());
 		optionPanel.setSize(300, 500);
 		optionPanel.setLocation(600, 0);
 		thePanel.add(optionPanel);
 
+		// Create and add the Documents panel to the left side of the view
 		docPanel = new JPanel();
 		docPanel.setLayout(new GridLayout(1, 1, 2, 2));
 		docPanel.setSize(600, 480);
 		docPanel.setLocation(0, 20);
 		thePanel.add(docPanel);
 
+		//TODO Attempts to hardcode placed in here
+		ownedDocPanel = new JScrollPane(ownDisplayList);
+		ownedDocPanel.setBackground(Color.YELLOW);
+		// ownedDocPanel.add(ownDisplayList, BorderLayout.CENTER);
+
+		editDocPanel = new JPanel();
+		editDocPanel.setBackground(Color.RED);
+		//TODO end of hardcode attempts. 
+
+		// Create and/or instantiate all Labels, Panels, etc...
 		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
 		JLabel optionLabel = new JLabel("Document Sharing", SwingConstants.CENTER);
+		JPanel optionPanelInner = new JPanel();
+		JPanel topInnerOption = new JPanel();
+		JPanel bottomInnerOption = new JPanel();
+		JPanel topHolder = new JPanel();
+		JPanel holder = new JPanel();
+		JPanel docButtons = new JPanel();
+
+		// Create the JButtons on the Document panel, for document functionality
 		createDoc = new JButton("Create Document");
 		deleteDoc = new JButton("Delete Document");
 		openDoc = new JButton("Open Document");
 		refreshList = new JButton("Refresh List");
-		JPanel optionPanelInner = new JPanel();
-		JPanel topInnerOption = new JPanel();
-		JPanel bottomInnerOption = new JPanel();
+
+		// Create the JButtons and JTextField on the Options panel, placed in
+		// top or bottom
 		removeUser = new JButton("Remove User");
 		addUser = new JButton("Add User");
-		JPanel topHolder = new JPanel();
-		bottomHolder = new JPanel();
 		searchBar = new JTextField();
-		JPanel holder = new JPanel();
-		JPanel docButtons = new JPanel();
+
+		bottomHolder = new JPanel();
 		tabbedDocs = new JTabbedPane();
 		ownDisplayList = new JList<String>();
 		editDisplayList = new JList<String>();
@@ -145,11 +173,17 @@ public class DocumentSelectGUI extends JFrame {
 		docButtons.add(deleteDoc);
 		docButtons.add(openDoc);
 		docButtons.add(refreshList);
-		tabbedDocs.add("Owned Documents", null);// scrollPane
-		tabbedDocs.add("Editable Documents", null);// scrollPaneEdit
+		tabbedDocs.add("Owned Documents", ownedDocPanel);// scrollPane
+		tabbedDocs.add("Editable Documents", editDocPanel);// scrollPaneEdit
 		tabbedDocs.setBackground(Color.DARK_GRAY);
 		holder.add(tabbedDocs, BorderLayout.CENTER);
 		docPanel.add(holder);
+
+		ownedModel = new LinkedList<String>();
+		ownedModel.add("HELLO");
+		ownedDocList.addElement(ownedModel.get(0));
+		ownDisplayList.setModel(ownedDocList);
+
 		this.setVisible(true);
 	}
 
