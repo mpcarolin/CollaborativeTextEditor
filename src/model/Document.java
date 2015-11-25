@@ -8,18 +8,20 @@ public class Document {
 	private static final int NUM_REVISIONS_STORED = 20;
 	private Stack<Revision> history; 
 	private String currentText;
+	private String priorText;
 	private String documentName;
 	private String ownerName;
 	private LinkedList<String> editorNames;
+
 	
 	public Document(String documentName, String ownerName) {
 		this.documentName = documentName;
 		this.ownerName = ownerName;
+		editorNames = new LinkedList<String>();
 		editorNames.add(ownerName);
 		history = new Stack<Revision>();
 		currentText = "";
 	}
-	
 	
 	public void replaceText(String newText, String revisingUser) {
 		currentText = newText;
@@ -30,15 +32,21 @@ public class Document {
 		currentText = currentText + textToAppend; 
 	}
 	
-	// creates a new revision object with revising user and a caret location
-	public void saveRevision(String newText, String revisingUser) {
+	// creates a new revision object with revising user and the current saved text 
+	public void saveRevision(String revisingUser) {
+		// resize history if it exceeds constant 
+		// TODO: probably ditch this b/c we need to construct full text using revisions
 		if (history.size() > NUM_REVISIONS_STORED) {
 			history.remove(0);
 		}
-		Revision revision = new Revision(newText, currentText, revisingUser);
-		this.currentText = newText;
+		Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);
+		history.push(revision);
 	}
 	
+	private Revision peekLastRevision() {
+		return history.peek();
+	}
+
 	public void addEditor(String editorUsername) {
 		editorNames.add(editorUsername);
 	}
@@ -66,8 +74,6 @@ public class Document {
 		Revision revision = new Revision(newText, currentText, revisingUser); 
 		history.push(revision);
 	}
-	
-	
 	
 	public String getOwner() {
 		return ownerName;

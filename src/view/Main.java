@@ -9,27 +9,26 @@ import model.DocumentSelectGUI;
 import model.Server;
 
 public class Main {
-   //private static final String ADDRESS = "helen.twilightparadox.com";
-   private static final String ADDRESS = "localhost";
-	
+	// private static final String ADDRESS = "helen.twilightparadox.com";
+	private static final String ADDRESS = "localhost";
+
 	public static void main(String[] args) {
-		
+
 		// open connection
 		ObjectInputStream fromServer = null;
 		ObjectOutputStream toServer = null;
 		Socket server = null;
 
-	    try {
-	    		server = new Socket(ADDRESS, Server.SERVER_PORT);
-	    		toServer = new ObjectOutputStream(server.getOutputStream());
-	    		fromServer = new ObjectInputStream(server.getInputStream());
-	       } catch (IOException e) {
-	          e.printStackTrace();
-	       }
+		try {
+			server = new Socket(ADDRESS, Server.SERVER_PORT);
+			toServer = new ObjectOutputStream(server.getOutputStream());
+			fromServer = new ObjectInputStream(server.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-	
 		LoginGUI login = new LoginGUI(fromServer, toServer);
-		
+
 		while (login.isVisible()) {
 			try {
 				Thread.sleep(3);
@@ -38,8 +37,8 @@ public class Main {
 			}
 		}
 
-        DocumentSelectGUI selector = new DocumentSelectGUI(fromServer); 
-		
+		DocumentSelectGUI selector = new DocumentSelectGUI(fromServer, toServer);
+
 	}
 
 }
