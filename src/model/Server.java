@@ -356,13 +356,11 @@ class ClientHandler extends Thread {
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
          if (response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
-            System.out.println(editorOutStream);
-            System.out.println(clientOut);
+            System.out.println("Skipped");
             continue;
             // maybe this can be removed now?
          }
          try {
-
             editorOutStream.reset();
             editorOutStream.writeObject(response);
             editorOutStream.writeObject(text);
@@ -389,6 +387,11 @@ class ClientHandler extends Thread {
     */
    private void closeDocument() {
       Server.openDocuments.remove(currentOpenDoc);
+   }
+   
+   private void deleteDocument() throws ClassNotFoundException, IOException {
+      String docName = (String) clientIn.readObject();
+      Server.allDocuments.get(docName);
    }
 
    /*

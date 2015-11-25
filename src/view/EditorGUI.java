@@ -59,7 +59,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
-import com.hexidec.ekit.Ekit;
+
 
 import model.ClientRequest;
 import model.ServerResponse;
@@ -103,7 +103,6 @@ public class EditorGUI extends JFrame {
 	private StringBuilder chatString = new StringBuilder();
 
 	public EditorGUI() {
-		Ekit gui= new Ekit();
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.8;
