@@ -62,7 +62,8 @@ public class Server {
       
       allUsers.get("Michael").addEditableDocument("DanielsDoc");
       allUsers.get("Filbert").addEditableDocument("DanielsDoc");
-      allUsers.get("Orzy").addOwnedDocument("DanielsDoc");
+      allUsers.get("Orzy").addEditableDocument("DanielsDoc");
+      allUsers.get("Jacob").addEditableDocument("DanielsDoc");
       
       allDocuments.put("MichaelsDoc", new Document("MichaelsDoc", "Michael"));
       allUsers.get("Michael").addOwnedDocument("MichaelsDoc");
@@ -351,6 +352,8 @@ class ClientHandler extends Thread {
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
          if (response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
+            System.out.println(editorOutStream);
+            System.out.println(clientOut);
             continue;
             // maybe this can be removed now?
          }
