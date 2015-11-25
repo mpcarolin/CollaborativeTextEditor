@@ -72,6 +72,8 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	private void getDisplayList() {
+		ownedDocList.clear();
+		editDocList.clear();
 		try {
 			toServer.writeObject(ClientRequest.GET_DOCS);
 			ownedModel = (List<String>) fromServer.readObject();
@@ -337,8 +339,6 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ownedDocList.clear();
-			editDocList.clear();
 			getDisplayList();
 		}
 	}
