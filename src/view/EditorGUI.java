@@ -40,15 +40,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
-<<<<<<< HEAD
 import javax.swing.Timer;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-=======
 import javax.swing.text.AttributeSet;
 import javax.swing.text.StyleConstants;
->>>>>>> 4c86483bd9a0e7783f5168f68057668c25666fc1
 import javax.swing.text.StyledEditorKit;
 import javax.swing.text.StyledEditorKit.BoldAction;
 import javax.swing.text.StyledEditorKit.FontFamilyAction;

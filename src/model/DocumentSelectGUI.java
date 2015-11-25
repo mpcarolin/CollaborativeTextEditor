@@ -23,9 +23,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import view.EditorGUI;
 
 public class DocumentSelectGUI extends JFrame {
 
@@ -78,6 +81,7 @@ public class DocumentSelectGUI extends JFrame {
 				editDocList.addElement(s);
 			}
 			ownDisplayList.setModel(ownedDocList);
+			System.out.println(ownDisplayList.getModel().getSize());
 			editDisplayList.setModel(editDocList);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -146,13 +150,14 @@ public class DocumentSelectGUI extends JFrame {
 		removeUser = new JButton("Remove User");
 		addUser = new JButton("Add User");
 		searchBar = new JTextField();
+		
+		// button listeners
+		openDoc.addActionListener(new OpenDocumentListener());
 
 		
 		bottomHolder = new JPanel();
 		
 		tabbedDocs = new JTabbedPane();
-		ownDisplayList = new JList<String>();
-		editDisplayList = new JList<String>();
 
 		documentLabel.setFont(new Font("default", Font.BOLD, 13));
 		documentLabel.setSize(600, 20);
@@ -274,11 +279,15 @@ public class DocumentSelectGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if (ownDisplayList.isVisible()) {
-				String searchFor = ownDisplayList.getSelectedValue();
+				int index = ownDisplayList.getSelectedIndex();
+				ListModel<String> model = ownDisplayList.getModel();
+				System.out.println(model.getSize());
+				String docName = ownedDocList.getElementAt(index);
 				try {
 					toServer.writeObject(ClientRequest.OPEN_DOC);
-					toServer.writeObject(searchFor);
+					toServer.writeObject(docName);
 					ServerResponse response = (ServerResponse) fromServer.readObject();
+					System.out.println(response);
 					switch (response) {
 					case PERMISSION_DENIED:
 						JOptionPane.showMessageDialog(null, "Permission Denied: You cannot access this document");
@@ -287,6 +296,8 @@ public class DocumentSelectGUI extends JFrame {
 						JOptionPane.showMessageDialog(null, "Sorry, the document does not exist.");
 						return;
 					case DOCUMENT_OPENED:
+						new EditorGUI(fromServer, toServer);
+						return;
 						
 					}
 				} catch (IOException e1) {
