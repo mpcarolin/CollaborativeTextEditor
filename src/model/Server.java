@@ -292,7 +292,6 @@ class ClientHandler extends Thread {
       String username = (String) clientIn.readObject();
       String document = (String) clientIn.readObject();
       
-
    }
 
    /*
@@ -312,6 +311,8 @@ class ClientHandler extends Thread {
       } else {
          currentOpenDoc = Server.openDocuments.get(docName);
          currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
+         clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
+         clientOut.writeObject(currentOpenDoc.getText());
       }
    }
 

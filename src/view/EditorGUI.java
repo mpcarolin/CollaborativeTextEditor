@@ -40,6 +40,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.Timer;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
@@ -88,6 +92,7 @@ public class EditorGUI extends JFrame {
 	private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 	private Action ColorAction = new StyledEditorKit.ForegroundAction("colorButtonListener", color);
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", size);
+	private Timer timer = new Timer(2000, new TimerListener());
 	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
 	private Action alignmentAction = new StyledEditorKit.AlignmentAction("alignmentAction", align);
 	private StringBuilder chatString = new StringBuilder();
@@ -108,6 +113,10 @@ public class EditorGUI extends JFrame {
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
+		
+		// instantiate timer with 2000 ms == 2 seconds. 
+		timer = new Timer(2000, new TimerListener());
+
 		// ServerListener serverListener = new ServerListener();
 		// serverListener.start();
 
@@ -186,8 +195,8 @@ public class EditorGUI extends JFrame {
 		c.weighty = 0.5;
 		c.anchor = GridBagConstraints.FIRST_LINE_END;
 		c.anchor = GridBagConstraints.CENTER;
-
 		c.fill = GridBagConstraints.VERTICAL;
+
 		// Center Panel to put Text Area and JScrollPane one
 		screenPanel = new JPanel();
 		screenPanel.setPreferredSize(new Dimension((int) (screenWidth * .5), 1500));
@@ -216,6 +225,7 @@ public class EditorGUI extends JFrame {
 		// textArea.setDocument(doc);
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
 		// textArea.setLineWrap(true);
+
 		textArea.addKeyListener(new characterListener());
 		// code
 		// Create ScrollPane to put textAreaon
@@ -303,6 +313,8 @@ public class EditorGUI extends JFrame {
 		// toolbarConstraint.weightx = 0;
 		// this.add(toolBar, toolbarConstraint);
 		this.setJMenuBar(toolBar);
+		textArea.addKeyListener(new characterListener()); 
+
 		fontSizeAction.setEnabled(true);
 		// Adds center Panel with text to Jframe
 		screenPanel.setVisible(true);
@@ -373,6 +385,7 @@ public class EditorGUI extends JFrame {
 		}
 
 	}
+
 
 	private class selectSizeListener implements ItemListener {
 
@@ -644,8 +657,41 @@ public class EditorGUI extends JFrame {
 		}
 
 	}
+	
+	private void startTimer() {
+		// initiate a new timer for indicating revisions to be saved in the server
+		if (timer.isRunning()) {
+			timer.restart();
+			System.out.println("timer restarted");
+		} else {
+			timer = new Timer(2000, new TimerListener());
+			timer.start();
+			System.out.println("timer started");
+		}
+	}
 
 	// uncommit for server
+	
+	private class textUpdateListener implements DocumentListener {
+
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+			startTimer();
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent e) {
+			startTimer();
+		}
+
+		@Override
+		public void changedUpdate(DocumentEvent e) {
+			startTimer();
+		}
+
+
+		
+	}
 
 	private class characterListener implements KeyListener {
 		// ascii-48-126
@@ -656,6 +702,7 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
+<<<<<<< HEAD
 
 			 try {
 			 toServer.writeObject(ClientRequest.DOC_TEXT);
@@ -664,6 +711,17 @@ public class EditorGUI extends JFrame {
 			 // TODO Auto-generated catch block
 			 e1.printStackTrace();
 			 }
+=======
+			try {
+				toServer.writeObject(ClientRequest.DOC_TEXT);
+				toServer.writeObject(textArea.getText());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+			// starts a timer waiting for a pause to send the revision command
+			startTimer();
+>>>>>>> 23a939af05148ee7ce58fdc60309b617b78f6adf
 
 		}
 
@@ -734,8 +792,7 @@ public class EditorGUI extends JFrame {
 		}
 	}
 
-	//
-	//
+	// 
 	private class chatButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -750,6 +807,26 @@ public class EditorGUI extends JFrame {
 			}
 			EditorGUI.this.setVisible(true);
 		}
+	}
+	
+	private class TimerListener implements ActionListener {
+
+		@Override
+		// whenever the user has paused for two seconds, save a revision
+		// then stop the timer so it doesn't repeat revision requests
+		public void actionPerformed(ActionEvent e) {
+			try {
+				toServer.writeObject(ClientRequest.SAVE_REVISION);
+				System.out.println("success");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			// stop timer regardless of server communication success
+			} finally {
+				timer.stop();
+			}
+		}
+		
 	}
 
 	// testing
