@@ -28,8 +28,8 @@ import javax.swing.event.DocumentListener;
 
 public class DocumentSelectGUI extends JFrame {
 
-	private JPanel optionPanel, docPanel, bottomHolder, thePanel, editDocPanel;
-	private JScrollPane ownedDocPanel;
+	private JPanel optionPanel, docPanel, bottomHolder, thePanel;
+	private JScrollPane ownedDocPanel, editDocPanel;
 	private ObjectInputStream fromServer;
 	protected ObjectOutputStream toServer;
 	private JTextField searchBar;
@@ -43,8 +43,8 @@ public class DocumentSelectGUI extends JFrame {
 		this.fromServer = fromServer;
 		this.toServer = toServer;
 		instantiateLists();
+		getDisplayList();
 		layoutGUI();
-		// getDisplayList();
 		registerListeners();
 	}
 
@@ -64,7 +64,9 @@ public class DocumentSelectGUI extends JFrame {
 		try {
 			toServer.writeObject(ClientRequest.GET_DOCS);
 			ownedModel = (List<String>) fromServer.readObject();
+			System.out.println(ownedModel.get(0));
 			ownedEditable = (List<String>) fromServer.readObject();
+			System.out.println(ownedModel.get(0));
 			for (String s : ownedModel) {
 				ownedDocList.addElement(s);
 			}
@@ -108,16 +110,16 @@ public class DocumentSelectGUI extends JFrame {
 		docPanel.setLocation(0, 20);
 		thePanel.add(docPanel);
 
-		//TODO Attempts to hardcode placed in here
+//		//TODO Attempts to hardcode placed in here
 		ownedDocPanel = new JScrollPane(ownDisplayList);
 		ownedDocPanel.setBackground(Color.YELLOW);
-		editDocPanel = new JPanel();
+		editDocPanel = new JScrollPane(editDisplayList);
 		editDocPanel.setBackground(Color.RED);
-		ownedModel = new LinkedList<String>();
-		ownedModel.add("HELLO.txt");
-		ownedDocList.addElement(ownedModel.get(0));
-		ownDisplayList.setModel(ownedDocList);
-		//TODO end of hardcode attempts. 
+//		ownedModel = new LinkedList<String>();
+//		ownedModel.add("HELLO.txt");
+//		ownedDocList.addElement(ownedModel.get(0));
+//		ownDisplayList.setModel(ownedDocList);
+//		//TODO end of hardcode attempts. 
 
 		// Create and/or instantiate all Labels, Panels, etc...
 		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
