@@ -8,7 +8,6 @@ public class Document {
 	private static final int NUM_REVISIONS_STORED = 20;
 	private Stack<Revision> history; 
 	private String currentText;
-	private String priorText;
 	private String documentName;
 	private String ownerName;
 	private LinkedList<String> editorNames;

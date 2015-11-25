@@ -14,7 +14,6 @@ public class Revision {
 	private LocalTime revisingTime;
 	private LocalDate revisingDate;
 	private LinkedList<String> revisingActions;
-	private int caretPosition;
 	
 
 	public Revision(String newText, String oldText, String revisingUser) {
