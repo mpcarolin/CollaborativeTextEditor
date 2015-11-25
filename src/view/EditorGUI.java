@@ -78,7 +78,7 @@ public class EditorGUI extends JFrame {
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
-	//private HTMLEditorPane secondEditor;
+//	private HTMLEditorPane secondEditor;
 	private JMenuBar file;
 	private JMenuBar toolBar;
 	private JToggleButton boldButton, italicsButton, underlineButton, colorFont;
@@ -129,16 +129,30 @@ public class EditorGUI extends JFrame {
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.8;
 		screenHeight = screensize.getHeight() * 0.8;
-		this.setSize((int) screenWidth, (int) screenHeight);
-
+		this.setSize((int) screenWidth, (int) screenHeight);		
 		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
+		try {
+			String document = (String) fromServer.readObject();
+			textArea.setText(document);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
+		
+		
+		// instantiate timer with 2000 ms == 2 seconds. 
+		timer = new Timer(2000, new TimerListener());
 		
 		
 	}
@@ -432,15 +446,20 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			// TODO Auto-generated method stub
+			try {
+				toServer.writeObject(ClientRequest.DOC_TEXT);
+				toServer.writeObject(textArea.getText());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
 
 		}
-
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			// TODO Auto-generated method stub
 
 		}
-
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			// TODO Auto-generated method stub
@@ -456,13 +475,11 @@ public class EditorGUI extends JFrame {
 			// TODO Auto-generated method stub
 
 		}
-
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			// TODO Auto-generated method stub
 
 		}
-
 	}
 
 	private class clickListener implements MouseListener {
@@ -483,17 +500,6 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
-			System.out.println(boldButton.isSelected());
-
-			/*
-			 * 
-			 * 
-			 * 
-			 * 
-			 * Ask about this
-			 */
-			System.out.println(
-					textArea.getCaretPosition() + "  " + Jsoup.clean(textArea.getText(), new Whitelist()).length());
 			if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()) {
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -549,37 +555,6 @@ public class EditorGUI extends JFrame {
 					System.out.print("hello");
 				}
 			}
-			// } catch (Exception e1) {
-			// System.out.print("this is not good");
-			//
-			// }
-			/*
-			 * 
-			 * 
-			 * 
-			 * 
-			 * Ask about this
-			 */
-			//
-			//
-			// if (boldButton.isSelected()) {
-			// boldAction.setEnabled(true);
-			// } else {
-			// System.out.println("got here");
-			// boldAction.setEnabled(false);
-			//
-			// }
-			// if (italicsAction.isEnabled()) {
-			// italicsButton.setSelected(true);
-			// } else {
-			// italicsButton.setSelected(false);
-			// }
-			// if (underlineAction.isEnabled()) {
-			// underlineButton.setSelected(true);
-			// } else {
-			// underlineButton.setSelected(false);
-			//
-			// }
 		}
 
 		@Override
@@ -702,16 +677,9 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			try {
-				toServer.writeObject(ClientRequest.DOC_TEXT);
-				toServer.writeObject(textArea.getText());
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			
 			// starts a timer waiting for a pause to send the revision command
-			startTimer();
 
+			startTimer();
 		}
 
 		@Override
