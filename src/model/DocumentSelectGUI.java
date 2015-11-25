@@ -332,6 +332,8 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			ownedDocList.clear();
+			editDocList.clear();
 			getDisplayList();
 		}
 	}
