@@ -111,10 +111,12 @@ public class DocumentSelectGUI extends JFrame {
 		//TODO Attempts to hardcode placed in here
 		ownedDocPanel = new JScrollPane(ownDisplayList);
 		ownedDocPanel.setBackground(Color.YELLOW);
-		// ownedDocPanel.add(ownDisplayList, BorderLayout.CENTER);
-
 		editDocPanel = new JPanel();
 		editDocPanel.setBackground(Color.RED);
+		ownedModel = new LinkedList<String>();
+		ownedModel.add("HELLO.txt");
+		ownedDocList.addElement(ownedModel.get(0));
+		ownDisplayList.setModel(ownedDocList);
 		//TODO end of hardcode attempts. 
 
 		// Create and/or instantiate all Labels, Panels, etc...
@@ -139,7 +141,9 @@ public class DocumentSelectGUI extends JFrame {
 		addUser = new JButton("Add User");
 		searchBar = new JTextField();
 
+		
 		bottomHolder = new JPanel();
+		
 		tabbedDocs = new JTabbedPane();
 		ownDisplayList = new JList<String>();
 		editDisplayList = new JList<String>();
@@ -179,10 +183,7 @@ public class DocumentSelectGUI extends JFrame {
 		holder.add(tabbedDocs, BorderLayout.CENTER);
 		docPanel.add(holder);
 
-		ownedModel = new LinkedList<String>();
-		ownedModel.add("HELLO");
-		ownedDocList.addElement(ownedModel.get(0));
-		ownDisplayList.setModel(ownedDocList);
+		
 
 		this.setVisible(true);
 	}
