@@ -4,6 +4,7 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
@@ -11,16 +12,20 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -33,12 +38,19 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
+import javax.swing.text.StyledEditorKit.BoldAction;
 import javax.swing.text.StyledEditorKit.FontFamilyAction;
 import javax.swing.text.StyledEditorKit.ForegroundAction;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import model.ClientRequest;
 import model.ServerResponse;
@@ -51,30 +63,33 @@ public class EditorGUI extends JFrame {
 	private double screenHeight;
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
-	private JEditorPane textArea;
+	private JTextPane textArea;
 	private HTMLEditorKit editor;
 	private int size = 12;
 	private JTextArea chatTextArea;
 	private JScrollPane scroll, chatScroll;
 	private JPanel screenPanel, rightPanel;
 	private JButton openChatButton;
+	private JButton leftAlign, centerAlign, rightAlign;
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
 	private HTMLEditorPane secondEditor;
+	private JMenuBar file;
 	private JMenuBar toolBar;
 	private JToggleButton boldButton, italicsButton, underlineButton, colorFont;
 	private boolean bold, underline, italic;
 	private HTMLDocument doc;
-	private Color color = Color.WHITE;
+	private Color color = Color.BLACK;
 	private String style = "";
+	private int align = 0;
 	private Action boldAction = new HTMLEditorKit.BoldAction();
 	private Action italicsAction = new HTMLEditorKit.ItalicAction();
 	private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 	private Action ColorAction = new StyledEditorKit.ForegroundAction("colorButtonListener", color);
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", size);
-	private Action fontStyleAction = new FontFamilyAction("fontStyleAction", style);
-
+	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
+	private Action alignmentAction = new StyledEditorKit.AlignmentAction("alignmentAction", align);
 	private StringBuilder chatString = new StringBuilder();
 
 	// private Boolean logInSuccess = false;
@@ -178,54 +193,63 @@ public class EditorGUI extends JFrame {
 		// screenPanel.setPreferredSize(new Dimension(540,620));
 		screenPanel.setMinimumSize(new Dimension((int) (screenWidth * 0.5), 1));
 		// screenPanel.setBackground(Color.GREEN);
-		secondEditor = new HTMLEditorPane();
+		// secondEditor = new HTMLEditorPane();
 
 		// Size of the textArea
 		int textWidth = (int) (screenWidth * .5);
-		secondEditor.setPreferredSize(new Dimension(textWidth + 500, 2000));
+		// secondEditor.setPreferredSize(new Dimension(textWidth + 500, 2000));
+		// secondEditor.get
 
 		editor = new HTMLEditorKit();
 		// doc= new HTMLDocument();
 		// Create textArea To write on
-		textArea = new JEditorPane();
-
+		textArea = new JTextPane();
 		// editor.install(textArea);
 		//
 		// textArea.setEditorKitForContentType("text/html", new
 		// WysiwygHTMLEditorKit());
-		// textArea.setContentType("text/html");
-		// textArea.setEditorKit(editor);
-
+		textArea.setContentType("text/html");
+		textArea.setEditorKit(editor);
+		textArea.getDocument().addDocumentListener(new docListener());
 		// textArea.setDocument(doc);
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
 		// textArea.setLineWrap(true);
-		textArea.addKeyListener(new characterListener()); 
+		textArea.addKeyListener(new characterListener());
 		// code
 		// Create ScrollPane to put textAreaon
 		scroll = new JScrollPane(textArea);
 		scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.9)));
-
 		/*
 		 * SHef inserts
 		 */
 		// button group toolbar
 		toolBar = new JMenuBar();
-		toolBar.setPreferredSize(new Dimension(windowWidth, 20));
+		toolBar.setPreferredSize(new Dimension(windowWidth - 300, 20));
+		// toolBar.add(secondEditor.getEditMenu());
+		// toolBar.add(secondEditor.getFormatMenu());
+		// toolBar.add(secondEditor.getInsertMenu());
 
-		toolBar.add(secondEditor.getEditMenu());
-		toolBar.add(secondEditor.getFormatMenu());
-		toolBar.add(secondEditor.getInsertMenu());
+		leftAlign = new JButton("left");
+		rightAlign = new JButton("right");
+		centerAlign = new JButton("center");
+		leftAlign.addActionListener(new leftListener());
+		rightAlign.addActionListener(new rightListener());
+		centerAlign.addActionListener(new centerListener());
 
-		// boldButton = new JToggleButton("Bold");
-		// italicsButton = new JToggleButton("Italics");
-		// underlineButton = new JToggleButton("Underline");
-		// colorFont = new JToggleButton("Change Colors");
-		// // highlight.addActionListener(new colorButtonListener());
-		// fontStyle = new JComboBox<String>();
-		// fontStyle.addItem(Font.SERIF);
-		// fontStyle.addItem(Font.SANS_SERIF);
-		// fontStyle.addItem(Font.MONOSPACED);
-		// fontStyle.addItem(Font.DIALOG);
+		boldButton = new JToggleButton("Bold");
+		italicsButton = new JToggleButton("Italics");
+		underlineButton = new JToggleButton("Underline");
+		colorFont = new JToggleButton("Change Colors");
+		// highlight.addActionListener(new colorButtonListener());
+		fontStyle = new JComboBox<String>();
+		fontStyle.addItem(Font.SERIF);
+		fontStyle.addItem(Font.SANS_SERIF);
+		fontStyle.addItem(Font.MONOSPACED);
+		fontStyle.addItem(Font.DIALOG);
+
+		file = new JMenuBar();
+		JButton fileButton = new JButton("File");
+		file.add(fileButton);
 		//
 		font = new JComboBox<Integer>();
 		font.addItem(8);
@@ -243,22 +267,27 @@ public class EditorGUI extends JFrame {
 		font.addItem(36);
 		font.addItem(48);
 		font.addItem(72);
-		// font.setSelectedIndex(5);
-		// font.setSize(80, 10);
-		// toolBar.add(boldButton);
-		// toolBar.add(italicsButton);
-		// toolBar.add(underlineButton);
-		// toolBar.add(new JLabel("Font Size:"));
-		// toolBar.add(font);
-		// toolBar.add(new JLabel("Font"));
-		// toolBar.add(fontStyle);
-		// toolBar.add(colorFont);
+		font.setSelectedIndex(5);
+		font.setSize(80, 10);
+		toolBar.add(file);
+		toolBar.add(boldButton);
+		toolBar.add(italicsButton);
+		toolBar.add(underlineButton);
+		toolBar.add(new JLabel("Font Size:"));
+		toolBar.add(font);
+		toolBar.add(new JLabel("Font"));
+		toolBar.add(fontStyle);
+		toolBar.add(colorFont);
+		toolBar.add(leftAlign);
+		toolBar.add(centerAlign);
+		toolBar.add(rightAlign);
+		toolBar.add(new JButton());
 		// // Set listener
-		// boldButton.addActionListener(new boldButtonListener());
-		// underlineButton.addActionListener(new underLineButtonListener());
-		// italicsButton.addActionListener(new italicsButtonListener());
+		boldButton.addActionListener(new boldButtonListener());
+		underlineButton.addActionListener(new underLineButtonListener());
+		italicsButton.addActionListener(new italicsButtonListener());
 		font.addItemListener(new selectSizeListener());
-		// fontStyle.addItemListener(new selectStyleListener());
+		fontStyle.addItemListener(new selectStyleListener());
 		//
 		// // set tool bar layout and location
 		// GridBagConstraints toolbarConstraint = new GridBagConstraints();
@@ -272,23 +301,75 @@ public class EditorGUI extends JFrame {
 		// toolbarConstraint.weightx = 0;
 		// this.add(toolBar, toolbarConstraint);
 		this.setJMenuBar(toolBar);
-
 		fontSizeAction.setEnabled(true);
 		// Adds center Panel with text to Jframe
 		screenPanel.setVisible(true);
 		screenPanel.add(scroll);
-		// this.add(screenPanel, c);
+		this.add(screenPanel, c);
 		// textArea.add(secondEditor);
-		this.add(secondEditor, c);
+
+		// this.add(secondEditor, c);
 		this.setVisible(true);
+
+		// KeyListener [] array= secondEditor.getKeyListeners();
+		// secondEd
+		// for(int i=0;i<array.length;i++){
+		// System.out.println(array[i] + " " +i);
+		// }
+		// secondEditor.
 		//
 		// // Starts buttons
-		// colorFont.addActionListener(new colorButtonListener());
-		// // textArea.addMouseMotionListener(new mousemotionListener());
-		// this.addMouseListener(new clickListener());
-		// boldAction.setEnabled(false);
-		// italicsAction.setEnabled(false);
-		// underlineAction.setEnabled(false);
+		colorFont.addActionListener(new colorButtonListener());
+		// textArea.addMouseMotionListener(new mousemotionListener());
+		textArea.addMouseListener(new clickListener());
+		boldAction.setEnabled(false);
+		italicsAction.setEnabled(false);
+		underlineAction.setEnabled(false);
+
+		boldButton.setEnabled(false);
+		italicsButton.setEnabled(false);
+		underlineButton.setEnabled(false);
+		font.setEditable(false);
+		colorFont.setEnabled(false);
+		fontStyle.setEditable(false);
+		font.setEnabled(false);
+		fontStyle.setEnabled(false);
+	}
+
+	private class rightListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			align = 2;
+			alignmentAction.setEnabled(true);
+			new StyledEditorKit.AlignmentAction("action", align).actionPerformed(e);
+		}
+
+	}
+
+	private class leftListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			align = 0;
+			alignmentAction.setEnabled(true);
+			new StyledEditorKit.AlignmentAction("action", align).actionPerformed(e);
+		}
+
+	}
+
+	private class centerListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			align = 1;
+			alignmentAction.setEnabled(true);
+			new StyledEditorKit.AlignmentAction("action", align).actionPerformed(e);
+		}
+
 	}
 
 	private class selectSizeListener implements ItemListener {
@@ -326,131 +407,207 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			color = JColorChooser.showDialog(null, "Choose a Color", color);
-
-			colorFont.addActionListener(new ForegroundAction("action", color) {
-				public void actionPerformed(ActionEvent e) {
-					new StyledEditorKit.ForegroundAction("Action", color).actionPerformed(e);
-				}
-			});
 			ColorAction.setEnabled(true);
+			new StyledEditorKit.ForegroundAction("action", color).actionPerformed(e);
 		}
 	}
 
-	// private class mousemotionListener implements MouseMotionListener{
-	//
-	// @Override
-	// public void mouseDragged(MouseEvent e) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void mouseMoved(MouseEvent e) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// }
-	// private class clickListener implements MouseListener {
-	//
-	// @Override
-	// public void mouseClicked(MouseEvent e) {
-	//
-	// }
-	//
-	// @Override
-	// public void mousePressed(MouseEvent e) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void mouseReleased(MouseEvent e) {
-	// // TODO Auto-generated method stub
+	private class docListener implements DocumentListener {
 
-	// }
-	//
-	// @Override
-	// public void mouseEntered(MouseEvent e) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void mouseExited(MouseEvent e) {
-	// // TODO Auto-generated method stub
-	// // System.out.print(boldAction.isEnabled());
-	// if (boldAction.isEnabled()) {
-	// boldButton.setSelected(true);
-	// } else {
-	// boldButton.setSelected(false);
-	// }
-	// if (italicsAction.isEnabled()) {
-	// italicsButton.setSelected(true);
-	// } else {
-	// italicsButton.setSelected(false);
-	// }
-	// if (underlineAction.isEnabled()) {
-	// underlineButton.setSelected(true);
-	// } else {
-	// underlineButton.setSelected(false);
-	//
-	// }
-	// }
-	//
-	// }
-	//
-	// private class boldButtonListener implements ActionListener {
-	//
-	// @Override
-	// public void actionPerformed(ActionEvent e) {
-	// // TODO Auto-generated method stub
-	// boldAction.actionPerformed(e);
-	// bold = !bold;
-	// System.out.print(bold);
-	//
-	// if (bold) {
-	// boldAction.setEnabled(true);
-	// } else {
-	// boldAction.setEnabled(false);
-	// }
-	//
-	// }
-	//
-	// }
-	//
-	// private class underLineButtonListener implements ActionListener {
-	//
-	// @Override
-	// public void actionPerformed(ActionEvent e) {
-	// // TODO Auto-generated method stub
-	// underlineAction.actionPerformed(e);
-	// underline = !underline;
-	// if (underline) {
-	// underlineAction.setEnabled(true);
-	// } else {
-	// underlineAction.setEnabled(false);
-	// }
-	//
-	// }
-	//
-	// }
-	//
-	// private class italicsButtonListener implements ActionListener {
-	//
-	// @Override
-	// public void actionPerformed(ActionEvent e) {
-	// // TODO Auto-generated method stub
-	// italic = !italic;
-	// italicsAction.actionPerformed(e);
-	// if (italic) {
-	// italicsAction.setEnabled(true);
-	// } else {
-	// italicsAction.setEnabled(false);
-	// }
-	// }
-	//
-	// }
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void changedUpdate(DocumentEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
+	private class mousemotionListener implements MouseMotionListener {
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
+	private class clickListener implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			boldButton.setEnabled(true);
+			italicsButton.setEnabled(true);
+			underlineButton.setEnabled(true);
+			font.setEditable(false);
+			colorFont.setEnabled(true);
+			fontStyle.setEditable(false);
+			font.setEnabled(true);
+			fontStyle.setEnabled(true);
+
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			try {
+				System.out.println(boldButton.isSelected());
+
+				/*
+				 * 
+				 * 
+				 * 
+				 * 
+				 * Ask about this
+				 */
+				System.out.println(textArea.getCaretPosition() + "  " + Jsoup.clean(textArea.getText(), new Whitelist()).length());
+				if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()){
+					AttributeSet attributeSet = textArea.getCharacterAttributes();
+					Object bold = attributeSet == null ? null : attributeSet.getAttribute(StyleConstants.Bold);
+					if (bold.equals(true)) {
+						boldButton.setSelected(true);
+					} else {
+						boldButton.setSelected(false);
+					}
+					Object underlined = attributeSet == null ? null
+							: attributeSet.getAttribute(StyleConstants.Underline);
+					if (underlined.equals(true)) {
+						underlineButton.setSelected(true);
+					} else {
+						underlineButton.setSelected(false);
+					}
+					Object italics = attributeSet == null ? null : attributeSet.getAttribute(StyleConstants.Italic);
+					if (italics.equals(true)) {
+						italicsButton.setSelected(true);
+					} else {
+						italicsButton.setSelected(false);
+					}
+				}
+			} catch (Exception e1) {
+
+			}
+			/*
+			 * 
+			 * 
+			 * 
+			 * 
+			 * Ask about this
+			 */
+			//
+			//
+			// if (boldButton.isSelected()) {
+			// boldAction.setEnabled(true);
+			// } else {
+			// System.out.println("got here");
+			// boldAction.setEnabled(false);
+			//
+			// }
+			// if (italicsAction.isEnabled()) {
+			// italicsButton.setSelected(true);
+			// } else {
+			// italicsButton.setSelected(false);
+			// }
+			// if (underlineAction.isEnabled()) {
+			// underlineButton.setSelected(true);
+			// } else {
+			// underlineButton.setSelected(false);
+			//
+			// }
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
+	private class boldButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			boldAction.actionPerformed(e);
+			bold = !bold;
+			if (textArea.getSelectedText() == null) {
+				if (bold) {
+					boldAction.setEnabled(true);
+				} else {
+					boldAction.setEnabled(false);
+				}
+			}
+		}
+
+	}
+
+	private class underLineButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			underlineAction.actionPerformed(e);
+			underline = !underline;
+			if (textArea.getSelectedText() == null) {
+
+				if (underline) {
+					underlineAction.setEnabled(true);
+				} else {
+					underlineAction.setEnabled(false);
+				}
+			}
+
+		}
+
+	}
+
+	private class italicsButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			italic = !italic;
+			italicsAction.actionPerformed(e);
+			if (textArea.getSelectedText() == null) {
+				if (italic) {
+					italicsAction.setEnabled(true);
+				} else {
+					italicsAction.setEnabled(false);
+				}
+			}
+		}
+
+	}
 
 	// uncommit for server
 
@@ -463,13 +620,14 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			try {
-				toServer.writeObject(ClientRequest.DOC_TEXT);
-				toServer.writeObject(textArea.getText());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+
+			// try {
+			// toServer.writeObject(ClientRequest.DOC_TEXT);
+			// toServer.writeObject(textArea.getText());
+			// } catch (IOException e1) {
+			// // TODO Auto-generated catch block
+			// e1.printStackTrace();
+			// }
 
 		}
 
@@ -485,23 +643,24 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void run() {
-			while (true) {
-				// obtain updated doc text from server in a try-catch
-				try {
-					ServerResponse whatToUpdate = (ServerResponse) fromServer.readObject();
-					String updatedText = (String) fromServer.readObject();
-					if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
-						updatedoc(updatedText);
-					} else {
-						updatechat(updatedText);
-					}
-					textArea.setText(updatedText);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			// while (true) {
+			// // obtain updated doc text from server in a try-catch
+			// try {
+			// ServerResponse whatToUpdate = (ServerResponse)
+			// fromServer.readObject();
+			// String updatedText = (String) fromServer.readObject();
+			// if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
+			// updatedoc(updatedText);
+			// } else {
+			// updatechat(updatedText);
+			// }
+			// textArea.setText(updatedText);
+			// } catch (ClassNotFoundException e) {
+			// e.printStackTrace();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
+			// }
 		}
 	}
 
