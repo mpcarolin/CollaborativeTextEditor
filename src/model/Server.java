@@ -275,6 +275,7 @@ class ClientHandler extends Thread {
       }
       Document newDocument = new Document(docName, currentUser.getName());
       Server.allDocuments.put(docName, newDocument);
+      currentUser.addOwnedDocument(docName);
       currentOpenDoc = new OpenDocument(newDocument, clientOut);
       Server.openDocuments.put(docName, currentOpenDoc);
       clientOut.writeObject(ServerResponse.DOCUMENT_CREATED);
@@ -315,6 +316,7 @@ class ClientHandler extends Thread {
       } else {
          currentOpenDoc = Server.openDocuments.get(docName);
          currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
+         currentOpenDoc.addEditor(clientOut);
          clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
          clientOut.writeObject(currentOpenDoc.getText());
       }
