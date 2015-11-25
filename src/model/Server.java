@@ -320,9 +320,9 @@ class ClientHandler extends Thread {
             Server.openDocuments.put(docName, currentOpenDoc);
          } else {
             currentOpenDoc.addEditor(clientOut);
-            clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
-            clientOut.writeObject(currentOpenDoc.getText());
          }
+         clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
+         clientOut.writeObject(currentOpenDoc.getText());
       }
    }
 
