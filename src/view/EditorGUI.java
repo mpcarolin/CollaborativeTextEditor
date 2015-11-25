@@ -655,6 +655,18 @@ public class EditorGUI extends JFrame {
 		}
 
 	}
+	
+	private void startTimer() {
+		// initiate a new timer for indicating revisions to be saved in the server
+		if (timer.isRunning()) {
+			timer.restart();
+			System.out.println("timer restarted");
+		} else {
+			timer = new Timer(2000, new TimerListener());
+			timer.start();
+			System.out.println("timer started");
+		}
+	}
 
 	// uncommit for server
 	
@@ -675,17 +687,7 @@ public class EditorGUI extends JFrame {
 			startTimer();
 		}
 
-		private void startTimer() {
-			// initiate a new timer for indicating revisions to be saved in the server
-			if (timer.isRunning()) {
-				timer.restart();
-				System.out.println("timer restarted");
-			} else {
-				timer = new Timer(2000, new TimerListener());
-				timer.start();
-				System.out.println("timer started");
-			}
-		}
+
 		
 	}
 
@@ -698,22 +700,16 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			System.out.println("helelkej");
 			try {
 				toServer.writeObject(ClientRequest.DOC_TEXT);
 				toServer.writeObject(textArea.getText());
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			
+			// starts a timer waiting for a pause to send the revision command
+			startTimer();
 
-			// try {
-			// toServer.writeObject(ClientRequest.DOC_TEXT);
-			// toServer.writeObject(textArea.getText());
-			// } catch (IOException e1) {
-			// // TODO Auto-generated catch block
-			// e1.printStackTrace();
-			// }
 		}
 
 		@Override
