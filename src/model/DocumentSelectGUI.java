@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -53,6 +54,9 @@ public class DocumentSelectGUI extends JFrame {
 		editDocList = new DefaultListModel<String>();
 		ownDisplayList = new JList<String>();
 		editDisplayList = new JList<String>();
+		
+		userListDLM = new DefaultListModel<String>();
+		userListJL = new JList<String>();
 	}
 
 	private void getUserUpdates() {
@@ -227,6 +231,7 @@ public class DocumentSelectGUI extends JFrame {
 				toServer.writeObject(ClientRequest.GET_USERS);
 				toServer.writeObject(text);
 				userList = (List<String>) fromServer.readObject();
+				System.out.println(userList.get(0));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -260,6 +265,37 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			getDisplayList();
+		}
+	}
+	
+	private class OpenDocumentListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if (ownDisplayList.isVisible()) {
+				String searchFor = ownDisplayList.getSelectedValue();
+				try {
+					toServer.writeObject(ClientRequest.OPEN_DOC);
+					toServer.writeObject(searchFor);
+					ServerResponse response = (ServerResponse) fromServer.readObject();
+					switch (response) {
+					case PERMISSION_DENIED:
+						JOptionPane.showMessageDialog(null, "Permission Denied: You cannot access this document");
+						return;
+					case NO_DOCUMENT:
+						JOptionPane.showMessageDialog(null, "Sorry, the document does not exist.");
+						return;
+					case DOCUMENT_OPENED:
+						
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
 		}
 	}
 }
