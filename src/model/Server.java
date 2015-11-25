@@ -316,6 +316,7 @@ class ClientHandler extends Thread {
       } else {
          currentOpenDoc = Server.openDocuments.get(docName);
          currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
+         currentOpenDoc.addEditor(clientOut);
          clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
          clientOut.writeObject(currentOpenDoc.getText());
       }
