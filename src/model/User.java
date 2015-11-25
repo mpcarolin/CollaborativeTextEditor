@@ -62,9 +62,10 @@ public class User implements Serializable {
    
    public void addOwnedDocument(String documentName) {
       ownedDocuments.add(documentName);
+      editableDocuments.add(documentName);
    }
-
-   public void givePermission(String documentName) {
+   
+   public void addEditableDocument(String documentName) {
       editableDocuments.add(documentName);
    }
    
