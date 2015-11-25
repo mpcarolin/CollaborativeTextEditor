@@ -58,8 +58,8 @@ import org.jsoup.safety.Whitelist;
 
 import model.ClientRequest;
 import model.ServerResponse;
-import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
-import net.atlanticbb.tantlinger.ui.text.WysiwygHTMLEditorKit;
+//import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
+//import net.atlanticbb.tantlinger.ui.text.WysiwygHTMLEditorKit;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
@@ -78,7 +78,7 @@ public class EditorGUI extends JFrame {
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
-	private HTMLEditorPane secondEditor;
+	//private HTMLEditorPane secondEditor;
 	private JMenuBar file;
 	private JMenuBar toolBar;
 	private JToggleButton boldButton, italicsButton, underlineButton, colorFont;
