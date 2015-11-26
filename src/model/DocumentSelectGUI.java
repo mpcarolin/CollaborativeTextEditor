@@ -29,6 +29,9 @@ import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import view.EditorGUI;
 
@@ -353,17 +356,46 @@ public class DocumentSelectGUI extends JFrame {
 		}
 	}
 	
+	private class documentListListener implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if (ownDisplayList.isShowing()) {
+				String docName = ownDisplayList.getSelectedValue();
+				
+				// ask server for list of editors
+				toServer.writeObject(ClientRequest.GET_EDITORS);
+				toServer.writeObject(docName);
+				
+				ServerResponse response = (ServerResponse) fromServer.readObject();
+
+				switch (response) {
+				case NO_DOCUMENT:
+					JOptionPane.showMessageDialog(null, "That document no longer exists.");
+					break;
+				case DOCUMENT_EXISTS:
+					editingUsersList = (LinkedList<String>) fromServer.readObject();
+					refreshEditingUserLists();
+					break;
+				default:
+					JOptionPane.showMessageDialog(null, "Incompatible server response.");
+				}
+			}
+		}
+		
+	}
+	
 	private class AddUserButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
 			// get selected user name
-			String username = userListJL.getSelectedValue();
 			
 			// send client request to server to add user, then send username
-			if (username != null) {
+			if (!userListJL.isSelectionEmpty() && !ownDisplayList.isSelectionEmpty()) {
 
+				String username = userListJL.getSelectedValue();
 				int index = ownDisplayList.getSelectedIndex();
 				String docName = ownedDocList.getElementAt(index);
 
@@ -377,17 +409,15 @@ public class DocumentSelectGUI extends JFrame {
 					switch (response) {
 					case PERMISSION_ADDED:
 						//user
-						editingUsersList.add(username);
+						editingUsersList = (LinkedList<String>) fromServer.readObject();
 						refreshEditingUserLists();
 						break;
 					case NO_DOCUMENT:
 						JOptionPane.showMessageDialog(null, "Cannot add user to a document that does not exist.");
 						break;
 					default:
-						System.out.println("Incompatible server response");
+						JOptionPane.showMessageDialog(null, "Incompatible server response.");
 					}
-
-
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				} catch (ClassNotFoundException e1) {
@@ -395,7 +425,6 @@ public class DocumentSelectGUI extends JFrame {
 				}
 			}
 		}
-		
 	}
 
 	private class DeleteDocumentListener implements ActionListener {
