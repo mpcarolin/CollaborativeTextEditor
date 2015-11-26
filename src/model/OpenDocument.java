@@ -9,10 +9,11 @@ import java.util.Set;
 public class OpenDocument {
    
    private Document document;
-   private List<ObjectOutputStream> editingUsers = Collections.synchronizedList(new ArrayList<ObjectOutputStream>());
+   private List<ObjectOutputStream> editingUsers;
    
    public OpenDocument(Document document, ObjectOutputStream openingUser) {
       this.document = document;
+      editingUsers = new ArrayList<ObjectOutputStream>();
       addEditor(openingUser);
    }
    
@@ -20,8 +21,12 @@ public class OpenDocument {
       editingUsers.add(newEditor);
    }
    
-   public void saveRevision() {
-      // 
+   public void saveRevision(String username) {
+      document.saveRevision(username);
+   }
+   
+   public String revert() {
+      return document.getLastRevision().getFullText();
    }
    
    public void removeClosedEditorStreams(Set<ObjectOutputStream> oldEditors) {
