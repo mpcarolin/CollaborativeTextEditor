@@ -56,7 +56,9 @@ public class Document {
 	}
 	
 	public Revision getLastRevision() {
-		return history.pop();
+		Revision lastRevision = history.pop();
+		currentText = lastRevision.getFullText();
+		return lastRevision;
 	}
 	
 	public String getDocumentName() {
