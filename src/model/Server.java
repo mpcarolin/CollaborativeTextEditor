@@ -312,6 +312,7 @@ class ClientHandler extends Thread {
    private void removePermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String document = (String) clientIn.readObject();
+      
    }
 
    /*
