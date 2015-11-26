@@ -131,9 +131,6 @@ class ClientHandler extends Thread {
             case GET_DOCS:
                sendDocumentList();
                break;
-            case GET_EDITORS:
-               sendEditorList();
-               break;
             case GET_USERS:
                searchUsers();
                break;
@@ -157,9 +154,6 @@ class ClientHandler extends Thread {
                break;
             case SAVE_REVISION:
                saveRevision();
-               break;
-            case REVERT_DOC:
-               revertDocument();
                break;
             case CLOSE_DOC:
                closeDocument();
@@ -322,7 +316,6 @@ class ClientHandler extends Thread {
    private void removePermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String document = (String) clientIn.readObject();
-      
    }
 
    /*
@@ -357,7 +350,7 @@ class ClientHandler extends Thread {
     */
    private void updateChat() throws ClassNotFoundException, IOException {
       String chatMessage = currentUser.getName() + ": " + (String) clientIn.readObject();
-      sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage, false);
+      sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage);
    }
 
    /*
@@ -365,21 +358,7 @@ class ClientHandler extends Thread {
     */
    private void updateDocument() throws ClassNotFoundException, IOException {
       currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
-      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), false);
-   }
-   
-   /*
-    * Saves a revision.
-    */
-   private void saveRevision() {
-      currentOpenDoc.saveRevision(currentUser.getName());
-   }
-   
-   /*
-    * Reverts the current OpenDocument to its most recent revison.
-    */
-   public void revertDocument() {
-      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert(), true);
+      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText());
    }
 
    /*
@@ -390,12 +369,14 @@ class ClientHandler extends Thread {
     * that have disconnected and removes them from the list of OuputStreams in
     * the current OpenDocument.
     */
-   public void sendUpdateToClients(ServerResponse response, String text, boolean revert) {
+   public void sendUpdateToClients(ServerResponse response, String text) {
       removeStreams = false;
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
-         if (!revert && response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
+         if (response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
+            System.out.println("Skipped");
             continue;
+            // maybe this can be removed now?
          }
          try {
             editorOutStream.reset();
@@ -410,6 +391,13 @@ class ClientHandler extends Thread {
          currentOpenDoc.removeClosedEditorStreams(closedEditors);
          removeStreams = false;
       }
+   }
+
+   /*
+    * Saves a revision.
+    */
+   private void saveRevision() {
+      currentOpenDoc.saveRevision(currentUser.getName());
    }
 
    /*

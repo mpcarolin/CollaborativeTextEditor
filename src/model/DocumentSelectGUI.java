@@ -29,19 +29,22 @@ import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.xml.ws.soap.AddressingFeature.Responses;
 
 import view.EditorGUI;
 
 public class DocumentSelectGUI extends JFrame {
 
-	private JPanel optionPanel, docPanel, bottomHolder, thePanel, topHolder;
+	private JPanel optionPanel, docPanel, bottomHolder, thePanel;
 	private JScrollPane ownedDocPanel, editDocPanel;
 	private ObjectInputStream fromServer;
 	protected ObjectOutputStream toServer;
 	private JTextField searchBar;
-	private List<String> ownedModel, ownedEditable, userList, editingUsersList;
-	private DefaultListModel<String> userListDLM, editingUserListModel, ownedDocList, editDocList;
-	private JList<String> ownDisplayList, editDisplayList, userListJL, editingUsersJList;
+	private List<String> ownedModel, ownedEditable, userList;
+	private DefaultListModel<String> userListDLM, ownedDocList, editDocList;
+	private JList<String> ownDisplayList, editDisplayList, userListJL;
 	private JTabbedPane tabbedDocs;
 	private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
 	private boolean firstTime;
@@ -57,37 +60,21 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	private void instantiateLists() {
-		editingUsersList = new LinkedList<String>();
 		ownedDocList = new DefaultListModel<String>();
 		editDocList = new DefaultListModel<String>();
 		ownDisplayList = new JList<String>();
 		editDisplayList = new JList<String>();
+
 		userListDLM = new DefaultListModel<String>();
-		editingUserListModel = new DefaultListModel<String>();
 		userListJL = new JList<String>();
-		editingUsersJList = new JList<String>();
 	}
 
 	private void getUserUpdates() {
 		userListJL.setModel(userListDLM);
 		bottomHolder.add(userListJL);
 	}
-	
-	// updates the model and refreshes the editing user list panel 
-	private void refreshEditingUserLists() {
-		// clear model because will be completely updated
-		editingUserListModel.clear();
-		for (String name : editingUsersList) {
-			editingUserListModel.addElement(name);
-		}
-		editingUsersJList.setModel(editingUserListModel);
-		topHolder.add(editingUsersJList);
-	}
-	
 
 	private void getDisplayList() {
-		ownedDocList.clear();
-		editDocList.clear();
 		try {
 			toServer.writeObject(ClientRequest.GET_DOCS);
 			ownedModel = (List<String>) fromServer.readObject();
@@ -160,7 +147,7 @@ public class DocumentSelectGUI extends JFrame {
 		JPanel optionPanelInner = new JPanel();
 		JPanel topInnerOption = new JPanel();
 		JPanel bottomInnerOption = new JPanel();
-		topHolder = new JPanel();
+		JPanel topHolder = new JPanel();
 		JPanel holder = new JPanel();
 		JPanel docButtons = new JPanel();
 
@@ -178,7 +165,6 @@ public class DocumentSelectGUI extends JFrame {
 
 		// button listeners
 		openDoc.addActionListener(new OpenDocumentListener());
-		addUser.addActionListener(new AddUserButtonListener());
 
 		bottomHolder = new JPanel();
 
@@ -220,7 +206,6 @@ public class DocumentSelectGUI extends JFrame {
 		docPanel.add(holder);
 
 		this.setVisible(true);
-
 	}
 
 	private void registerListeners() {
@@ -229,7 +214,6 @@ public class DocumentSelectGUI extends JFrame {
 		// SearchBarListener());
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
-		this.deleteDoc.addActionListener(new DeleteDocumentListener());
 
 	}
 
@@ -241,15 +225,21 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+
 		}
 
 		@Override
 		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
 			updateUsers(searchBar.getText());
+
 		}
 
 		private void updateUsers(String text) {
@@ -318,6 +308,7 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			// TODO Create new document functionality here
 			// Open Pane to get the new document's name
 			String newDocName = JOptionPane.showInputDialog("Please enter the new document's name:");
 			try {
@@ -349,8 +340,39 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			ownedDocList.clear();
+			editDocList.clear();
 			getDisplayList();
 		}
+	}
+	
+	private class documentListListener implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if (ownDisplayList.isShowing()) {
+				String docName = ownDisplayList.getSelectedValue();
+				
+				// ask server for list of editors
+				toServer.writeObject(ClientRequest.GET_EDITORS);
+				toServer.writeObject(docName);
+				
+				ServerResponse response = (ServerResponse) fromServer.readObject();
+
+				switch (response) {
+				case NO_DOCUMENT:
+					JOptionPane.showMessageDialog(null, "That document no longer exists.");
+					break;
+				case DOCUMENT_EXISTS:
+					editingUsersList = (LinkedList<String>) fromServer.readObject();
+					refreshEditingUserLists();
+					break;
+				default:
+					JOptionPane.showMessageDialog(null, "Incompatible server response.");
+				}
+			}
+		}
+		
 	}
 	
 	private class AddUserButtonListener implements ActionListener {
@@ -359,11 +381,11 @@ public class DocumentSelectGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 
 			// get selected user name
-			String username = userListJL.getSelectedValue();
 			
 			// send client request to server to add user, then send username
-			if (username != null) {
+			if (!userListJL.isSelectionEmpty() && !ownDisplayList.isSelectionEmpty()) {
 
+				String username = userListJL.getSelectedValue();
 				int index = ownDisplayList.getSelectedIndex();
 				String docName = ownedDocList.getElementAt(index);
 
@@ -377,17 +399,15 @@ public class DocumentSelectGUI extends JFrame {
 					switch (response) {
 					case PERMISSION_ADDED:
 						//user
-						editingUsersList.add(username);
+						editingUsersList = (LinkedList<String>) fromServer.readObject();
 						refreshEditingUserLists();
 						break;
 					case NO_DOCUMENT:
 						JOptionPane.showMessageDialog(null, "Cannot add user to a document that does not exist.");
 						break;
 					default:
-						System.out.println("Incompatible server response");
+						JOptionPane.showMessageDialog(null, "Incompatible server response.");
 					}
-
-
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				} catch (ClassNotFoundException e1) {
@@ -395,7 +415,6 @@ public class DocumentSelectGUI extends JFrame {
 				}
 			}
 		}
-		
 	}
 
 	private class DeleteDocumentListener implements ActionListener {

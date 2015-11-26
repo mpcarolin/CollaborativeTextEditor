@@ -250,7 +250,9 @@ public class EditorGUI extends JFrame {
 		JMenuItem fileButton = new JMenuItem("File");
 		file.add(fileButton);
 		JMenu edit = new JMenu("Edit");
-
+		JMenuItem undo= new JMenuItem("Undo");
+		edit.add(undo);
+		undo.addActionListener(new undoListener());
 		// this.add(file);
 		font = new JComboBox<Integer>();
 		font.addItem(8);
@@ -329,6 +331,22 @@ public class EditorGUI extends JFrame {
 		fontStyle.setEditable(false);
 		font.setEnabled(false);
 		fontStyle.setEnabled(false);
+	}
+	private class undoListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub			
+			try {
+				toServer.writeObject(ClientRequest.REVERT_DOC);
+
+			} catch ( IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+					
+		}
+		
 	}
 
 	private class rightListener implements ActionListener {
@@ -535,7 +553,7 @@ public class EditorGUI extends JFrame {
 						italicsButton.setSelected(false);
 					}
 				} catch (Exception e1) {
-					System.out.print("hello");
+					//System.out.print("hello");
 				}
 			}
 		}
@@ -621,11 +639,9 @@ public class EditorGUI extends JFrame {
 		// server
 		if (timer.isRunning()) {
 			timer.restart();
-			System.out.println("timer restarted");
 		} else {
 			timer = new Timer(2000, new TimerListener());
 			timer.start();
-			System.out.println("timer started");
 		}
 	}
 
@@ -639,17 +655,12 @@ public class EditorGUI extends JFrame {
 				// obtain updated doc text from server in a try-catch
 				try {
 					ServerResponse whatToUpdate = (ServerResponse) fromServer.readObject();
-					System.out.println("the Server Response:" + whatToUpdate);
-
 					String updatedText = (String) fromServer.readObject();
-					System.out.println("the Server Response text:" + updatedText);
-
 					if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
 						updatedoc(updatedText);
-					} else {
+					} else{
 						updatechat(updatedText);
 					}
-					System.out.println(updatedText);
 					// textArea.setText(updatedText);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
@@ -713,7 +724,6 @@ public class EditorGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			try {
 				toServer.writeObject(ClientRequest.SAVE_REVISION);
-				System.out.println("success");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
