@@ -33,7 +33,9 @@ import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -50,6 +52,7 @@ import javax.swing.text.StyledEditorKit;
 import javax.swing.text.StyledEditorKit.BoldAction;
 import javax.swing.text.StyledEditorKit.FontFamilyAction;
 import javax.swing.text.StyledEditorKit.ForegroundAction;
+import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -63,6 +66,7 @@ import model.ServerResponse;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
+	private boolean ifTrueDontUpdate = false;
 	private double screenWidth;
 	private double screenHeight;
 	private ObjectOutputStream toServer;
@@ -78,12 +82,10 @@ public class EditorGUI extends JFrame {
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
-//	private HTMLEditorPane secondEditor;
-	private JMenuBar file;
+	private JMenu file;
 	private JMenuBar toolBar;
 	private JToggleButton boldButton, italicsButton, underlineButton, colorFont;
 	private boolean bold, underline, italic;
-	private HTMLDocument doc;
 	private Color color = Color.BLACK;
 	private String style = "";
 	private int align = 0;
@@ -92,15 +94,15 @@ public class EditorGUI extends JFrame {
 	private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 	private Action ColorAction = new StyledEditorKit.ForegroundAction("colorButtonListener", color);
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", size);
+	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("bullet", "<ul><li></li></ul>", HTML.Tag.BODY,
+			HTML.Tag.UL);
+
 	private Timer timer = new Timer(2000, new TimerListener());
 	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
 	private Action alignmentAction = new StyledEditorKit.AlignmentAction("alignmentAction", align);
 	private StringBuilder chatString = new StringBuilder();
 
-	// private Boolean logInSuccess = false;
 	public EditorGUI() {
-		this.fromServer = fromServer;
-		this.toServer = toServer;
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.8;
@@ -113,13 +115,9 @@ public class EditorGUI extends JFrame {
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
-		
-		// instantiate timer with 2000 ms == 2 seconds. 
+
+		// instantiate timer with 2000 ms == 2 seconds.
 		timer = new Timer(2000, new TimerListener());
-
-		// ServerListener serverListener = new ServerListener();
-		// serverListener.start();
-
 	}
 
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer) {
@@ -129,7 +127,7 @@ public class EditorGUI extends JFrame {
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.8;
 		screenHeight = screensize.getHeight() * 0.8;
-		this.setSize((int) screenWidth, (int) screenHeight);		
+		this.setSize((int) screenWidth, (int) screenHeight);
 		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -146,15 +144,13 @@ public class EditorGUI extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
-		
-		
-		// instantiate timer with 2000 ms == 2 seconds. 
+
+		// instantiate timer with 2000 ms == 2 seconds.
 		timer = new Timer(2000, new TimerListener());
-		
-		
+
 	}
 
 	public void layoutGUI() {
@@ -214,46 +210,24 @@ public class EditorGUI extends JFrame {
 		// Center Panel to put Text Area and JScrollPane one
 		screenPanel = new JPanel();
 		screenPanel.setPreferredSize(new Dimension((int) (screenWidth * .5), 1500));
-
-		// screenPanel.setPreferredSize(new Dimension(540,620));
 		screenPanel.setMinimumSize(new Dimension((int) (screenWidth * 0.5), 1));
-		// screenPanel.setBackground(Color.GREEN);
-		// secondEditor = new HTMLEditorPane();
-
 		// Size of the textArea
 		int textWidth = (int) (screenWidth * .5);
-		// secondEditor.setPreferredSize(new Dimension(textWidth + 500, 2000));
-		// secondEditor.get
-
 		editor = new HTMLEditorKit();
-		// doc= new HTMLDocument();
+
 		// Create textArea To write on
 		textArea = new JTextPane();
-		// editor.install(textArea);
-		//
-		// textArea.setEditorKitForContentType("text/html", new
-		// WysiwygHTMLEditorKit());
 		textArea.setContentType("text/html");
 		textArea.setEditorKit(editor);
-		textArea.getDocument().addDocumentListener(new docListener());
-		// textArea.setDocument(doc);
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
-		// textArea.setLineWrap(true);
 
-		textArea.addKeyListener(new characterListener());
-		// code
 		// Create ScrollPane to put textAreaon
 		scroll = new JScrollPane(textArea);
 		scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.9)));
-		/*
-		 * SHef inserts
-		 */
+
 		// button group toolbar
 		toolBar = new JMenuBar();
 		toolBar.setPreferredSize(new Dimension(windowWidth - 300, 20));
-		// toolBar.add(secondEditor.getEditMenu());
-		// toolBar.add(secondEditor.getFormatMenu());
-		// toolBar.add(secondEditor.getInsertMenu());
 
 		leftAlign = new JButton("left");
 		rightAlign = new JButton("right");
@@ -266,17 +240,18 @@ public class EditorGUI extends JFrame {
 		italicsButton = new JToggleButton("Italics");
 		underlineButton = new JToggleButton("Underline");
 		colorFont = new JToggleButton("Change Colors");
-		// highlight.addActionListener(new colorButtonListener());
 		fontStyle = new JComboBox<String>();
 		fontStyle.addItem(Font.SERIF);
 		fontStyle.addItem(Font.SANS_SERIF);
 		fontStyle.addItem(Font.MONOSPACED);
 		fontStyle.addItem(Font.DIALOG);
-
-		file = new JMenuBar();
-		JButton fileButton = new JButton("File");
+		// File Menu Bar
+		file = new JMenu("File");
+		JMenuItem fileButton = new JMenuItem("File");
 		file.add(fileButton);
-		//
+		JMenu edit = new JMenu("Edit");
+
+		// this.add(file);
 		font = new JComboBox<Integer>();
 		font.addItem(8);
 		font.addItem(9);
@@ -296,6 +271,7 @@ public class EditorGUI extends JFrame {
 		font.setSelectedIndex(5);
 		font.setSize(80, 10);
 		toolBar.add(file);
+		toolBar.add(edit);
 		toolBar.add(boldButton);
 		toolBar.add(italicsButton);
 		toolBar.add(underlineButton);
@@ -307,14 +283,14 @@ public class EditorGUI extends JFrame {
 		toolBar.add(leftAlign);
 		toolBar.add(centerAlign);
 		toolBar.add(rightAlign);
-		toolBar.add(new JButton());
-		// // Set listener
+		toolBar.add(new JMenuItem(bulletAction));
+		// Set listener
 		boldButton.addActionListener(new boldButtonListener());
 		underlineButton.addActionListener(new underLineButtonListener());
 		italicsButton.addActionListener(new italicsButtonListener());
 		font.addItemListener(new selectSizeListener());
 		fontStyle.addItemListener(new selectStyleListener());
-		//
+
 		// // set tool bar layout and location
 		// GridBagConstraints toolbarConstraint = new GridBagConstraints();
 		// toolbarConstraint.anchor = GridBagConstraints.NORTHWEST;
@@ -327,26 +303,17 @@ public class EditorGUI extends JFrame {
 		// toolbarConstraint.weightx = 0;
 		// this.add(toolBar, toolbarConstraint);
 		this.setJMenuBar(toolBar);
-		textArea.addKeyListener(new characterListener()); 
+
+		textArea.addKeyListener(new DocCharacterListener());
+		//textArea.getDocument().addDocumentListener(new docListener());
 
 		fontSizeAction.setEnabled(true);
 		// Adds center Panel with text to Jframe
 		screenPanel.setVisible(true);
 		screenPanel.add(scroll);
 		this.add(screenPanel, c);
-		// textArea.add(secondEditor);
-
-		// this.add(secondEditor, c);
 		this.setVisible(true);
 
-		// KeyListener [] array= secondEditor.getKeyListeners();
-		// secondEd
-		// for(int i=0;i<array.length;i++){
-		// System.out.println(array[i] + " " +i);
-		// }
-		// secondEditor.
-		//
-		// // Starts buttons
 		colorFont.addActionListener(new colorButtonListener());
 		// textArea.addMouseMotionListener(new mousemotionListener());
 		textArea.addMouseListener(new clickListener());
@@ -368,7 +335,6 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			align = 2;
 			alignmentAction.setEnabled(true);
 			new StyledEditorKit.AlignmentAction("action", align).actionPerformed(e);
@@ -399,7 +365,6 @@ public class EditorGUI extends JFrame {
 		}
 
 	}
-
 
 	private class selectSizeListener implements ItemListener {
 
@@ -441,46 +406,67 @@ public class EditorGUI extends JFrame {
 		}
 	}
 
-	private class docListener implements DocumentListener {
+	//
+	private class DocCharacterListener implements KeyListener {
+		// ascii-48-126
+		@Override
+		public void keyTyped(KeyEvent e) {
+		}
 
 		@Override
-		public void insertUpdate(DocumentEvent e) {
-			// TODO Auto-generated method stub
+		public void keyPressed(KeyEvent e) {
+			// starts a timer waiting for a pause to send the revision command
+			startTimer();
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
 			try {
+				// System.out.print("I got to the KeyListener :" +
+				// textArea.getText());
 				toServer.writeObject(ClientRequest.DOC_TEXT);
 				toServer.writeObject(textArea.getText());
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			
-
-		}
-		@Override
-		public void removeUpdate(DocumentEvent e) {
-			// TODO Auto-generated method stub
-
-		}
-		@Override
-		public void changedUpdate(DocumentEvent e) {
-			// TODO Auto-generated method stub
-
-		}
-
-	}
-
-	private class mousemotionListener implements MouseMotionListener {
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			// TODO Auto-generated method stub
-
-		}
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			// TODO Auto-generated method stub
 
 		}
 	}
+//	private class docListener implements DocumentListener {
+//
+//		@Override
+//		public void insertUpdate(DocumentEvent e) {
+//			// TODO Auto-generated method stub
+//			if (ifTrueDontUpdate) {
+//				ifTrueDontUpdate = false;
+//			} else {
+//				startTimer();
+//				// System.out.println("i got to my doc Listener:" +
+//				// textArea.getText());
+//				try {
+//					toServer.writeObject(ClientRequest.DOC_TEXT);
+//					toServer.writeObject(textArea.getText());
+//					ifTrueDontUpdate=true;
+//
+//				} catch (IOException e1) {
+//					e1.printStackTrace();
+//				}
+//			}
+//		}
+//
+//		@Override
+//		public void removeUpdate(DocumentEvent e) {
+//			// TODO Auto-generated method stub
+//			startTimer();
+//		}
+//
+//		@Override
+//		public void changedUpdate(DocumentEvent e) {
+//			// TODO Auto-generated method stub
+//			startTimer();
+//		}
+//
+//	}
 
 	private class clickListener implements MouseListener {
 
@@ -517,7 +503,6 @@ public class EditorGUI extends JFrame {
 						boldButton.setSelected(false);
 					}
 				} catch (Exception e1) {
-					System.out.print("this is not good");
 
 				}
 
@@ -535,7 +520,6 @@ public class EditorGUI extends JFrame {
 						underlineButton.setSelected(false);
 					}
 				} catch (Exception e1) {
-					System.out.println("this is slkdfjldsfjnot good");
 				}
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -546,7 +530,6 @@ public class EditorGUI extends JFrame {
 						italics = attributeSet.getAttribute(StyleConstants.Italic);
 					}
 					if (italics.equals(true)) {
-						System.out.print("hello");
 						italicsButton.setSelected(true);
 					} else {
 						italicsButton.setSelected(false);
@@ -632,9 +615,10 @@ public class EditorGUI extends JFrame {
 		}
 
 	}
-	
+
 	private void startTimer() {
-		// initiate a new timer for indicating revisions to be saved in the server
+		// initiate a new timer for indicating revisions to be saved in the
+		// server
 		if (timer.isRunning()) {
 			timer.restart();
 			System.out.println("timer restarted");
@@ -642,49 +626,6 @@ public class EditorGUI extends JFrame {
 			timer = new Timer(2000, new TimerListener());
 			timer.start();
 			System.out.println("timer started");
-		}
-	}
-
-	// uncommit for server
-	
-	private class textUpdateListener implements DocumentListener {
-
-		@Override
-		public void insertUpdate(DocumentEvent e) {
-			startTimer();
-		}
-
-		@Override
-		public void removeUpdate(DocumentEvent e) {
-			startTimer();
-		}
-
-		@Override
-		public void changedUpdate(DocumentEvent e) {
-			startTimer();
-		}
-
-
-		
-	}
-
-	private class characterListener implements KeyListener {
-		// ascii-48-126
-		@Override
-		public void keyTyped(KeyEvent e) {
-
-		}
-
-		@Override
-		public void keyPressed(KeyEvent e) {
-			// starts a timer waiting for a pause to send the revision command
-
-			startTimer();
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-
 		}
 	}
 
@@ -698,13 +639,18 @@ public class EditorGUI extends JFrame {
 				// obtain updated doc text from server in a try-catch
 				try {
 					ServerResponse whatToUpdate = (ServerResponse) fromServer.readObject();
+					System.out.println("the Server Response:" + whatToUpdate);
+
 					String updatedText = (String) fromServer.readObject();
+					System.out.println("the Server Response text:" + updatedText);
+
 					if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
 						updatedoc(updatedText);
 					} else {
 						updatechat(updatedText);
 					}
-					textArea.setText(updatedText);
+					System.out.println(updatedText);
+					// textArea.setText(updatedText);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -719,7 +665,7 @@ public class EditorGUI extends JFrame {
 	}
 
 	public void updatechat(String text) {
-		chatString.append("/n" + text);
+		chatString.append("\n" + text);
 		chatTextArea.setText(chatString.toString());
 	}
 
@@ -732,13 +678,6 @@ public class EditorGUI extends JFrame {
 			text = chatText.getText();
 			chatText.setText("");
 
-//			if (chatTextArea.getText().equals("")) {
-//				chatTextArea.setText(text);
-//			} else {
-//				text = chatTextArea.getText() + "\n" + text;
-//				chatTextArea.setText(text);
-//			}
-
 			try {
 				toServer.writeObject(ClientRequest.CHAT_MSG);
 				toServer.writeObject(text);
@@ -749,7 +688,7 @@ public class EditorGUI extends JFrame {
 		}
 	}
 
-	// 
+	//
 	private class chatButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -765,7 +704,7 @@ public class EditorGUI extends JFrame {
 			EditorGUI.this.setVisible(true);
 		}
 	}
-	
+
 	private class TimerListener implements ActionListener {
 
 		@Override
@@ -778,12 +717,12 @@ public class EditorGUI extends JFrame {
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			// stop timer regardless of server communication success
+				// stop timer regardless of server communication success
 			} finally {
 				timer.stop();
 			}
 		}
-		
+
 	}
 
 	// testing

@@ -27,9 +27,9 @@ public class Server {
    static Map<String, OpenDocument> openDocuments = Collections.synchronizedMap(new HashMap<>());
    static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
 
-  
    /*
-    * Listens for new incoming client connections, and creates a ClientHandler to deal with them. 
+    * Listens for new incoming client connections, and creates a ClientHandler
+    * to deal with them.
     */
    public static void main(String[] args) throws IOException {
       hardCodeUsers();
@@ -52,27 +52,28 @@ public class Server {
       allUsers.put("Filbert", new User("Filbert", "Johnson"));
       allUsers.put("Orzy", new User("Orzy", "Hazan"));
    }
-   
+
    /*
     * Hard code some Documents for testing purposes
     */
    private static void hardCodeDocs() {
       allDocuments.put("DanielsDoc", new Document("DanielsDoc", "Daniel"));
       allUsers.get("Daniel").addOwnedDocument("DanielsDoc");
-      
+
       allUsers.get("Michael").addEditableDocument("DanielsDoc");
       allUsers.get("Filbert").addEditableDocument("DanielsDoc");
-      allUsers.get("Orzy").addOwnedDocument("DanielsDoc");
-      
+      allUsers.get("Orzy").addEditableDocument("DanielsDoc");
+      allUsers.get("Jacob").addEditableDocument("DanielsDoc");
+
       allDocuments.put("MichaelsDoc", new Document("MichaelsDoc", "Michael"));
       allUsers.get("Michael").addOwnedDocument("MichaelsDoc");
-      
+
       allDocuments.put("JacobsDoc", new Document("JacobsDoc", "Jacob"));
       allUsers.get("Jacob").addOwnedDocument("JacobsDoc");
-      
+
       allDocuments.put("FilbertsDoc", new Document("FilbertsDoc", "Filbert"));
       allUsers.get("Filbert").addOwnedDocument("FilbertsDoc");
-      
+
       allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
       allUsers.get("Orzy").addOwnedDocument("OrzysDoc");
    }
@@ -91,9 +92,8 @@ class ClientHandler extends Thread {
    private OpenDocument currentOpenDoc; // current document being edited by the
    private boolean isRunning, removeStreams; // booleans...
 
-   
    /*
-    * Opens the Input and Output Streams. 
+    * Opens the Input and Output Streams.
     */
    public ClientHandler(Socket clientSocket) {
       this.clientSocket = clientSocket;
@@ -143,6 +143,9 @@ class ClientHandler extends Thread {
             case ADD_PERMISSION:
                addPermission();
                break;
+            case REMOVE_PERMISSION:
+               removePermission();
+               break;
             case OPEN_DOC:
                openDocument();
                break;
@@ -154,6 +157,9 @@ class ClientHandler extends Thread {
                break;
             case CLOSE_DOC:
                closeDocument();
+               break;
+            case DELETE_DOC:
+               deleteDocument();
                break;
             case LOGOUT:
                logout();
@@ -287,7 +293,17 @@ class ClientHandler extends Thread {
     */
    private void addPermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
-      String document = (String) clientIn.readObject();
+      String docName = (String) clientIn.readObject();
+      Document document = Server.allDocuments.get(docName);
+      if (document == null) {
+         clientOut.writeObject(ServerResponse.NO_DOCUMENT);
+      } else if (!currentUser.owns(docName)) {
+         clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
+      } else {
+         Server.allUsers.get(username).addEditableDocument(docName);
+         document.addEditor(username);
+         clientOut.writeObject(ServerResponse.PERMISSION_ADDED);
+      }
    }
 
    /*
@@ -296,7 +312,6 @@ class ClientHandler extends Thread {
    private void removePermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String document = (String) clientIn.readObject();
-      
    }
 
    /*
@@ -315,8 +330,12 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else {
          currentOpenDoc = Server.openDocuments.get(docName);
-         currentOpenDoc = (currentOpenDoc == null) ? new OpenDocument(openingDoc, clientOut) : currentOpenDoc;
-         currentOpenDoc.addEditor(clientOut);
+         if (currentOpenDoc == null) {
+            currentOpenDoc = new OpenDocument(openingDoc, clientOut);
+            Server.openDocuments.put(docName, currentOpenDoc);
+         } else {
+            currentOpenDoc.addEditor(clientOut);
+         }
          clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
          clientOut.writeObject(currentOpenDoc.getText());
       }
@@ -326,7 +345,7 @@ class ClientHandler extends Thread {
     * Reads in the new chat message from the client.
     */
    private void updateChat() throws ClassNotFoundException, IOException {
-      String chatMessage = (String) clientIn.readObject();
+      String chatMessage = currentUser.getName() + ": " + (String) clientIn.readObject();
       sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage);
    }
 
@@ -351,6 +370,7 @@ class ClientHandler extends Thread {
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
          if (response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
+            System.out.println("Skipped");
             continue;
             // maybe this can be removed now?
          }
@@ -381,6 +401,22 @@ class ClientHandler extends Thread {
     */
    private void closeDocument() {
       Server.openDocuments.remove(currentOpenDoc);
+   }
+   
+   private void deleteDocument() throws ClassNotFoundException, IOException {
+      String docName = (String) clientIn.readObject();
+      Document toDelete = Server.allDocuments.get(docName);
+      if (toDelete == null) {
+         clientOut.writeObject(ServerResponse.NO_DOCUMENT);
+      } else if (!currentUser.owns(docName)) {
+         clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
+      } else if (Server.openDocuments.get(docName) != null) {
+         clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
+      } else {
+         Server.allDocuments.remove(docName);
+         currentUser.removeDocument(docName);
+         clientOut.writeObject(ServerResponse.DOCUMENT_DELETED);
+      }
    }
 
    /*

@@ -86,6 +86,8 @@ public class DocumentSelectGUI extends JFrame {
 	
 
 	private void getDisplayList() {
+		ownedDocList.clear();
+		editDocList.clear();
 		try {
 			toServer.writeObject(ClientRequest.GET_DOCS);
 			ownedModel = (List<String>) fromServer.readObject();
@@ -326,6 +328,11 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
+					new EditorGUI();
+					return;
+				default:
+					JOptionPane.showMessageDialog(null, "Incompatible server response.");
+					return;
 				}
 
 			} catch (IOException e1) {
@@ -340,8 +347,6 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ownedDocList.clear();
-			editDocList.clear();
 			getDisplayList();
 		}
 	}

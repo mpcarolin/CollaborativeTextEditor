@@ -55,6 +55,10 @@ public class User implements Serializable {
    public boolean isLoggedIn() {
       return loggedIn;
    }
+   
+   public boolean owns(String documentName) {
+      return ownedDocuments.contains(documentName);
+   }
 
    public boolean hasPermission(String documentName) {
       return ownedDocuments.contains(documentName) || editableDocuments.contains(documentName);
@@ -67,6 +71,11 @@ public class User implements Serializable {
    
    public void addEditableDocument(String documentName) {
       editableDocuments.add(documentName);
+   }
+   
+   public void removeDocument(String documentName) {
+      ownedDocuments.remove(documentName);
+      editableDocuments.remove(documentName);
    }
    
    public List<String> getOwnedDocuments() {
