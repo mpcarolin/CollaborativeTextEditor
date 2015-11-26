@@ -155,6 +155,9 @@ class ClientHandler extends Thread {
             case SAVE_REVISION:
                saveRevision();
                break;
+            case REVERT_DOC:
+               revertDocument();
+               break;
             case CLOSE_DOC:
                closeDocument();
                break;
@@ -395,6 +398,10 @@ class ClientHandler extends Thread {
     */
    private void saveRevision() {
       currentOpenDoc.saveRevision();
+   }
+   
+   public void revertDocument() {
+      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert());
    }
 
    /*
