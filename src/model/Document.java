@@ -1,7 +1,6 @@
 package model;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
 
 public class Document {
@@ -11,7 +10,7 @@ public class Document {
 	private String currentText;
 	private String documentName;
 	private String ownerName;
-	private List<String> editorNames;
+	private LinkedList<String> editorNames;
 
 	
 	public Document(String documentName, String ownerName) {
@@ -56,20 +55,30 @@ public class Document {
 	}
 	
 	public Revision getLastRevision() {
-		Revision lastRevision = history.pop();
-		currentText = lastRevision.getFullText();
-		return lastRevision;
+		return history.pop();
 	}
 	
 	public String getDocumentName() {
 		return documentName;
 	}
-		
+	
+	@Deprecated
+	// pushes to history, but resizes the stack if its length surpasses the limit
+	private void addToHistory(String newText, String revisingUser, int caretLocation) {
+
+		if (history.size() >= NUM_REVISIONS_STORED) {
+			history.remove(0);
+		}
+
+		Revision revision = new Revision(newText, currentText, revisingUser); 
+		history.push(revision);
+	}
+	
 	public String getOwner() {
 		return ownerName;
 	}
 	
-	public List<String> getEditors() {
+	public LinkedList<String> getEditors() {
 		return editorNames;
 	}
 }
