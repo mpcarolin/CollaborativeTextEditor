@@ -213,6 +213,7 @@ public class DocumentSelectGUI extends JFrame {
 		// SearchBarListener());
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
+		this.deleteDoc.addActionListener(new DeleteDocumentListener());
 
 	}
 
@@ -340,6 +341,57 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			getDisplayList();
+		}
+	}
+
+	private class DeleteDocumentListener implements ActionListener {
+
+		// if exists
+		// if owner
+		// if currently edited
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String docName = null;
+			if (ownDisplayList.isShowing()) {
+				int index = ownDisplayList.getSelectedIndex();
+				docName = ownedDocList.getElementAt(index);
+			} else {
+				int index = editDisplayList.getSelectedIndex();
+				docName = editDocList.getElementAt(index);
+			}
+			connectAndDelete(docName);
+		}
+
+		public void connectAndDelete(String document) {
+			try {
+				toServer.writeObject(ClientRequest.DELETE_DOC);
+				toServer.writeObject(document);
+				ServerResponse response = (ServerResponse) fromServer.readObject();
+				switch (response) {
+				case NO_DOCUMENT:
+					JOptionPane.showMessageDialog(null, "That document does not exist.");
+					return;
+				case PERMISSION_DENIED:
+					JOptionPane.showMessageDialog(null,
+							"You are not the owner of this document, and do not have permission to delete.");
+					return;
+				case DOCUMENT_OPENED:
+					JOptionPane.showMessageDialog(null,
+							"The document is currently being edited. You cannot delete now, try again later.");
+					return;
+				case DOCUMENT_DELETED:
+					JOptionPane.showMessageDialog(null, "Document was successfuly deleted.");
+					getDisplayList();
+					return;
+				default:
+					JOptionPane.showMessageDialog(null, "Incompatible server response.");
+					return;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
