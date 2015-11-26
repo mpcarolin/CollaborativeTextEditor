@@ -21,12 +21,12 @@ public class OpenDocument {
       editingUsers.add(newEditor);
    }
    
-   public void saveRevision() {
-      // 
+   public void saveRevision(String username) {
+      document.saveRevision(username);
    }
    
    public String revert() {
-      return "";
+      return document.getLastRevision().getFullText();
    }
    
    public void removeClosedEditorStreams(Set<ObjectOutputStream> oldEditors) {
