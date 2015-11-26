@@ -39,12 +39,16 @@ public class Document {
       if (history.size() > NUM_REVISIONS_STORED) {
          history.remove(0);
       }
-      Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);
+	  Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);
       history.push(revision);
    }
    
-   private Revision peekLastRevision() {
-      return history.peek();
+   private Revision peekLastRevision() { 
+	   if (history.size() > 0) {
+		  return history.peek(); 
+	   } else {
+		  return new Revision("", "", null);
+	   }
    }
 
    public void addEditor(String editorUsername) {
