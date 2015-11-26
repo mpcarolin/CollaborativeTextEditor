@@ -413,13 +413,6 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Saves a revision.
-    */
-   private void saveRevision() {
-      currentOpenDoc.saveRevision(currentUser.getName());
-   }
-
-   /*
     * Closes the current OpenDocument.
     */
    private void closeDocument() {
