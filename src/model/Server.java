@@ -257,8 +257,8 @@ class ClientHandler extends Thread {
       clientOut.writeObject(currentUser.getEditableDocuments());
    }
    
-   private void sendEditorList() {
-      
+   private void sendEditorList() throws ClassNotFoundException, IOException {
+      String docName = (String) clientIn.readObject();
    }
 
    /*
