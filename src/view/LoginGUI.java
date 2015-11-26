@@ -88,6 +88,7 @@ public class LoginGUI extends JFrame {
 			loginButton.addActionListener(new loginButtonListener());
 			createAccountButton.addActionListener(new createAccountButtonListener());
 			resetPassButton.addActionListener(new ResetAccountButtonListener());
+			this.getRootPane().setDefaultButton(loginButton);	// enables user to press enter to login
 			
 			// button panel
 			buttonPanel = new JPanel(new FlowLayout());
@@ -95,7 +96,7 @@ public class LoginGUI extends JFrame {
 			buttonPanel.add(createAccountButton);
 			buttonPanel.add(resetPassButton);
 			
-			// bottom panel
+			// bottom panel: contains buttons and the instruction message label
 			bottomPanel = new JPanel(new BorderLayout());
 			bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 			bottomPanel.add(instructionLabel, BorderLayout.CENTER);
@@ -248,14 +249,10 @@ public class LoginGUI extends JFrame {
 			}
 		}
 		
-		
-	
 		// testing
 		public static void main(String[] args) {
 			ObjectOutputStream out = null;
 			ObjectInputStream in = null;
 			new LoginGUI(in, out);
 		}
-
-	
 }
