@@ -220,6 +220,7 @@ public class DocumentSelectGUI extends JFrame {
 		docPanel.add(holder);
 
 		this.setVisible(true);
+
 	}
 
 	private void registerListeners() {
