@@ -39,7 +39,7 @@ public class Document {
       if (history.size() > NUM_REVISIONS_STORED) {
          history.remove(0);
       }
-	  Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);
+	   Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);
       history.push(revision);
    }
    
@@ -51,8 +51,8 @@ public class Document {
 	   }
    }
 
-   public void addEditor(String editorUsername) {
-      editorNames.add(editorUsername);
+   public void addEditor(String username) {
+      editorNames.add(username);
    }
    
    public String getText() {
@@ -78,5 +78,9 @@ public class Document {
    
    public List<String> getEditors() {
       return editorNames;
+   }
+   
+   public void removeEditor(String username) {
+      editorNames.remove(username);
    }
 }

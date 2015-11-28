@@ -2,7 +2,6 @@ package model;
 
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -29,8 +28,16 @@ public class OpenDocument {
       return document.getLastRevision().getFullText();
    }
    
+   public void removeEditor(ObjectOutputStream oldEditor) {
+      editingUsers.remove(oldEditor);
+   }
+   
    public void removeClosedEditorStreams(Set<ObjectOutputStream> oldEditors) {
       editingUsers.removeAll(oldEditors);
+   }
+   
+   public boolean noEditors() {
+      return editingUsers.size() == 0;
    }
    
    public String getText() {
