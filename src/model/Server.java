@@ -275,6 +275,7 @@ class ClientHandler extends Thread {
             System.out.println("Editor: " + s);
          System.out.println();
          
+         clientOut.reset();
          clientOut.writeObject(document.getEditors());
 
       }

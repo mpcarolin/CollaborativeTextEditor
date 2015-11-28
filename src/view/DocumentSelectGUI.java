@@ -93,15 +93,13 @@ public class DocumentSelectGUI extends JFrame {
 				break;
 			case DOCUMENT_EXISTS:
 				// obtain editors from server
-				List<String> editors = (List<String>) fromServer.readObject();
-
-				// add each editor to the model
-				for (String editor : editors) {
-					System.out.println(editor);
+				editingUsersList = (List<String>) fromServer.readObject();
+				
+				for (String editor : editingUsersList) {
 					editingUserListModel.addElement(editor);
 				}
-				
-				//editingUsersJList.setModel(editingUserListModel);
+
+				editingUsersJList.setModel(editingUserListModel);
 				//topHolder.add(editingUsersJList);
 
 				break;
