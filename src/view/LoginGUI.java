@@ -23,7 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import model.ClientRequest;
-import model.DocumentSelectGUI;
 import model.Server;
 import model.ServerResponse;
 
@@ -88,6 +87,8 @@ public class LoginGUI extends JFrame {
 			loginButton.addActionListener(new loginButtonListener());
 			createAccountButton.addActionListener(new createAccountButtonListener());
 			resetPassButton.addActionListener(new ResetAccountButtonListener());
+			// enables user to press enter to login
+			this.getRootPane().setDefaultButton(loginButton);	
 			
 			// button panel
 			buttonPanel = new JPanel(new FlowLayout());
@@ -95,7 +96,7 @@ public class LoginGUI extends JFrame {
 			buttonPanel.add(createAccountButton);
 			buttonPanel.add(resetPassButton);
 			
-			// bottom panel
+			// bottom panel: contains buttons and the instruction message label
 			bottomPanel = new JPanel(new BorderLayout());
 			bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 			bottomPanel.add(instructionLabel, BorderLayout.CENTER);
@@ -133,7 +134,7 @@ public class LoginGUI extends JFrame {
 					case LOGIN_SUCCESS:
 						instructionLabel.setText("Login Successful");
 						// open the Document Selector GUI
-						//new DocumentSelectGUI(fromServer);
+						// new DocumentSelectGUI(fromServer);
 						LoginGUI.this.setVisible(false);
 						LoginGUI.this.dispose();
 						break;
@@ -248,14 +249,10 @@ public class LoginGUI extends JFrame {
 			}
 		}
 		
-		
-	
 		// testing
 		public static void main(String[] args) {
 			ObjectOutputStream out = null;
 			ObjectInputStream in = null;
 			new LoginGUI(in, out);
 		}
-
-	
 }

@@ -44,4 +44,8 @@ public class OpenDocument {
    public List<ObjectOutputStream> getOutStreams() { 
       return editingUsers;
    }
+   
+   public Document getDocument() {
+	   return document;
+   }
 }
