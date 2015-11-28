@@ -74,14 +74,37 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	// updates the model and refreshes the editing user list panel
-	private void refreshEditingUserLists() {
-		// clear model because will be completely updated
-		editingUserListModel.clear();
+	private void refreshEditingUserLists(String docName) {
+
+		/*
 		for (String name : editingUsersList) {
 			editingUserListModel.addElement(name);
 		}
+		*/
+
+		// get list from server
+		try {
+
+			// clear model because will be completely updated
+			editingUserListModel.clear();
+		
+			toServer.writeObject(ClientRequest.GET_EDITORS);
+			toServer.writeObject(docName);
+			
+			LinkedList<String> editors = (LinkedList<String>) fromServer.readObject();
+
+			// add each editor to the model
+			for (String editor : editors) {
+				editingUserListModel.addElement(editor);
+			}
+
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		editingUsersJList.setModel(editingUserListModel);
 		topHolder.add(editingUsersJList);
+		topHolder.setVisible(true);
 	}
 
 	private void getDisplayList() {
@@ -90,9 +113,7 @@ public class DocumentSelectGUI extends JFrame {
 		try {
 			toServer.writeObject(ClientRequest.GET_DOCS);
 			ownedModel = (List<String>) fromServer.readObject();
-			System.out.println(ownedModel.get(0));
 			ownedEditable = (List<String>) fromServer.readObject();
-			System.out.println(ownedModel.get(0));
 			for (String s : ownedModel) {
 				ownedDocList.addElement(s);
 			}
@@ -100,7 +121,6 @@ public class DocumentSelectGUI extends JFrame {
 				editDocList.addElement(s);
 			}
 			ownDisplayList.setModel(ownedDocList);
-			System.out.println(ownDisplayList.getModel().getSize());
 			editDisplayList.setModel(editDocList);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -364,20 +384,27 @@ public class DocumentSelectGUI extends JFrame {
 			if (username != null) {
 
 				int index = ownDisplayList.getSelectedIndex();
+				if (index < 0) {
+					JOptionPane.showMessageDialog(null, "Please select a document.");
+					return;
+				}
+
 				String docName = ownedDocList.getElementAt(index);
+
+				System.out.println(docName);
 
 				try {
 					toServer.writeObject(ClientRequest.ADD_PERMISSION);
-					toServer.writeObject(docName);
 					toServer.writeObject(username);
+					toServer.writeObject(docName);
 
 					ServerResponse response = (ServerResponse) fromServer.readObject();
-
+					System.out.println(response);
+					
 					switch (response) {
 					case PERMISSION_ADDED:
 						// user
-						editingUsersList.add(username);
-						refreshEditingUserLists();
+						refreshEditingUserLists(docName);
 						break;
 					case NO_DOCUMENT:
 						JOptionPane.showMessageDialog(null, "Cannot add user to a document that does not exist.");
