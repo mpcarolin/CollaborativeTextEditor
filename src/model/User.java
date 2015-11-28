@@ -2,7 +2,6 @@ package model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -16,7 +15,6 @@ public class User implements Serializable {
     * make sure these are the same id+password hash stored 8 digits
     */
    private String username;
-   private int id;
    private int salt;
    private int hashPass;
    private boolean loggedIn;
@@ -32,8 +30,8 @@ public class User implements Serializable {
       Random rng = new Random();
       salt = rng.nextInt(90000000);
       hashPass = (salt + pass).hashCode();
-      ownedDocuments = Collections.synchronizedList(new ArrayList<String>());
-      editableDocuments = Collections.synchronizedList(new ArrayList<String>()); 
+      ownedDocuments = new ArrayList<String>();
+      editableDocuments = new ArrayList<String>(); 
    }
 
    public String getName() {

@@ -191,7 +191,7 @@ class ClientHandler extends Thread {
     * Gets the username and password from the client, and creates a new User
     * account. Verifies that the username is unique.
     */
-   private boolean createAccount() throws ClassNotFoundException, IOException {
+   private void createAccount() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String password = (String) clientIn.readObject();
       if (Server.allUsers.get(username) != null) {
@@ -203,16 +203,14 @@ class ClientHandler extends Thread {
          currentUser = newUser;
          Server.clientOutStreams.add(clientOut);
          clientOut.writeObject(ServerResponse.ACCOUNT_CREATED);
-         return true;
       }
-      return false;
    }
 
    /*
     * Gets the credentials from the client and checks if the match a User
     * account. Verifies that the User is not already logged in
     */
-   private boolean authenticateUser() throws ClassNotFoundException, IOException {
+   private void authenticateUser() throws ClassNotFoundException, IOException {
       User user = null;
       String username = (String) clientIn.readObject();
       String password = (String) clientIn.readObject();
@@ -228,9 +226,7 @@ class ClientHandler extends Thread {
          currentUser = user;
          Server.clientOutStreams.add(clientOut);
          clientOut.writeObject(ServerResponse.LOGIN_SUCCESS);
-         return true;
       }
-      return false;
    }
 
    /*
@@ -256,9 +252,20 @@ class ClientHandler extends Thread {
       clientOut.writeObject(currentUser.getOwnedDocuments());
       clientOut.writeObject(currentUser.getEditableDocuments());
    }
-   
+
+   /*
+    * Sends a list of all Users that have permission to edit the specified
+    * document.
+    */
    private void sendEditorList() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
+      Document document = Server.allDocuments.get(docName);
+      if (document == null) {
+         clientOut.writeObject(ServerResponse.NO_DOCUMENT);
+      } else {
+         clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
+         clientOut.writeObject(document.getEditors());
+      }
    }
 
    /*
@@ -283,11 +290,10 @@ class ClientHandler extends Thread {
     * Creates a new Document, with the current User as the owner. Verifies that
     * the Document name is unique.
     */
-   private boolean createDocument() throws ClassNotFoundException, IOException {
+   private void createDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       if (Server.allDocuments.get(docName) != null) {
          clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
-         return false;
       }
       Document newDocument = new Document(docName, currentUser.getName());
       Server.allDocuments.put(docName, newDocument);
@@ -295,7 +301,6 @@ class ClientHandler extends Thread {
       currentOpenDoc = new OpenDocument(newDocument, clientOut);
       Server.openDocuments.put(docName, currentOpenDoc);
       clientOut.writeObject(ServerResponse.DOCUMENT_CREATED);
-      return true;
    }
 
    /*
@@ -321,8 +326,16 @@ class ClientHandler extends Thread {
     */
    private void removePermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
-      String document = (String) clientIn.readObject();
-      
+      String docName = (String) clientIn.readObject();
+      Document document = Server.allDocuments.get(docName);
+      if (document == null) {
+         clientOut.writeObject(ServerResponse.NO_DOCUMENT);
+      } else if (!currentUser.owns(docName)) {
+         clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
+      } else {
+         Server.allUsers.get(username).removeDocument(docName);
+         document.removeEditor(username);
+      }
    }
 
    /*
@@ -367,14 +380,14 @@ class ClientHandler extends Thread {
       currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), false);
    }
-   
+
    /*
     * Saves a revision.
     */
    private void saveRevision() {
       currentOpenDoc.saveRevision(currentUser.getName());
    }
-   
+
    /*
     * Reverts the current OpenDocument to its most recent revison.
     */
@@ -409,16 +422,26 @@ class ClientHandler extends Thread {
       if (removeStreams) {
          currentOpenDoc.removeClosedEditorStreams(closedEditors);
          removeStreams = false;
+         if (currentOpenDoc.noEditors()) {
+            Server.openDocuments.remove(currentOpenDoc);
+         }
       }
    }
 
    /*
-    * Closes the current OpenDocument.
+    * Removes the user from the current OpenDocument. Closes the current
+    * OpenDocument if the user was the only editor.
     */
    private void closeDocument() {
-      Server.openDocuments.remove(currentOpenDoc);
+      currentOpenDoc.removeEditor(clientOut);
+      if (currentOpenDoc.noEditors()) {
+         Server.openDocuments.remove(currentOpenDoc);
+      }
    }
-   
+
+   /*
+    * Deletes a document.
+    */
    private void deleteDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       Document toDelete = Server.allDocuments.get(docName);
@@ -439,6 +462,7 @@ class ClientHandler extends Thread {
     * Logs out the current user and closes the connection.
     */
    private void logout() {
+      // currentOpenDoc.removeEditor(clientOut);
       Server.clientOutStreams.remove(clientOut);
       currentUser.setLogin(false);
       isRunning = false;
