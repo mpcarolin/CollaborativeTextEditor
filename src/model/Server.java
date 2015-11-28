@@ -269,12 +269,13 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else {
          clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
-         clientOut.writeObject(document.getEditors());
          
          System.out.println("Sent list");
          for (String s : document.getEditors())
             System.out.println("Editor: " + s);
          System.out.println();
+         
+         clientOut.writeObject(document.getEditors());
 
       }
    }
@@ -330,7 +331,7 @@ class ClientHandler extends Thread {
          if (!user.hasPermission(docName)) {
             user.addEditableDocument(docName);
             
-            System.out.println("Document editors after adding new editor");
+            System.out.println("Users documents after adding new document");
             for (String s : user.getEditableDocuments())
                System.out.println("Document" + s);
             System.out.println();
@@ -338,7 +339,7 @@ class ClientHandler extends Thread {
          } if (!document.isEditableBy(username)) {
             document.addEditor(username);
             
-            System.out.println("Users documents after adding new document");
+            System.out.println("Document editors after adding new editor");
             for (String s : document.getEditors())
                System.out.println("Editor: " + s);
             System.out.println();
