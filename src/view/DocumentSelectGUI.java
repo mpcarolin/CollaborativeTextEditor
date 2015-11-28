@@ -99,7 +99,7 @@ public class DocumentSelectGUI extends JFrame {
 				for (String editor : editors) {
 					editingUserListModel.addElement(editor);
 				}
-
+				
 				//editingUsersJList.setModel(editingUserListModel);
 				//topHolder.add(editingUsersJList);
 
@@ -221,6 +221,7 @@ public class DocumentSelectGUI extends JFrame {
 		bottomInnerOption.setLayout(new BorderLayout());
 		topHolder.setLayout(new BorderLayout());
 		topHolder.setBackground(Color.WHITE);
+		topHolder.add(editingUsersJList);
 		bottomHolder.setLayout(new BorderLayout());
 		bottomHolder.setBackground(Color.WHITE);
 		topInnerOption.add(topHolder, BorderLayout.CENTER);
