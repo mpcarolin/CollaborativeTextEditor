@@ -253,6 +253,10 @@ class ClientHandler extends Thread {
       clientOut.writeObject(currentUser.getEditableDocuments());
    }
 
+   /*
+    * Sends a list of all Users that have permission to edit the specified
+    * document.
+    */
    private void sendEditorList() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       Document document = Server.allDocuments.get(docName);
@@ -425,7 +429,8 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Closes the current OpenDocument.
+    * Removes the user from the current OpenDocument. Closes the current
+    * OpenDocument if the user was the only editor.
     */
    private void closeDocument() {
       currentOpenDoc.removeEditor(clientOut);
@@ -434,6 +439,9 @@ class ClientHandler extends Thread {
       }
    }
 
+   /*
+    * Deletes a document.
+    */
    private void deleteDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       Document toDelete = Server.allDocuments.get(docName);
@@ -454,7 +462,7 @@ class ClientHandler extends Thread {
     * Logs out the current user and closes the connection.
     */
    private void logout() {
-      //currentOpenDoc.removeEditor(clientOut);
+      // currentOpenDoc.removeEditor(clientOut);
       Server.clientOutStreams.remove(clientOut);
       currentUser.setLogin(false);
       isRunning = false;
