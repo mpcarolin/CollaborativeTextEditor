@@ -37,9 +37,7 @@ public class Main {
             e.printStackTrace();
          }
       }
-
-      DocumentSelectGUI selector = new DocumentSelectGUI(fromServer, toServer);
-
+     new DocumentSelectGUI(fromServer, toServer);
    }
 
 }
