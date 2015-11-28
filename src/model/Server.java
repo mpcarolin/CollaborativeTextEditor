@@ -64,6 +64,10 @@ public class Server {
       allUsers.get("Filbert").addEditableDocument("DanielsDoc");
       allUsers.get("Orzy").addEditableDocument("DanielsDoc");
       allUsers.get("Jacob").addEditableDocument("DanielsDoc");
+      allDocuments.get("DanielsDoc").addEditor("Michael");
+      allDocuments.get("DanielsDoc").addEditor("Filbert");
+      allDocuments.get("DanielsDoc").addEditor("Orzy");
+      allDocuments.get("DanielsDoc").addEditor("Jacob");
 
       allDocuments.put("MichaelsDoc", new Document("MichaelsDoc", "Michael"));
       allUsers.get("Michael").addOwnedDocument("MichaelsDoc");
@@ -319,8 +323,14 @@ class ClientHandler extends Thread {
       } else {
          if (!user.hasPermission(docName)) {
             user.addEditableDocument(docName);
+            
+            for (String s : document.getEditors())
+               System.out.println(s);
+            
          } if (!document.isEditableBy(username)) {
             document.addEditor(username);
+            for (String s : user.getEditableDocuments())
+               System.out.println(s);
          }
          clientOut.writeObject(ServerResponse.PERMISSION_ADDED);
       }
