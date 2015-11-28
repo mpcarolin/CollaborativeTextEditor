@@ -92,9 +92,7 @@ public class DocumentSelectGUI extends JFrame {
 		try {
 			toServer.writeObject(ClientRequest.GET_DOCS);
 			ownedModel = (List<String>) fromServer.readObject();
-			System.out.println(ownedModel.get(0));
 			ownedEditable = (List<String>) fromServer.readObject();
-			System.out.println(ownedModel.get(0));
 			for (String s : ownedModel) {
 				ownedDocList.addElement(s);
 			}
@@ -102,7 +100,6 @@ public class DocumentSelectGUI extends JFrame {
 				editDocList.addElement(s);
 			}
 			ownDisplayList.setModel(ownedDocList);
-			System.out.println(ownDisplayList.getModel().getSize());
 			editDisplayList.setModel(editDocList);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -368,12 +365,15 @@ public class DocumentSelectGUI extends JFrame {
 				int index = ownDisplayList.getSelectedIndex();
 				String docName = ownedDocList.getElementAt(index);
 
+				System.out.println(docName);
+
 				try {
 					toServer.writeObject(ClientRequest.ADD_PERMISSION);
 					toServer.writeObject(docName);
 					toServer.writeObject(username);
 					
 					ServerResponse response = (ServerResponse) fromServer.readObject();
+					System.out.println(response);
 					
 					switch (response) {
 					case PERMISSION_ADDED:
@@ -473,6 +473,7 @@ public class DocumentSelectGUI extends JFrame {
 				// tell the server we want to open the docName document
 				toServer.writeObject(ClientRequest.OPEN_DOC);
 				toServer.writeObject(docName);
+				System.out.println(docName);
 
 				// receive and process server's response
 				ServerResponse response = (ServerResponse) fromServer.readObject();
