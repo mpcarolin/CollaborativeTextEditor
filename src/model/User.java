@@ -15,7 +15,6 @@ public class User implements Serializable {
     * make sure these are the same id+password hash stored 8 digits
     */
    private String username;
-   private int id;
    private int salt;
    private int hashPass;
    private boolean loggedIn;
