@@ -88,7 +88,8 @@ public class LoginGUI extends JFrame {
 			loginButton.addActionListener(new loginButtonListener());
 			createAccountButton.addActionListener(new createAccountButtonListener());
 			resetPassButton.addActionListener(new ResetAccountButtonListener());
-			this.getRootPane().setDefaultButton(loginButton);	// enables user to press enter to login
+			// enables user to press enter to login
+			this.getRootPane().setDefaultButton(loginButton);	
 			
 			// button panel
 			buttonPanel = new JPanel(new FlowLayout());
@@ -134,7 +135,7 @@ public class LoginGUI extends JFrame {
 					case LOGIN_SUCCESS:
 						instructionLabel.setText("Login Successful");
 						// open the Document Selector GUI
-						//new DocumentSelectGUI(fromServer);
+						// new DocumentSelectGUI(fromServer);
 						LoginGUI.this.setVisible(false);
 						LoginGUI.this.dispose();
 						break;
