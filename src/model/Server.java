@@ -261,6 +261,7 @@ class ClientHandler extends Thread {
 
       String docName = (String) clientIn.readObject();
       Document document = Server.allDocuments.get(docName);
+      System.out.println("Before server sends response");
 
       if (document == null) {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);

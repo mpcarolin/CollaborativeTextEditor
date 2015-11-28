@@ -65,7 +65,7 @@ public class DocumentSelectGUI extends JFrame {
 		userListDLM = new DefaultListModel<String>();
 		editingUserListModel = new DefaultListModel<String>();
 		userListJL = new JList<String>();
-		editingUsersJList = new JList<String>();
+		editingUsersJList = new JList<String>(editingUserListModel);
 	}
 
 	private void getUserUpdates() {
@@ -74,31 +74,44 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	// updates the model and refreshes the editing user list panel
+	@SuppressWarnings("unchecked")
 	private void refreshEditingUserLists(String docName) {
 
 		// get list from server
 		try {
-
 			// clear model because will be completely updated
 			editingUserListModel.clear();
-		
 			toServer.writeObject(ClientRequest.GET_EDITORS);
 			toServer.writeObject(docName);
+			System.out.println("before response");
 			
-			LinkedList<String> editors = (LinkedList<String>) fromServer.readObject();
+			ServerResponse response = (ServerResponse) fromServer.readObject();
+			System.out.println(response);
+			switch (response) {
+			case NO_DOCUMENT:
+				JOptionPane.showMessageDialog(null, "That document no longer exists.");
+				break;
+			case DOCUMENT_EXISTS:
+				// obtain editors from server
+				List<String> editors = (List<String>) fromServer.readObject();
 
-			// add each editor to the model
-			for (String editor : editors) {
-				editingUserListModel.addElement(editor);
+				// add each editor to the model
+				for (String editor : editors) {
+					editingUserListModel.addElement(editor);
+				}
+
+				//editingUsersJList.setModel(editingUserListModel);
+				//topHolder.add(editingUsersJList);
+
+				break;
+
+			default:
+				break;
 			}
-
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		
-		editingUsersJList.setModel(editingUserListModel);
-		topHolder.add(editingUsersJList);
-		topHolder.setVisible(true);
 	}
 
 	private void getDisplayList() {
