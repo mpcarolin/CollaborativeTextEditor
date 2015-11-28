@@ -82,6 +82,10 @@ public class Document {
       return ownerName;
    }
    
+   public boolean isEditableBy(String username) {
+      return editorNames.contains(username);
+   }
+   
    public List<String> getEditors() {
       return editorNames;
    }
