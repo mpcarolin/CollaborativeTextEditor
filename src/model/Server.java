@@ -191,7 +191,7 @@ class ClientHandler extends Thread {
     * Gets the username and password from the client, and creates a new User
     * account. Verifies that the username is unique.
     */
-   private boolean createAccount() throws ClassNotFoundException, IOException {
+   private void createAccount() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String password = (String) clientIn.readObject();
       if (Server.allUsers.get(username) != null) {
@@ -203,16 +203,14 @@ class ClientHandler extends Thread {
          currentUser = newUser;
          Server.clientOutStreams.add(clientOut);
          clientOut.writeObject(ServerResponse.ACCOUNT_CREATED);
-         return true;
       }
-      return false;
    }
 
    /*
     * Gets the credentials from the client and checks if the match a User
     * account. Verifies that the User is not already logged in
     */
-   private boolean authenticateUser() throws ClassNotFoundException, IOException {
+   private void authenticateUser() throws ClassNotFoundException, IOException {
       User user = null;
       String username = (String) clientIn.readObject();
       String password = (String) clientIn.readObject();
@@ -228,9 +226,7 @@ class ClientHandler extends Thread {
          currentUser = user;
          Server.clientOutStreams.add(clientOut);
          clientOut.writeObject(ServerResponse.LOGIN_SUCCESS);
-         return true;
       }
-      return false;
    }
 
    /*
@@ -290,11 +286,10 @@ class ClientHandler extends Thread {
     * Creates a new Document, with the current User as the owner. Verifies that
     * the Document name is unique.
     */
-   private boolean createDocument() throws ClassNotFoundException, IOException {
+   private void createDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
       if (Server.allDocuments.get(docName) != null) {
          clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
-         return false;
       }
       Document newDocument = new Document(docName, currentUser.getName());
       Server.allDocuments.put(docName, newDocument);
@@ -302,7 +297,6 @@ class ClientHandler extends Thread {
       currentOpenDoc = new OpenDocument(newDocument, clientOut);
       Server.openDocuments.put(docName, currentOpenDoc);
       clientOut.writeObject(ServerResponse.DOCUMENT_CREATED);
-      return true;
    }
 
    /*
@@ -338,7 +332,6 @@ class ClientHandler extends Thread {
          Server.allUsers.get(username).removeDocument(docName);
          document.removeEditor(username);
       }
-
    }
 
    /*
