@@ -35,7 +35,6 @@ import org.jsoup.safety.Whitelist;
 
 import model.ClientRequest;
 import model.Document;
-import model.DocumentSelectGUI;
 import model.Server;
 
 @SuppressWarnings("serial")

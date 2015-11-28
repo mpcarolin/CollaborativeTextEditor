@@ -23,7 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import model.ClientRequest;
-import model.DocumentSelectGUI;
 import model.Server;
 import model.ServerResponse;
 

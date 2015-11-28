@@ -1,4 +1,4 @@
-package model;
+package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,7 +30,8 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import view.EditorGUI;
+import model.ClientRequest;
+import model.ServerResponse;
 
 public class DocumentSelectGUI extends JFrame {
 
