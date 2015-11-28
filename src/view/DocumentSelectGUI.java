@@ -76,12 +76,6 @@ public class DocumentSelectGUI extends JFrame {
 	// updates the model and refreshes the editing user list panel
 	private void refreshEditingUserLists(String docName) {
 
-		/*
-		for (String name : editingUsersList) {
-			editingUserListModel.addElement(name);
-		}
-		*/
-
 		// get list from server
 		try {
 
