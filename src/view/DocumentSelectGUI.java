@@ -100,7 +100,7 @@ public class DocumentSelectGUI extends JFrame {
 					editingUserListModel.addElement(editor);
 				}
 				
-				//editingUsersJList.setModel(editingUserListModel);
+				editingUsersJList.setModel(editingUserListModel);
 				//topHolder.add(editingUsersJList);
 
 				break;

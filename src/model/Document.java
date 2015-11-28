@@ -36,7 +36,7 @@ public class Document {
    public void saveRevision(String revisingUser) {
       // resize history if it exceeds constant 
       // TODO: probably ditch this b/c we need to construct full text using revisions
-      if (history.size() > NUM_REVISIONS_STORED) {
+      if (history.size() >= NUM_REVISIONS_STORED) {
          history.remove(0);
       }
 	   Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);

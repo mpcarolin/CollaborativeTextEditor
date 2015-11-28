@@ -133,8 +133,6 @@ public class LoginGUI extends JFrame {
 
 					case LOGIN_SUCCESS:
 						instructionLabel.setText("Login Successful");
-						// open the Document Selector GUI
-						// new DocumentSelectGUI(fromServer);
 						LoginGUI.this.setVisible(false);
 						LoginGUI.this.dispose();
 						break;
