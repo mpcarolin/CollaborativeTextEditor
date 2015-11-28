@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -17,7 +19,7 @@ public class Document {
    public Document(String documentName, String ownerName) {
       this.documentName = documentName;
       this.ownerName = ownerName;
-      editorNames = new LinkedList<String>();
+      editorNames = Collections.synchronizedList(new LinkedList<String>());
       editorNames.add(ownerName);
       history = new Stack<Revision>();
       currentText = "";
