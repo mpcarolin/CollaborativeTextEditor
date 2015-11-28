@@ -97,10 +97,11 @@ public class DocumentSelectGUI extends JFrame {
 
 				// add each editor to the model
 				for (String editor : editors) {
+					System.out.println(editor);
 					editingUserListModel.addElement(editor);
 				}
 				
-				editingUsersJList.setModel(editingUserListModel);
+				//editingUsersJList.setModel(editingUserListModel);
 				//topHolder.add(editingUsersJList);
 
 				break;
