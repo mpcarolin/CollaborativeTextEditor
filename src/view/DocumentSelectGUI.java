@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,10 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
 import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import model.ClientRequest;
 import model.ServerResponse;
@@ -73,8 +72,8 @@ public class DocumentSelectGUI extends JFrame {
 		userListJL.setModel(userListDLM);
 		bottomHolder.add(userListJL);
 	}
-	
-	// updates the model and refreshes the editing user list panel 
+
+	// updates the model and refreshes the editing user list panel
 	private void refreshEditingUserLists() {
 		// clear model because will be completely updated
 		editingUserListModel.clear();
@@ -84,7 +83,6 @@ public class DocumentSelectGUI extends JFrame {
 		editingUsersJList.setModel(editingUserListModel);
 		topHolder.add(editingUsersJList);
 	}
-	
 
 	private void getDisplayList() {
 		ownedDocList.clear();
@@ -122,7 +120,7 @@ public class DocumentSelectGUI extends JFrame {
 		this.setTitle("Document Selector Hub");
 		this.setSize(900, 520);
 		this.setLocation(300, 80);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setResizable(false);
 
 		// Create and add a panel to the document GUI
@@ -231,7 +229,7 @@ public class DocumentSelectGUI extends JFrame {
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
 		this.deleteDoc.addActionListener(new DeleteDocumentListener());
-
+		this.addWindowListener(new MyWindowListener());
 	}
 
 	public ObjectOutputStream sendToServer() {
@@ -353,7 +351,7 @@ public class DocumentSelectGUI extends JFrame {
 			getDisplayList();
 		}
 	}
-	
+
 	private class AddUserButtonListener implements ActionListener {
 
 		@Override
@@ -361,7 +359,7 @@ public class DocumentSelectGUI extends JFrame {
 
 			// get selected user name
 			String username = userListJL.getSelectedValue();
-			
+
 			// send client request to server to add user, then send username
 			if (username != null) {
 
@@ -372,12 +370,12 @@ public class DocumentSelectGUI extends JFrame {
 					toServer.writeObject(ClientRequest.ADD_PERMISSION);
 					toServer.writeObject(docName);
 					toServer.writeObject(username);
-					
+
 					ServerResponse response = (ServerResponse) fromServer.readObject();
-					
+
 					switch (response) {
 					case PERMISSION_ADDED:
-						//user
+						// user
 						editingUsersList.add(username);
 						refreshEditingUserLists();
 						break;
@@ -388,7 +386,6 @@ public class DocumentSelectGUI extends JFrame {
 						System.out.println("Incompatible server response");
 					}
 
-
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				} catch (ClassNotFoundException e1) {
@@ -396,7 +393,7 @@ public class DocumentSelectGUI extends JFrame {
 				}
 			}
 		}
-		
+
 	}
 
 	private class DeleteDocumentListener implements ActionListener {
@@ -498,5 +495,47 @@ public class DocumentSelectGUI extends JFrame {
 				e1.printStackTrace();
 			}
 		}
+	}
+
+	private class MyWindowListener implements WindowListener {
+
+		@Override
+		public void windowOpened(WindowEvent e) {
+		}
+
+		@Override
+		public void windowClosing(WindowEvent e) {
+			int decision = JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?");
+			if (decision == JOptionPane.YES_OPTION) {
+				try {
+					toServer.writeObject(ClientRequest.OPEN_DOC);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				System.exit(NORMAL);
+			} else if (decision == JOptionPane.CANCEL_OPTION || decision == JOptionPane.NO_OPTION) {
+			}
+		}
+
+		@Override
+		public void windowClosed(WindowEvent e) {
+		}
+
+		@Override
+		public void windowIconified(WindowEvent e) {
+		}
+
+		@Override
+		public void windowDeiconified(WindowEvent e) {
+		}
+
+		@Override
+		public void windowActivated(WindowEvent e) {
+		}
+
+		@Override
+		public void windowDeactivated(WindowEvent e) {
+		}
+
 	}
 }
