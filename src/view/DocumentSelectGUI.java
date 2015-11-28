@@ -74,14 +74,37 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	// updates the model and refreshes the editing user list panel
-	private void refreshEditingUserLists() {
-		// clear model because will be completely updated
-		editingUserListModel.clear();
+	private void refreshEditingUserLists(String docName) {
+
+		/*
 		for (String name : editingUsersList) {
 			editingUserListModel.addElement(name);
 		}
+		*/
+
+		// get list from server
+		try {
+
+			// clear model because will be completely updated
+			editingUserListModel.clear();
+		
+			toServer.writeObject(ClientRequest.GET_EDITORS);
+			toServer.writeObject(docName);
+			
+			LinkedList<String> editors = (LinkedList<String>) fromServer.readObject();
+
+			// add each editor to the model
+			for (String editor : editors) {
+				editingUserListModel.addElement(editor);
+			}
+
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		editingUsersJList.setModel(editingUserListModel);
 		topHolder.add(editingUsersJList);
+		topHolder.setVisible(true);
 	}
 
 	private void getDisplayList() {
@@ -381,8 +404,7 @@ public class DocumentSelectGUI extends JFrame {
 					switch (response) {
 					case PERMISSION_ADDED:
 						// user
-						editingUsersList.add(username);
-						refreshEditingUserLists();
+						refreshEditingUserLists(docName);
 						break;
 					case NO_DOCUMENT:
 						JOptionPane.showMessageDialog(null, "Cannot add user to a document that does not exist.");
@@ -475,7 +497,6 @@ public class DocumentSelectGUI extends JFrame {
 				// tell the server we want to open the docName document
 				toServer.writeObject(ClientRequest.OPEN_DOC);
 				toServer.writeObject(docName);
-				System.out.println(docName);
 
 				// receive and process server's response
 				ServerResponse response = (ServerResponse) fromServer.readObject();
