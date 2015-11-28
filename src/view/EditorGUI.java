@@ -84,6 +84,7 @@ public class EditorGUI extends JFrame {
 	private JPanel screenPanel, rightPanel;
 	private JButton openChatButton;
 	private JToggleButton centerAlign, rightAlign,leftAlign;
+	private JMenu revisionListMenu;
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
@@ -130,9 +131,9 @@ public class EditorGUI extends JFrame {
 		this.toServer = toServer;
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-		screenWidth = screensize.getWidth() * 0.8;
+		screenWidth = screensize.getWidth() * 0.75;
 		screenHeight = screensize.getHeight() * 0.8;
-		this.setSize((int) screenWidth, (int) screenHeight);
+		this.setSize((int) screenWidth-100, (int) screenHeight);
 		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -167,7 +168,7 @@ public class EditorGUI extends JFrame {
 		rightPanel.setMinimumSize(new Dimension(400, 300));
 		GridBagConstraints chatConstraints = new GridBagConstraints();
 		chatConstraints.anchor = GridBagConstraints.SOUTHEAST;
-		chatConstraints.gridx = 2;
+		chatConstraints.gridx = 1;
 		chatConstraints.gridy = 3;
 		chatConstraints.gridheight = 1;
 		chatConstraints.weightx = 1;
@@ -202,20 +203,20 @@ public class EditorGUI extends JFrame {
 		GridBagConstraints c = new GridBagConstraints();
 
 		// in the Center set the Text Area
-		c.gridx = 1;
+		c.gridx = 0;
 		c.gridy = 1;
 		c.gridheight = 3;
 		c.gridwidth = 1;
 		c.weightx = 0;
 		c.weighty = 0.5;
-		c.anchor = GridBagConstraints.FIRST_LINE_END;
-		c.anchor = GridBagConstraints.CENTER;
+		//c.anchor = GridBagConstraints.CENTER;
+		c.anchor= GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.VERTICAL;
 
 		// Center Panel to put Text Area and JScrollPane one
 		screenPanel = new JPanel();
-		screenPanel.setPreferredSize(new Dimension((int) (screenWidth * .5), 1500));
-		screenPanel.setMinimumSize(new Dimension((int) (screenWidth * 0.5), 1));
+		screenPanel.setPreferredSize(new Dimension((int) (screenWidth * .6), 1500));
+		screenPanel.setMinimumSize(new Dimension((int) (screenWidth * 0.6), 1));
 		// Size of the textArea
 		int textWidth = (int) (screenWidth * .5);
 		editor = new HTMLEditorKit();
@@ -305,11 +306,18 @@ public class EditorGUI extends JFrame {
 		// File Menu Bar
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
+		revisionListMenu= new JMenu("Load Revision");
 		file.add(fileButton);
+		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
 		JMenuItem undo= new JMenuItem("Undo");
 		edit.add(undo);
 
+		toolBar.add(file);
+		toolBar.add(edit);
+		
+		
+		
 		// this.add(file);
 		font = new JComboBox<Integer>();
 		font.addItem(8);
@@ -329,11 +337,8 @@ public class EditorGUI extends JFrame {
 		font.addItem(72);
 		font.setSelectedIndex(5);
 		font.setMinimumSize(new Dimension(50,30));
-		toolBar.add(file);
-		toolBar.add(edit);
-		// Set listener
 
-
+		
 		// // set tool bar layout and location
 		// GridBagConstraints toolbarConstraint = new GridBagConstraints();
 		// toolbarConstraint.anchor = GridBagConstraints.NORTHWEST;
@@ -364,8 +369,8 @@ public class EditorGUI extends JFrame {
 		toolBar2.add(colorFont);
 		
 		
-screenPanel.add(toolBar2);
-this.setJMenuBar(toolBar);
+		screenPanel.add(toolBar2);
+		this.setJMenuBar(toolBar);
 
 		fontSizeAction.setEnabled(true);
 		// Adds center Panel with text to Jframe
@@ -400,6 +405,7 @@ this.setJMenuBar(toolBar);
 		fontStyle.setEditable(false);
 		font.setEnabled(false);
 		fontStyle.setEnabled(false);
+		
 	}
 	private class undoListener implements ActionListener{
 
@@ -727,10 +733,9 @@ this.setJMenuBar(toolBar);
 					String updatedText = (String) fromServer.readObject();
 					if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
 						updatedoc(updatedText);
-					} else{
+					} else if(whatToUpdate== ServerResponse.CHAT_UPDATE){
 						updatechat(updatedText);
 					}
-					// textArea.setText(updatedText);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -739,7 +744,13 @@ this.setJMenuBar(toolBar);
 			}
 		}
 	}
-
+	// revision
+	public void updateRevisionEditorGui(){
+		
+	}
+	
+	
+	
 	public void updatedoc(String text) {
 		textArea.setText(text);
 	}

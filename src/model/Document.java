@@ -60,11 +60,13 @@ public class Document {
    }
    
    public Revision getLastRevision() {
+
 	  if (history.size() > 0) { 
 		  Revision lastRevision = history.pop();
 		  currentText = lastRevision.getFullText();
 		  return lastRevision;
 	  }
+
 	  return null;
    }
    
