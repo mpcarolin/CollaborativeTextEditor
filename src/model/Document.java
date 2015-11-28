@@ -70,12 +70,20 @@ public class Document {
 	  return null;
    }
    
+   public List<Revision> getRevisions() {
+      return history.subList(0, history.size()+1);
+   }
+   
    public String getDocumentName() {
       return documentName;
    }
       
    public String getOwner() {
       return ownerName;
+   }
+   
+   public boolean isEditableBy(String username) {
+      return editorNames.contains(username);
    }
    
    public List<String> getEditors() {

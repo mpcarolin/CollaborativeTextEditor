@@ -261,8 +261,6 @@ class ClientHandler extends Thread {
 
       String docName = (String) clientIn.readObject();
       Document document = Server.allDocuments.get(docName);
-      System.out.println("Before server sends response");
-
       if (document == null) {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else {
@@ -312,14 +310,18 @@ class ClientHandler extends Thread {
    private void addPermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String docName = (String) clientIn.readObject();
+      User user = Server.allUsers.get(username);
       Document document = Server.allDocuments.get(docName);
       if (document == null) {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else if (!currentUser.owns(docName)) {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else {
-         Server.allUsers.get(username).addEditableDocument(docName);
-         document.addEditor(username);
+         if (!user.hasPermission(docName)) {
+            user.addEditableDocument(docName);
+         } if (!document.isEditableBy(username)) {
+            document.addEditor(username);
+         }
          clientOut.writeObject(ServerResponse.PERMISSION_ADDED);
       }
    }
@@ -391,6 +393,9 @@ class ClientHandler extends Thread {
       currentOpenDoc.saveRevision(currentUser.getName());
    }
 
+   public void sendRevisionList() {
+     
+   }
    /*
     * Reverts the current OpenDocument to its most recent revison.
     */
@@ -432,7 +437,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Removes the user from the current OpenDocument. Closes the current
+    * Removes the User from the current OpenDocument. Closes the current
     * OpenDocument if the user was the only editor.
     */
    private void closeDocument() {
@@ -443,7 +448,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Deletes a document.
+    * Deletes a Document.
     */
    private void deleteDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
@@ -462,7 +467,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Logs out the current user and closes the connection.
+    * Logs out the current User and closes the connection.
     */
    private void logout() {
       // currentOpenDoc.removeEditor(clientOut);
