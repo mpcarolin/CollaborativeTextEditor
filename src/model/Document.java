@@ -43,7 +43,7 @@ public class Document {
       history.push(revision);
    }
    
-   private Revision peekLastRevision() { 
+   public Revision peekLastRevision() { 
 	   if (history.size() > 0) {
 		  return history.peek(); 
 	   } else {
