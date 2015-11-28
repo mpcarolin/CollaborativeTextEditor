@@ -68,6 +68,10 @@ public class Document {
 	  return null;
    }
    
+   public List<Revision> getRevisions() {
+      return history.subList(0, history.size()+1);
+   }
+   
    public String getDocumentName() {
       return documentName;
    }

@@ -388,6 +388,9 @@ class ClientHandler extends Thread {
       currentOpenDoc.saveRevision(currentUser.getName());
    }
 
+   public void sendRevisionList() {
+     
+   }
    /*
     * Reverts the current OpenDocument to its most recent revison.
     */
@@ -429,7 +432,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Removes the user from the current OpenDocument. Closes the current
+    * Removes the User from the current OpenDocument. Closes the current
     * OpenDocument if the user was the only editor.
     */
    private void closeDocument() {
@@ -440,7 +443,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Deletes a document.
+    * Deletes a Document.
     */
    private void deleteDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
@@ -459,7 +462,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Logs out the current user and closes the connection.
+    * Logs out the current User and closes the connection.
     */
    private void logout() {
       // currentOpenDoc.removeEditor(clientOut);
