@@ -10,22 +10,19 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import model.ClientRequest;
-import model.Server;
 import model.ServerResponse;
 
+@SuppressWarnings("serial")
 public class LoginGUI extends JFrame {
 
 		// screen size constant
@@ -118,7 +115,7 @@ public class LoginGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// get username and password
 				String username = usernameField.getText();
-				String password = passwordField.getText();
+				String password = String.valueOf(passwordField.getPassword());
 				
 				try {
 					// send to server and wait response
@@ -133,8 +130,6 @@ public class LoginGUI extends JFrame {
 
 					case LOGIN_SUCCESS:
 						instructionLabel.setText("Login Successful");
-						// open the Document Selector GUI
-						// new DocumentSelectGUI(fromServer);
 						LoginGUI.this.setVisible(false);
 						LoginGUI.this.dispose();
 						break;
@@ -174,7 +169,7 @@ public class LoginGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					String username = usernameField.getText();
-					String password = passwordField.getText();
+					String password = String.valueOf(passwordField.getPassword());
 					
 					// send server username and password
 					toServer.writeObject(ClientRequest.CREATE_ACCOUNT);
@@ -217,7 +212,7 @@ public class LoginGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 					String username = usernameField.getText();
-					String newPassword = passwordField.getText();
+					String newPassword = String.valueOf(passwordField.getPassword());
 				
 					try {
 						toServer.writeObject(ClientRequest.CHANGE_PASSWORD);

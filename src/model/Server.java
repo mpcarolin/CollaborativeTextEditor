@@ -64,6 +64,10 @@ public class Server {
       allUsers.get("Filbert").addEditableDocument("DanielsDoc");
       allUsers.get("Orzy").addEditableDocument("DanielsDoc");
       allUsers.get("Jacob").addEditableDocument("DanielsDoc");
+      allDocuments.get("DanielsDoc").addEditor("Michael");
+      allDocuments.get("DanielsDoc").addEditor("Filbert");
+      allDocuments.get("DanielsDoc").addEditor("Orzy");
+      allDocuments.get("DanielsDoc").addEditor("Jacob");
 
       allDocuments.put("MichaelsDoc", new Document("MichaelsDoc", "Michael"));
       allUsers.get("Michael").addOwnedDocument("MichaelsDoc");
@@ -258,13 +262,22 @@ class ClientHandler extends Thread {
     * document.
     */
    private void sendEditorList() throws ClassNotFoundException, IOException {
+
       String docName = (String) clientIn.readObject();
       Document document = Server.allDocuments.get(docName);
       if (document == null) {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else {
          clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
+         
+         System.out.println("Sent list");
+         for (String s : document.getEditors())
+            System.out.println("Editor: " + s);
+         System.out.println();
+         
+         clientOut.reset();
          clientOut.writeObject(document.getEditors());
+
       }
    }
 
@@ -309,14 +322,29 @@ class ClientHandler extends Thread {
    private void addPermission() throws ClassNotFoundException, IOException {
       String username = (String) clientIn.readObject();
       String docName = (String) clientIn.readObject();
+      User user = Server.allUsers.get(username);
       Document document = Server.allDocuments.get(docName);
       if (document == null) {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else if (!currentUser.owns(docName)) {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else {
-         Server.allUsers.get(username).addEditableDocument(docName);
-         document.addEditor(username);
+         if (!user.hasPermission(docName)) {
+            user.addEditableDocument(docName);
+            
+            System.out.println("Users documents after adding new document");
+            for (String s : user.getEditableDocuments())
+               System.out.println("Document" + s);
+            System.out.println();
+            
+         } if (!document.isEditableBy(username)) {
+            document.addEditor(username);
+            
+            System.out.println("Document editors after adding new editor");
+            for (String s : document.getEditors())
+               System.out.println("Editor: " + s);
+            System.out.println();
+         }
          clientOut.writeObject(ServerResponse.PERMISSION_ADDED);
       }
    }
@@ -388,6 +416,9 @@ class ClientHandler extends Thread {
       currentOpenDoc.saveRevision(currentUser.getName());
    }
 
+   public void sendRevisionList() {
+     
+   }
    /*
     * Reverts the current OpenDocument to its most recent revison.
     */
@@ -429,7 +460,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Removes the user from the current OpenDocument. Closes the current
+    * Removes the User from the current OpenDocument. Closes the current
     * OpenDocument if the user was the only editor.
     */
    private void closeDocument() {
@@ -440,7 +471,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Deletes a document.
+    * Deletes a Document.
     */
    private void deleteDocument() throws ClassNotFoundException, IOException {
       String docName = (String) clientIn.readObject();
@@ -459,7 +490,7 @@ class ClientHandler extends Thread {
    }
 
    /*
-    * Logs out the current user and closes the connection.
+    * Logs out the current User and closes the connection.
     */
    private void logout() {
       // currentOpenDoc.removeEditor(clientOut);

@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -17,7 +19,7 @@ public class Document {
    public Document(String documentName, String ownerName) {
       this.documentName = documentName;
       this.ownerName = ownerName;
-      editorNames = new LinkedList<String>();
+      editorNames = Collections.synchronizedList(new LinkedList<String>());
       editorNames.add(ownerName);
       history = new Stack<Revision>();
       currentText = "";
@@ -36,7 +38,7 @@ public class Document {
    public void saveRevision(String revisingUser) {
       // resize history if it exceeds constant 
       // TODO: probably ditch this b/c we need to construct full text using revisions
-      if (history.size() > NUM_REVISIONS_STORED) {
+      if (history.size() >= NUM_REVISIONS_STORED) {
          history.remove(0);
       }
 	   Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);
@@ -68,12 +70,20 @@ public class Document {
 	  return null;
    }
    
+   public List<Revision> getRevisions() {
+      return history.subList(0, history.size()+1);
+   }
+   
    public String getDocumentName() {
       return documentName;
    }
       
    public String getOwner() {
       return ownerName;
+   }
+   
+   public boolean isEditableBy(String username) {
+      return editorNames.contains(username);
    }
    
    public List<String> getEditors() {
