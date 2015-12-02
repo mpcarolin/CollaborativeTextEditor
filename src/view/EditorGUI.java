@@ -442,6 +442,7 @@ public class EditorGUI extends JFrame {
 			try {
 				editor.insertHTML((HTMLDocument)textArea.getDocument(),carrotPosition, "<a href=\\" + "\""+ website  
 						+ "\\"+ "\""+ ">" + message+ "</a>",0,0, HTML.Tag.BODY);
+				textArea.replaceSelection("");
 			} catch (BadLocationException | IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -453,7 +454,8 @@ public class EditorGUI extends JFrame {
 			textArea.addHyperlinkListener(new HyperlinkListener() {
 	            @Override
 	            public void hyperlinkUpdate(HyperlinkEvent e) {
-	                if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+                    System.out.println(e.getURL());
+	                if (HyperlinkEvent.EventType.ACTIVATED == e.getEventType()) {
 	                    System.out.println(e.getURL());
 	                    Desktop desktop = Desktop.getDesktop();
 	                    try {
