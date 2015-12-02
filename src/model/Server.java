@@ -391,6 +391,7 @@ class ClientHandler extends Thread {
       } else {
          Server.allUsers.get(username).removeDocument(docName);
          document.removeEditor(username);
+         clientOut.writeObject(ServerResponse.PERMISSION_REMOVED);
       }
    }
 
