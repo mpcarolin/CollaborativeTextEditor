@@ -1,12 +1,14 @@
 package model;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-public class Document {
-   
+public class Document implements Serializable {
+
+   private static final long serialVersionUID = -8036549215955098412L;
    private static final int NUM_REVISIONS_STORED = 20;
    private Stack<Revision> history; 
    private String currentText;

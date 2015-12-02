@@ -365,6 +365,9 @@ public class DocumentSelectGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			// Open Pane to get the new document's name
 			String newDocName = JOptionPane.showInputDialog("Please enter the new document's name:");
+			if(newDocName == null) {
+				return;
+			}
 			try {
 				toServer.writeObject(ClientRequest.CREATE_DOC);
 				toServer.writeObject(newDocName);
@@ -375,7 +378,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
-					new EditorGUI(fromServer, toServer);
+					new EditorGUI();
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");

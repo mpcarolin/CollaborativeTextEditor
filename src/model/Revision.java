@@ -1,14 +1,16 @@
 package model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
 import model.diff_match_patch.Diff;
 
-public class Revision {
+public class Revision implements Serializable {
 
-	private String newText;
+   private static final long serialVersionUID = 1389885153513784014L;
+   private String newText;
 	private String revisingUser;
 	private LocalTime revisingTime;
 	private LocalDate revisingDate;
