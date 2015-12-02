@@ -154,7 +154,7 @@ public class DocumentSelectGUI extends JFrame {
 		this.setSize((int) screenWidth - 100, (int) screenHeight - 100);
 		
 		// Create the document GUI
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Document Selector Hub");
 //		this.setSize(900, 520);
 		this.setLocation(getInt(screenWidth), getInt(screenHeight));
@@ -368,7 +368,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
-					new EditorGUI();
+					new EditorGUI(fromServer, toServer);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
