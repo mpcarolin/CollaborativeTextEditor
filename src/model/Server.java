@@ -40,8 +40,7 @@ public class Server {
     */
    public static void main(String[] args) throws IOException {      
       loadData();
-      hardCodeUsers();
-      hardCodeDocs();
+
       setUpSaveTimer();
 
       try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
@@ -71,9 +70,13 @@ public class Server {
       } else {
          allUsers = Collections.synchronizedMap(new HashMap<>());
          allDocuments = Collections.synchronizedMap(new HashMap<>());
+         hardCodeUsers();
+         hardCodeDocs();
+         saveData();
       }
       openDocuments = Collections.synchronizedMap(new HashMap<>());
       clientOutStreams = Collections.synchronizedList(new ArrayList<>());
+      
    }
 
    /*
