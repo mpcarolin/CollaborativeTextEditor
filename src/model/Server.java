@@ -4,6 +4,7 @@
 
 package model;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,30 +17,57 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+
 
 public class Server {
 
    public static final int SERVER_PORT = 9001;
 
-   static Map<String, User> allUsers = Collections.synchronizedMap(new HashMap<>());
-   static Map<String, Document> allDocuments = Collections.synchronizedMap(new HashMap<>());
-   static Map<String, OpenDocument> openDocuments = Collections.synchronizedMap(new HashMap<>());
-   static List<ObjectOutputStream> clientOutStreams = Collections.synchronizedList(new ArrayList<>());
+   static Map<String, User> allUsers;
+   static Map<String, Document> allDocuments;
+   static Map<String, OpenDocument> openDocuments;
+   static List<ObjectOutputStream> clientOutStreams;
 
    /*
     * Listens for new incoming client connections, and creates a ClientHandler
     * to deal with them.
     */
+   @SuppressWarnings("unchecked")
    public static void main(String[] args) throws IOException {
+      Scanner scan = new Scanner(System.in);
+      System.out.println("Do you want to load the saved data?\nEnter 1 for yes. 0 for no.");
+      int answer = scan.nextInt();
+      scan.close();
+      if (answer == 1) {
+         try {
+            FileInputStream rawBytes = new FileInputStream("SaveFile");
+            ObjectInputStream inFile = new ObjectInputStream(rawBytes);
+            allUsers = Collections.synchronizedMap((Map<String, User>) inFile.readObject());
+            allDocuments = Collections.synchronizedMap((Map<String, Document>) inFile.readObject());
+            inFile.close();
+            rawBytes.close();
+         } catch (Exception any) {
+            any.printStackTrace();
+         }
+      } else {
+         allUsers = Collections.synchronizedMap(new HashMap<>());
+         allDocuments = Collections.synchronizedMap(new HashMap<>());
+      }
+      openDocuments = Collections.synchronizedMap(new HashMap<>());
+      clientOutStreams = Collections.synchronizedList(new ArrayList<>());
+      
       hardCodeUsers();
       hardCodeDocs();
+      
       try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
          System.out.println("Server started on port " + SERVER_PORT);
          while (true) {
             new ClientHandler(serverSocket.accept()).start();
          }
       }
+      
    }
 
    /*
