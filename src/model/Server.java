@@ -4,7 +4,10 @@
 
 package model;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -20,6 +23,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.swing.Timer;
 
 public class Server {
 
@@ -34,10 +38,24 @@ public class Server {
     * Listens for new incoming client connections, and creates a ClientHandler
     * to deal with them.
     */
+   public static void main(String[] args) throws IOException {      
+      loadData();
+      hardCodeUsers();
+      hardCodeDocs();
+      setUpSaveTimer();
+
+      try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
+         System.out.println("Server started on port " + SERVER_PORT);
+         while (true) {
+            new ClientHandler(serverSocket.accept()).start();
+         }
+      }
+   }
+   
    @SuppressWarnings("unchecked")
-   public static void main(String[] args) throws IOException {
+   private static void loadData() {
       Scanner scan = new Scanner(System.in);
-      System.out.println("Do you want to load the saved data?\nEnter 1 for yes. 0 for no.");
+      System.out.println("Do you want to load the saved data?\nEnter 1 for yes or 0 for no.");
       int answer = scan.nextInt();
       scan.close();
       if (answer == 1) {
@@ -47,7 +65,6 @@ public class Server {
             allUsers = Collections.synchronizedMap((Map<String, User>) inFile.readObject());
             allDocuments = Collections.synchronizedMap((Map<String, Document>) inFile.readObject());
             inFile.close();
-            rawBytes.close();
          } catch (Exception any) {
             any.printStackTrace();
          }
@@ -57,17 +74,6 @@ public class Server {
       }
       openDocuments = Collections.synchronizedMap(new HashMap<>());
       clientOutStreams = Collections.synchronizedList(new ArrayList<>());
-      
-      hardCodeUsers();
-      hardCodeDocs();
-      
-      try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
-         System.out.println("Server started on port " + SERVER_PORT);
-         while (true) {
-            new ClientHandler(serverSocket.accept()).start();
-         }
-      }
-      
    }
 
    /*
@@ -108,6 +114,28 @@ public class Server {
 
       allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
       allUsers.get("Orzy").addOwnedDocument("OrzysDoc");
+   }
+
+   static void setUpSaveTimer() {
+      Timer saveTimer = new Timer(180000, new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent arg0) {
+            saveData();
+         }
+      });
+      saveTimer.start();
+   }
+   
+   static void saveData() {
+      try {
+         FileOutputStream bytesToDisk = new FileOutputStream("SaveFile");
+         ObjectOutputStream outFile = new ObjectOutputStream(bytesToDisk);
+         outFile.writeObject(allUsers);
+         outFile.writeObject(allDocuments);
+         outFile.close();
+      } catch (IOException ioe) {
+         ioe.printStackTrace();
+      }
    }
 }
 
@@ -297,12 +325,12 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else {
          clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
-         
+
          System.out.println("Sent list");
          for (String s : document.getEditors())
             System.out.println("Editor: " + s);
          System.out.println();
-         
+
          clientOut.reset();
          clientOut.writeObject(document.getEditors());
 
@@ -359,15 +387,16 @@ class ClientHandler extends Thread {
       } else {
          if (!user.hasPermission(docName)) {
             user.addEditableDocument(docName);
-            
+
             System.out.println("Users documents after adding new document");
             for (String s : user.getEditableDocuments())
                System.out.println("Document" + s);
             System.out.println();
-            
-         } if (!document.isEditableBy(username)) {
+
+         }
+         if (!document.isEditableBy(username)) {
             document.addEditor(username);
-            
+
             System.out.println("Document editors after adding new editor");
             for (String s : document.getEditors())
                System.out.println("Editor: " + s);
@@ -446,8 +475,9 @@ class ClientHandler extends Thread {
    }
 
    public void sendRevisionList() {
-     
+
    }
+
    /*
     * Reverts the current OpenDocument to its most recent revison.
     */
