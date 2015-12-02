@@ -376,7 +376,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					//getDisplayList();
-					new EditorGUI(fromServer, toServer);
+					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
@@ -587,7 +587,7 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Document does not exist.");
 					return;
 				case DOCUMENT_OPENED:
-					EditorGUI editor = new EditorGUI(fromServer, toServer);
+					EditorGUI editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
 					DocumentSelectGUI.this.setVisible(false);
 					Thread openEditorGUIListener = new Thread() {
 						@Override
@@ -602,6 +602,10 @@ public class DocumentSelectGUI extends JFrame {
 						}
 					};
 					openEditorGUIListener.start();
+//					DocumentSelectGUI.this.setVisible(false);
+//					while (editor.isShowing()) {
+//					}
+//					DocumentSelectGUI.this.setVisible(true);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
