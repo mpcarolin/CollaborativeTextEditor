@@ -102,7 +102,8 @@ public class EditorGUI extends JFrame {
 	private JComboBox<String> fontStyle;
 	private JMenu file;
 	private JMenuBar toolBar;
-	private JToggleButton boldButton, italicsButton, underlineButton, colorFont;
+	private JToggleButton boldButton, italicsButton, underlineButton;
+	private JButton colorFont;
 	private boolean bold, underline, italic;
 	private Color color = Color.BLACK;
 	private DocumentListener doclistener;
@@ -134,7 +135,7 @@ public class EditorGUI extends JFrame {
 
 		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
-		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
@@ -305,7 +306,7 @@ public class EditorGUI extends JFrame {
 		underlineButton = new JToggleButton();
 		underlineButton.setIcon(underlineImageIcon);
 
-		colorFont = new JToggleButton();
+		colorFont = new JButton();
 		colorFont.setIcon(colorIcon);
 
 		JButton bulletItem = new JButton(bulletAction);
