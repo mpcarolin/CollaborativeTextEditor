@@ -375,7 +375,7 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Sorry, this document already exists.");
 					return;
 				case DOCUMENT_CREATED:
-					//getDisplayList();
+					getDisplayList();
 					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
 					return;
 				default:
