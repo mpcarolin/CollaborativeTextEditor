@@ -139,7 +139,7 @@ public class EditorGUI extends JFrame {
 
 		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
@@ -461,7 +461,10 @@ public class EditorGUI extends JFrame {
 			// TODO Auto-generated method stub
 			//documentGUI.setVisible(true);
 			try {
+				EditorGUI.this.setVisible(false);
+				EditorGUI.this.setEnabled(false);
 				toServer.writeObject(ClientRequest.CLOSE_DOC);
+				//isRunning = false;
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
