@@ -375,7 +375,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
-					new EditorGUI();
+					new EditorGUI(fromServer, toServer);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
