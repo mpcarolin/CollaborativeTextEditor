@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -90,7 +91,7 @@ public class DocumentSelectGUI extends JFrame {
 			toServer.writeObject(ClientRequest.GET_EDITORS);
 			toServer.writeObject(docName);
 			System.out.println("before response");
-			
+
 			ServerResponse response = (ServerResponse) fromServer.readObject();
 			System.out.println(response);
 			switch (response) {
@@ -100,13 +101,13 @@ public class DocumentSelectGUI extends JFrame {
 			case DOCUMENT_EXISTS:
 				// obtain editors from server
 				editingUsersList = (List<String>) fromServer.readObject();
-				
+
 				for (String editor : editingUsersList) {
 					editingUserListModel.addElement(editor);
 				}
 
 				editingUsersJList.setModel(editingUserListModel);
-				//topHolder.add(editingUsersJList);
+				// topHolder.add(editingUsersJList);
 
 				break;
 
@@ -116,7 +117,7 @@ public class DocumentSelectGUI extends JFrame {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private void getDisplayList() {
@@ -147,20 +148,20 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	private int getInt(double number) {
-		return (int) (number/8);
+		return (int) (number / 8);
 	}
-	
+
 	private void layoutGUI() {
-		
+
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		double screenWidth = screensize.getWidth() * 0.8;
 		double screenHeight = screensize.getHeight() * 0.8;
 		this.setSize((int) screenWidth - 100, (int) screenHeight - 100);
-		
+
 		// Create the document GUI
-//		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Document Selector Hub");
-//		this.setSize(900, 520);
+		// this.setSize(900, 520);
 		this.setLocation(getInt(screenWidth), getInt(screenHeight));
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setResizable(false);
@@ -273,6 +274,10 @@ public class DocumentSelectGUI extends JFrame {
 		this.refreshList.addActionListener(new RefreshListListener());
 		this.deleteDoc.addActionListener(new DeleteDocumentListener());
 		this.addWindowListener(new MyWindowListener());
+		ownDisplayList.addListSelectionListener(new ListSelectionHandler());
+		editDisplayList.addListSelectionListener(new ListSelectionHandler());
+		tabbedDocs.addChangeListener(new tabbedChangedListener());
+
 	}
 
 	public ObjectOutputStream sendToServer() {
@@ -423,7 +428,7 @@ public class DocumentSelectGUI extends JFrame {
 
 					ServerResponse response = (ServerResponse) fromServer.readObject();
 					System.out.println(response);
-					
+
 					switch (response) {
 					case PERMISSION_ADDED:
 						// user
@@ -649,9 +654,22 @@ public class DocumentSelectGUI extends JFrame {
 				editDisplayList.clearSelection();
 			}
 		}
-
-		
 	}
 	
+	private class ListSelectionHandler implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			JList<String> list = (JList<String>) e.getSource();
+			
+			String docName = (String) list.getSelectedValue();
+			System.out.println(docName);
+			if (list.isSelectionEmpty()) {
+			} else {
+				refreshEditingUserLists(docName);
+			}
+			list = null;
+		}
+	}
 
 }
