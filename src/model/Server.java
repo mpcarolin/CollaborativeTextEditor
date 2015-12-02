@@ -415,7 +415,7 @@ class ClientHandler extends Thread {
       Document document = Server.allDocuments.get(docName);
       if (document == null) {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
-      } else if (!currentUser.owns(docName)) {
+      } else if (document.getOwner() == username) {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else {
          Server.allUsers.get(username).removeDocument(docName);
