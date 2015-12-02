@@ -105,7 +105,7 @@ public class DocumentSelectGUI extends JFrame {
 				for (String editor : editingUsersList) {
 					editingUserListModel.addElement(editor);
 				}
-				
+
 				editingUsersJList.setModel(editingUserListModel);
 				// topHolder.add(editingUsersJList);
 
@@ -365,7 +365,7 @@ public class DocumentSelectGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			// Open Pane to get the new document's name
 			String newDocName = JOptionPane.showInputDialog("Please enter the new document's name:");
-			if(newDocName == null) {
+			if (newDocName == null) {
 				return;
 			}
 			try {
@@ -450,13 +450,13 @@ public class DocumentSelectGUI extends JFrame {
 			}
 		}
 	}
-	
+
 	private class RemoveButtonListener implements ActionListener {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent clicked) {
 			// get selected user name
-			String username = editingUsersJList.getSelectedValue(); 
+			String username = editingUsersJList.getSelectedValue();
 			// send client request to server to add user, then send username
 			if (username != null) {
 
@@ -475,7 +475,7 @@ public class DocumentSelectGUI extends JFrame {
 
 					ServerResponse response = (ServerResponse) fromServer.readObject();
 					System.out.println(response);
-					
+
 					switch (response) {
 					case PERMISSION_REMOVED:
 						// user
@@ -485,7 +485,8 @@ public class DocumentSelectGUI extends JFrame {
 						JOptionPane.showMessageDialog(null, "Cannot remove user from a document that does not exist.");
 						break;
 					case PERMISSION_DENIED:
-						JOptionPane.showMessageDialog(null, "You cannot remove the owner from the document's editor list.");
+						JOptionPane.showMessageDialog(null,
+								"You cannot remove the owner from the document's editor list.");
 						break;
 					default:
 						System.out.println("Incompatible server response");
@@ -588,7 +589,11 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Document does not exist.");
 					return;
 				case DOCUMENT_OPENED:
-					new EditorGUI(fromServer, toServer);
+					EditorGUI editor = new EditorGUI(fromServer, toServer);
+					while (editor.isShowing()) {
+						DocumentSelectGUI.this.setVisible(false);
+					}
+					DocumentSelectGUI.this.setVisible(true);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
@@ -644,8 +649,7 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	/*
-	 *	Ensures invisible tabbed pane isn't selected to properly
-	 * refresh 
+	 * Ensures invisible tabbed pane isn't selected to properly refresh
 	 */
 	private class tabbedChangedListener implements ChangeListener {
 
@@ -658,7 +662,7 @@ public class DocumentSelectGUI extends JFrame {
 			}
 		}
 	}
-	
+
 	private class ListSelectionHandler implements ListSelectionListener {
 
 		@Override
