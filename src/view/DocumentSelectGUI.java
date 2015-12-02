@@ -422,7 +422,7 @@ public class DocumentSelectGUI extends JFrame {
 				System.out.println(docName);
 
 				try {
-					toServer.writeObject(ClientRequest.ADD_PERMISSION);
+					toServer.writeObject(ClientRequest.REMOVE_PERMISSION);
 					toServer.writeObject(username);
 					toServer.writeObject(docName);
 
@@ -430,7 +430,7 @@ public class DocumentSelectGUI extends JFrame {
 					System.out.println(response);
 
 					switch (response) {
-					case PERMISSION_ADDED:
+					case PERMISSION_REMOVED:
 						// user
 						refreshEditingUserLists(docName);
 						break;
