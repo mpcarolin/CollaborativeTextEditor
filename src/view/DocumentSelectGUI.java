@@ -2,9 +2,11 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -27,7 +29,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import model.ClientRequest;
 import model.ServerResponse;
@@ -84,7 +91,7 @@ public class DocumentSelectGUI extends JFrame {
 			toServer.writeObject(ClientRequest.GET_EDITORS);
 			toServer.writeObject(docName);
 			System.out.println("before response");
-			
+
 			ServerResponse response = (ServerResponse) fromServer.readObject();
 			System.out.println(response);
 			switch (response) {
@@ -94,13 +101,13 @@ public class DocumentSelectGUI extends JFrame {
 			case DOCUMENT_EXISTS:
 				// obtain editors from server
 				editingUsersList = (List<String>) fromServer.readObject();
-				
+
 				for (String editor : editingUsersList) {
 					editingUserListModel.addElement(editor);
 				}
-
+				
 				editingUsersJList.setModel(editingUserListModel);
-				//topHolder.add(editingUsersJList);
+				// topHolder.add(editingUsersJList);
 
 				break;
 
@@ -110,7 +117,7 @@ public class DocumentSelectGUI extends JFrame {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private void getDisplayList() {
@@ -140,12 +147,22 @@ public class DocumentSelectGUI extends JFrame {
 		// }
 	}
 
+	private int getInt(double number) {
+		return (int) (number / 8);
+	}
+
 	private void layoutGUI() {
+
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		double screenWidth = screensize.getWidth() * 0.8;
+		double screenHeight = screensize.getHeight() * 0.8;
+		this.setSize((int) screenWidth - 100, (int) screenHeight - 100);
+
 		// Create the document GUI
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Document Selector Hub");
-		this.setSize(900, 520);
-		this.setLocation(300, 80);
+		// this.setSize(900, 520);
+		this.setLocation(getInt(screenWidth), getInt(screenHeight));
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setResizable(false);
 
@@ -202,8 +219,6 @@ public class DocumentSelectGUI extends JFrame {
 		searchBar = new JTextField();
 
 		// button listeners
-		openDoc.addActionListener(new OpenDocumentListener());
-		addUser.addActionListener(new AddUserButtonListener());
 
 		bottomHolder = new JPanel();
 
@@ -251,12 +266,16 @@ public class DocumentSelectGUI extends JFrame {
 
 	private void registerListeners() {
 		searchBar.addKeyListener(new searchBarListener());
-		// this.searchBar.getDocument().addDocumentListener(new
-		// SearchBarListener());
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
 		this.deleteDoc.addActionListener(new DeleteDocumentListener());
 		this.addWindowListener(new MyWindowListener());
+		ownDisplayList.addListSelectionListener(new ListSelectionHandler());
+		editDisplayList.addListSelectionListener(new ListSelectionHandler());
+		tabbedDocs.addChangeListener(new tabbedChangedListener());
+		openDoc.addActionListener(new OpenDocumentListener());
+		addUser.addActionListener(new AddUserButtonListener());
+		removeUser.addActionListener(new RemoveButtonListener());
 	}
 
 	public ObjectOutputStream sendToServer() {
@@ -356,7 +375,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
-					new EditorGUI();
+					new EditorGUI(fromServer, toServer);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
@@ -386,6 +405,7 @@ public class DocumentSelectGUI extends JFrame {
 
 			// get selected user name
 			String username = userListJL.getSelectedValue();
+			System.out.println("");
 
 			// send client request to server to add user, then send username
 			if (username != null) {
@@ -407,10 +427,9 @@ public class DocumentSelectGUI extends JFrame {
 
 					ServerResponse response = (ServerResponse) fromServer.readObject();
 					System.out.println(response);
-					
+
 					switch (response) {
 					case PERMISSION_ADDED:
-						// user
 						refreshEditingUserLists(docName);
 						break;
 					case NO_DOCUMENT:
@@ -427,7 +446,56 @@ public class DocumentSelectGUI extends JFrame {
 				}
 			}
 		}
+	}
+	
+	private class RemoveButtonListener implements ActionListener {
+		
+		@Override
+		public void actionPerformed(ActionEvent clicked) {
+			// get selected user name
+			String username = editingUsersJList.getSelectedValue(); 
+			// send client request to server to add user, then send username
+			if (username != null) {
 
+				int index = ownDisplayList.getSelectedIndex();
+				if (index < 0) {
+					JOptionPane.showMessageDialog(null, "Please select a document that you own.");
+					return;
+				}
+
+				String docName = ownedDocList.getElementAt(index);
+
+				try {
+					toServer.writeObject(ClientRequest.REMOVE_PERMISSION);
+					toServer.writeObject(username);
+					toServer.writeObject(docName);
+
+					ServerResponse response = (ServerResponse) fromServer.readObject();
+					System.out.println(response);
+					
+					switch (response) {
+					case PERMISSION_REMOVED:
+						// user
+						refreshEditingUserLists(docName);
+						break;
+					case NO_DOCUMENT:
+						JOptionPane.showMessageDialog(null, "Cannot remove user from a document that does not exist.");
+						break;
+					case PERMISSION_DENIED:
+						JOptionPane.showMessageDialog(null, "You cannot remove the owner from the document's editor list.");
+						break;
+					default:
+						System.out.println("Incompatible server response");
+						break;
+					}
+
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private class DeleteDocumentListener implements ActionListener {
@@ -570,6 +638,38 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void windowDeactivated(WindowEvent e) {
 		}
-
 	}
+
+	/*
+	 *	Ensures invisible tabbed pane isn't selected to properly
+	 * refresh 
+	 */
+	private class tabbedChangedListener implements ChangeListener {
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			if (!ownedDocPanel.isShowing()) {
+				ownDisplayList.clearSelection();
+			} else {
+				editDisplayList.clearSelection();
+			}
+		}
+	}
+	
+	private class ListSelectionHandler implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			JList<String> list = (JList<String>) e.getSource();
+			String docName = (String) list.getSelectedValue();
+			System.out.println(docName);
+
+			if (list.isSelectionEmpty()) {
+			} else {
+				refreshEditingUserLists(docName);
+			}
+			list = null;
+		}
+	}
+
 }
