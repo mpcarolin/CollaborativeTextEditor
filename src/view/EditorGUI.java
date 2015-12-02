@@ -3,6 +3,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Font;
@@ -10,6 +11,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.List;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,9 +27,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -40,6 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -52,6 +59,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
 import javax.swing.text.StyledEditorKit.BoldAction;
@@ -66,6 +74,7 @@ import org.jsoup.safety.Whitelist;
 
 import model.ClientRequest;
 import model.ServerResponse;
+import sun.util.resources.cldr.rof.CalendarData_rof_TZ;
 //import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
 //import net.atlanticbb.tantlinger.ui.text.WysiwygHTMLEditorKit;
 
@@ -73,6 +82,7 @@ import model.ServerResponse;
 public class EditorGUI extends JFrame {
 	private double screenWidth;
 	private double screenHeight;
+	private int carrotPosition;
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
 	private JTextPane textArea;
@@ -93,6 +103,7 @@ public class EditorGUI extends JFrame {
 	private boolean bold, underline, italic;
 	private Color color = Color.BLACK;
 	private DocumentListener doclistener;
+	private JButton linkButton;
 	private String style = "";
 	private int align = 0;
 	private Action boldAction = new HTMLEditorKit.BoldAction();
@@ -101,6 +112,8 @@ public class EditorGUI extends JFrame {
 	private Action ColorAction = new StyledEditorKit.ForegroundAction("colorButtonListener", color);
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", size);
 	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("", "<ul><li></li></ul>", HTML.Tag.BODY,
+			HTML.Tag.UL);
+	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
 			HTML.Tag.UL);
 
 	private Timer timer = new Timer(2000, new TimerListener());
@@ -117,7 +130,7 @@ public class EditorGUI extends JFrame {
 
 		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
@@ -295,6 +308,11 @@ public class EditorGUI extends JFrame {
 		JButton bulletItem= new JButton(bulletAction);
 		bulletItem.setIcon(bulletIcon);
 		
+		linkButton= new JButton(hyperLinkAction);
+		//textArea.insertComponent(new JButton("hello"));
+		
+		
+		
 		fontStyle = new JComboBox<String>();
 		fontStyle.addItem(Font.SERIF);
 		fontStyle.addItem(Font.SANS_SERIF);
@@ -367,6 +385,7 @@ public class EditorGUI extends JFrame {
 		toolBar2.add(centerAlign);
 		toolBar2.add(rightAlign);
 		toolBar2.add(colorFont);
+		toolBar2.add(linkButton);
 		
 		
 		screenPanel.add(toolBar2);
@@ -380,6 +399,8 @@ public class EditorGUI extends JFrame {
 		this.setVisible(true);
 		
 		// ActionListener
+		textArea.addMouseListener(new mouseListener());
+		linkButton.addActionListener(new linkListener());
 		undo.addActionListener(new undoListener());
 		leftAlign.addActionListener(new leftListener());
 		rightAlign.addActionListener(new rightListener());
@@ -409,6 +430,78 @@ public class EditorGUI extends JFrame {
 		fontStyle.setEnabled(false);
 		
 	}
+//	private ArrayList<JButton> buttons= new ArrayList<JButton>();
+//	private ArrayList<String> links= new ArrayList<String>();
+	private class linkListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			String message= textArea.getSelectedText();
+			String website= JOptionPane.showInputDialog("Enter URL:");
+			try {
+				editor.insertHTML((HTMLDocument)textArea.getDocument(),carrotPosition, "<a href=\\" + "\""+ website  
+						+ "\\"+ "\""+ ">" + message+ "</a>",0,0, HTML.Tag.BODY);
+			} catch (BadLocationException | IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+//					HTML.Tag.UL);
+			//String replacement= "<a href=\\" + "\""+ website  + "\\"+ "\""+ ">" + message+ "</a>";
+			//textArea.replaceSelection(replacement);
+			//textArea.setText(textArea.getText());
+			textArea.addHyperlinkListener(new HyperlinkListener() {
+	            @Override
+	            public void hyperlinkUpdate(HyperlinkEvent e) {
+	                if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+	                    System.out.println(e.getURL());
+	                    Desktop desktop = Desktop.getDesktop();
+	                    try {
+	                        desktop.browse(e.getURL().toURI());
+	                    } catch (Exception ex) {
+	                        ex.printStackTrace();
+	                    }
+	                }
+	            }
+	        });
+
+
+		}
+
+	}
+	private class mouseListener implements MouseListener{
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			carrotPosition= textArea.getCaretPosition();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 	private class undoListener implements ActionListener{
 
 		@Override
@@ -433,6 +526,8 @@ public class EditorGUI extends JFrame {
 			align = 2;
 			alignmentAction.setEnabled(true);
 			new StyledEditorKit.AlignmentAction("action", align).actionPerformed(e);
+			leftAlign.setSelected(false);
+			centerAlign.setSelected(false);
 		}
 
 	}
@@ -445,6 +540,8 @@ public class EditorGUI extends JFrame {
 			align = 0;
 			alignmentAction.setEnabled(true);
 			new StyledEditorKit.AlignmentAction("action", align).actionPerformed(e);
+			rightAlign.setSelected(false);
+			centerAlign.setSelected(false);
 		}
 
 	}
@@ -457,6 +554,8 @@ public class EditorGUI extends JFrame {
 			align = 1;
 			alignmentAction.setEnabled(true);
 			new StyledEditorKit.AlignmentAction("action", align).actionPerformed(e);
+			leftAlign.setSelected(false);
+			rightAlign.setSelected(false);
 		}
 
 	}
@@ -587,8 +686,6 @@ public class EditorGUI extends JFrame {
 			if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()) {
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
-					// Object bold = attributeSet == null ? null :
-					// attributeSet.getAttribute(StyleConstants.Bold);
 					Object bold;
 					if (attributeSet == null) {
 						bold = null;
@@ -599,23 +696,6 @@ public class EditorGUI extends JFrame {
 						boldButton.setSelected(true);
 					} else {
 						boldButton.setSelected(false);
-					}
-				} catch (Exception e1) {
-
-				}
-
-				try {
-					AttributeSet attributeSet = textArea.getCharacterAttributes();
-					Object underlined;
-					if (attributeSet == null) {
-						underlined = null;
-					} else {
-						underlined = attributeSet.getAttribute(StyleConstants.Underline);
-					}
-					if (underlined.equals(true)) {
-						underlineButton.setSelected(true);
-					} else {
-						underlineButton.setSelected(false);
 					}
 				} catch (Exception e1) {
 				}
@@ -633,7 +713,66 @@ public class EditorGUI extends JFrame {
 						italicsButton.setSelected(false);
 					}
 				} catch (Exception e1) {
-					//System.out.print("hello");
+				}
+				try {
+					AttributeSet attributeSet = textArea.getCharacterAttributes();
+					Object underlined;
+					if (attributeSet == null) {
+						underlined = null;
+					} else {
+						underlined = attributeSet.getAttribute(StyleConstants.Underline);
+					}
+					if (underlined.equals(true)) {
+						underlineButton.setSelected(true);
+					} else {
+						underlineButton.setSelected(false);
+					}
+				} catch (Exception e1) {
+					underlineButton.setSelected(false);
+				}
+				// Change the font to the correct value
+				AttributeSet attributeSet = textArea.getCharacterAttributes();
+				Object fontSize;
+				fontSize = attributeSet.getAttribute(StyleConstants.FontSize);
+
+				if (fontSize == null) {
+					System.out.print("jsdflkjslfkjslkjflkjsf");
+					font.setSelectedIndex(5);
+				} else {
+					System.out.print(fontSize);
+					switch((int) fontSize){
+						case 8: font.setSelectedIndex(0);
+						return;
+						case 9: font.setSelectedIndex(1);
+						return;
+						case 10: font.setSelectedIndex(2);
+						return;
+						case 11: font.setSelectedIndex(3);
+						return;
+						case 12: font.setSelectedIndex(4);
+						return;
+//						case 14: font.setSelectedIndex(5);
+//						return;						
+						case 16: font.setSelectedIndex(6);
+						return;
+						case 18: font.setSelectedIndex(7);
+						return;
+						case 20: font.setSelectedIndex(8);
+						return;
+						case 22: font.setSelectedIndex(9);
+						return;
+						case 24: font.setSelectedIndex(10);
+						return;
+						case 28: font.setSelectedIndex(11);
+						return;						
+						case 36: font.setSelectedIndex(12);
+						return;
+						case 48: font.setSelectedIndex(13);
+						return;
+						case 72: font.setSelectedIndex(14);
+						return;
+					}
+						
 				}
 			}
 		}
