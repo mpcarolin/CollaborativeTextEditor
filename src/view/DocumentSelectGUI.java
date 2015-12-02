@@ -51,12 +51,10 @@ public class DocumentSelectGUI extends JFrame {
 	private JList<String> ownDisplayList, editDisplayList, userListJL, editingUsersJList;
 	private JTabbedPane tabbedDocs;
 	private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
-	private boolean firstTime;
 
 	public DocumentSelectGUI(ObjectInputStream fromServer, ObjectOutputStream toServer) {
 		this.fromServer = fromServer;
 		this.toServer = toServer;
-		this.firstTime = true;
 		instantiateLists();
 		layoutGUI();
 		getDisplayList();
@@ -377,7 +375,7 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Sorry, this document already exists.");
 					return;
 				case DOCUMENT_CREATED:
-					getDisplayList();
+					//getDisplayList();
 					new EditorGUI(fromServer, toServer);
 					return;
 				default:
@@ -590,10 +588,20 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_OPENED:
 					EditorGUI editor = new EditorGUI(fromServer, toServer);
-					while (editor.isShowing()) {
-						DocumentSelectGUI.this.setVisible(false);
-					}
-					DocumentSelectGUI.this.setVisible(true);
+					DocumentSelectGUI.this.setVisible(false);
+					Thread openEditorGUIListener = new Thread() {
+						@Override
+						public void run() {
+							while (true) {
+								if (!editor.isShowing() || !editor.isFocusable()) {
+									System.out.println(editor);
+									DocumentSelectGUI.this.setVisible(true);
+									break;
+								}
+							}
+						}
+					};
+					openEditorGUIListener.start();
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
