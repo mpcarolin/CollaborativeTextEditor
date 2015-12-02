@@ -71,7 +71,6 @@ import model.ServerResponse;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
-	private boolean ifTrueDontUpdate = false;
 	private double screenWidth;
 	private double screenHeight;
 	private ObjectOutputStream toServer;
@@ -93,6 +92,7 @@ public class EditorGUI extends JFrame {
 	private JToggleButton boldButton, italicsButton, underlineButton, colorFont;
 	private boolean bold, underline, italic;
 	private Color color = Color.BLACK;
+	private DocumentListener doclistener;
 	private String style = "";
 	private int align = 0;
 	private Action boldAction = new HTMLEditorKit.BoldAction();
@@ -389,7 +389,9 @@ public class EditorGUI extends JFrame {
 		italicsButton.addActionListener(new italicsButtonListener());
 		font.addItemListener(new selectSizeListener());
 		fontStyle.addItemListener(new selectStyleListener());
-		textArea.addKeyListener(new DocCharacterListener());
+		//textArea.addKeyListener(new DocCharacterListener()); djfkljsdlkfjaslkdjflksjflkjasdflk;jsdf
+		doclistener= new docListener();
+		textArea.getDocument().addDocumentListener(doclistener);
 		colorFont.addActionListener(new colorButtonListener());
 		// textArea.addMouseMotionListener(new mousemotionListener());
 		textArea.addMouseListener(new clickListener());
@@ -500,66 +502,69 @@ public class EditorGUI extends JFrame {
 	}
 
 	//
-	private class DocCharacterListener implements KeyListener {
-		// ascii-48-126
+//	private class DocCharacterListener implements KeyListener {
+//		// ascii-48-126
+//		@Override
+//		public void keyTyped(KeyEvent e) {
+//		}
+//
+//		@Override
+//		public void keyPressed(KeyEvent e) {
+//			// starts a timer waiting for a pause to send the revision command
+//			startTimer();
+//		}
+//
+//		@Override
+//		public void keyReleased(KeyEvent e) {
+//			try {
+//				// System.out.print("I got to the KeyListener :" +
+//				// textArea.getText());
+//				toServer.writeObject(ClientRequest.DOC_TEXT);
+//				toServer.writeObject(textArea.getText());
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+//
+//		}
+//	}
+	private class docListener implements DocumentListener {
 		@Override
-		public void keyTyped(KeyEvent e) {
+		public void insertUpdate(DocumentEvent e) {
+			// TODO Auto-generated method stub
+				startTimer();
+				try {
+					toServer.writeObject(ClientRequest.DOC_TEXT);
+					toServer.writeObject(textArea.getText());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 		}
 
 		@Override
-		public void keyPressed(KeyEvent e) {
-			// starts a timer waiting for a pause to send the revision command
-			startTimer();
+		public void removeUpdate(DocumentEvent e) {
+			// TODO Auto-generated method stub
+					startTimer();
+					try {
+						toServer.writeObject(ClientRequest.DOC_TEXT);
+						toServer.writeObject(textArea.getText());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 		}
 
 		@Override
-		public void keyReleased(KeyEvent e) {
-			try {
-				// System.out.print("I got to the KeyListener :" +
-				// textArea.getText());
-				toServer.writeObject(ClientRequest.DOC_TEXT);
-				toServer.writeObject(textArea.getText());
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
+		public void changedUpdate(DocumentEvent e) {
+			// TODO Auto-generated method stub
+					startTimer();
+					try {
+						toServer.writeObject(ClientRequest.DOC_TEXT);
+						toServer.writeObject(textArea.getText());
+						//ifTrueDontUpdate=true;
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 		}
 	}
-//	private class docListener implements DocumentListener {
-//
-//		@Override
-//		public void insertUpdate(DocumentEvent e) {
-//			// TODO Auto-generated method stub
-//			if (ifTrueDontUpdate) {
-//				ifTrueDontUpdate = false;
-//			} else {
-//				startTimer();
-//				// System.out.println("i got to my doc Listener:" +
-//				// textArea.getText());
-//				try {
-//					toServer.writeObject(ClientRequest.DOC_TEXT);
-//					toServer.writeObject(textArea.getText());
-//					ifTrueDontUpdate=true;
-//
-//				} catch (IOException e1) {
-//					e1.printStackTrace();
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public void removeUpdate(DocumentEvent e) {
-//			// TODO Auto-generated method stub
-//			startTimer();
-//		}
-//
-//		@Override
-//		public void changedUpdate(DocumentEvent e) {
-//			// TODO Auto-generated method stub
-//			startTimer();
-//		}
-//
-//	}
 
 	private class clickListener implements MouseListener {
 
@@ -752,7 +757,11 @@ public class EditorGUI extends JFrame {
 	
 	
 	public void updatedoc(String text) {
+		//iSentThis = true;
+		textArea.getDocument().removeDocumentListener(doclistener);
 		textArea.setText(text);
+		textArea.getDocument().addDocumentListener(doclistener);
+
 	}
 
 	public void updatechat(String text) {

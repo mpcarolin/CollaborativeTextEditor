@@ -2,9 +2,11 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -142,12 +144,22 @@ public class DocumentSelectGUI extends JFrame {
 		// }
 	}
 
+	private int getInt(double number) {
+		return (int) (number/8);
+	}
+	
 	private void layoutGUI() {
+		
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		double screenWidth = screensize.getWidth() * 0.8;
+		double screenHeight = screensize.getHeight() * 0.8;
+		this.setSize((int) screenWidth - 100, (int) screenHeight - 100);
+		
 		// Create the document GUI
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Document Selector Hub");
-		this.setSize(900, 520);
-		this.setLocation(300, 80);
+//		this.setSize(900, 520);
+		this.setLocation(getInt(screenWidth), getInt(screenHeight));
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setResizable(false);
 
@@ -358,7 +370,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
-					new EditorGUI();
+					new EditorGUI(fromServer, toServer);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
