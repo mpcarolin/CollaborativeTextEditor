@@ -28,6 +28,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import model.ClientRequest;
 import model.ServerResponse;
@@ -570,6 +572,5 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void windowDeactivated(WindowEvent e) {
 		}
-
 	}
 }
