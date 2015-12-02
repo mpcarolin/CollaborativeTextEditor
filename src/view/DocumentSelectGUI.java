@@ -674,5 +674,4 @@ public class DocumentSelectGUI extends JFrame {
 			list = null;
 		}
 	}
-
 }
