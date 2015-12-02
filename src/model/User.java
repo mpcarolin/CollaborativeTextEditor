@@ -6,15 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-@SuppressWarnings("serial")
 public class User implements Serializable {
 
-   /**
-    * store passwords as a hash create user, generate unique/random id cast
-    * integer to string, concat to password at beginning hash it, store it, log
-    * into server to server -> get id -> get account -> get password check to
-    * make sure these are the same id+password hash stored 8 digits
-    */
+   private static final long serialVersionUID = 3035409877421839524L;
    private String username;
    private int salt;
    private int hashPass;

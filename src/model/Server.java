@@ -373,6 +373,7 @@ class ClientHandler extends Thread {
       currentOpenDoc = new OpenDocument(newDocument, clientOut);
       Server.openDocuments.put(docName, currentOpenDoc);
       clientOut.writeObject(ServerResponse.DOCUMENT_CREATED);
+      clientOut.writeObject(currentOpenDoc.getText());
    }
 
    /*
