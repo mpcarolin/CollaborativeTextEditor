@@ -30,6 +30,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -441,7 +443,54 @@ public class DocumentSelectGUI extends JFrame {
 				}
 			}
 		}
+	}
+	
+	private class RemoveButtonListener implements ActionListener {
+		
+		@Override
+		public void actionPerformed(ActionEvent clicked) {
+			// get selected user name
+			String username = userListJL.getSelectedValue();
 
+			// send client request to server to add user, then send username
+			if (username != null) {
+
+				int index = ownDisplayList.getSelectedIndex();
+				if (index < 0) {
+					JOptionPane.showMessageDialog(null, "Please select a document.");
+					return;
+				}
+
+				String docName = ownedDocList.getElementAt(index);
+				System.out.println(docName);
+
+				try {
+					toServer.writeObject(ClientRequest.ADD_PERMISSION);
+					toServer.writeObject(username);
+					toServer.writeObject(docName);
+
+					ServerResponse response = (ServerResponse) fromServer.readObject();
+					System.out.println(response);
+					
+					switch (response) {
+					case PERMISSION_ADDED:
+						// user
+						refreshEditingUserLists(docName);
+						break;
+					case NO_DOCUMENT:
+						JOptionPane.showMessageDialog(null, "Cannot add user to a document that does not exist.");
+						break;
+					default:
+						System.out.println("Incompatible server response");
+					}
+
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private class DeleteDocumentListener implements ActionListener {
@@ -585,4 +634,24 @@ public class DocumentSelectGUI extends JFrame {
 		public void windowDeactivated(WindowEvent e) {
 		}
 	}
+
+	/*
+	 *	Ensures invisible tabbed pane isn't selected to properly
+	 * refresh 
+	 */
+	private class tabbedChangedListener implements ChangeListener {
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			if (!ownedDocPanel.isShowing()) {
+				ownDisplayList.clearSelection();
+			} else {
+				editDisplayList.clearSelection();
+			}
+		}
+
+		
+	}
+	
+
 }
