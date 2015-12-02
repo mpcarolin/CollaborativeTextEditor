@@ -589,11 +589,11 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Document does not exist.");
 					return;
 				case DOCUMENT_OPENED:
-					EditorGUI editor = new EditorGUI(fromServer, toServer);
-					while (editor.isShowing()) {
-						DocumentSelectGUI.this.setVisible(false);
-					}
-					DocumentSelectGUI.this.setVisible(true);
+					EditorGUI editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
+//					DocumentSelectGUI.this.setVisible(false);
+//					while (editor.isShowing()) {
+//					}
+//					DocumentSelectGUI.this.setVisible(true);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
