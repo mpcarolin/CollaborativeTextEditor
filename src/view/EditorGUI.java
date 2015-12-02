@@ -85,6 +85,7 @@ import sun.util.resources.cldr.rof.CalendarData_rof_TZ;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
+	private boolean isRunning;
 	private double screenWidth;
 	private double screenHeight;
 	private int carrotPosition;
@@ -149,7 +150,7 @@ public class EditorGUI extends JFrame {
 
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer,DocumentSelectGUI documentgui) {
 		this.documentGUI= documentgui;
-		documentGUI.setVisible(false);
+		//documentGUI.setVisible(false);
 		this.fromServer = fromServer;
 		this.toServer = toServer;
 		// get screen size for proportional gui elements
@@ -446,7 +447,7 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void windowOpened(WindowEvent e) {
 			// TODO Auto-generated method stub
-			
+			isRunning=true;
 		}
 
 		@Override
@@ -458,7 +459,13 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void windowClosed(WindowEvent e) {
 			// TODO Auto-generated method stub
-			documentGUI.setVisible(true);
+			//documentGUI.setVisible(true);
+			try {
+				toServer.writeObject(ClientRequest.CLOSE_DOC);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 		@Override
@@ -526,22 +533,15 @@ public class EditorGUI extends JFrame {
 
 			if (HyperlinkEvent.EventType.ACTIVATED == e.getEventType()) {
 				Desktop desktop = Desktop.getDesktop();
-				System.out.println("the Description"+ e.getDescription());
 				if (Desktop.isDesktopSupported()) {
 					try {
-					System.out.println("Discription "+ e.getDescription());	
 	StringBuilder newURIBuilder= new StringBuilder(e.getDescription());
 	newURIBuilder.deleteCharAt(0);
 	String uriString="";
 	if(newURIBuilder.charAt(newURIBuilder.length()-1)=='\\'){
 		uriString= newURIBuilder.substring(0, newURIBuilder.length()-1);
 	}
-
-	System.out.println(uriString);
-
-
 						URI uri= new URI(uriString);
-						URI sec= new URI("https://www.google.com");
 						desktop.browse(uri);
 					} catch (Exception ex) {
 						System.out.println("error");
@@ -967,7 +967,7 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void run() {
-			while (true) {
+			while (isRunning) {
 				// obtain updated doc text from server in a try-catch
 				try {
 					ServerResponse whatToUpdate = (ServerResponse) fromServer.readObject();
@@ -983,6 +983,7 @@ public class EditorGUI extends JFrame {
 					e.printStackTrace();
 				}
 			}
+			
 		}
 	}
 
