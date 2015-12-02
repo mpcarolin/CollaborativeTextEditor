@@ -105,7 +105,7 @@ public class DocumentSelectGUI extends JFrame {
 				for (String editor : editingUsersList) {
 					editingUserListModel.addElement(editor);
 				}
-
+				
 				editingUsersJList.setModel(editingUserListModel);
 				// topHolder.add(editingUsersJList);
 
@@ -219,8 +219,6 @@ public class DocumentSelectGUI extends JFrame {
 		searchBar = new JTextField();
 
 		// button listeners
-		openDoc.addActionListener(new OpenDocumentListener());
-		addUser.addActionListener(new AddUserButtonListener());
 
 		bottomHolder = new JPanel();
 
@@ -268,8 +266,6 @@ public class DocumentSelectGUI extends JFrame {
 
 	private void registerListeners() {
 		searchBar.addKeyListener(new searchBarListener());
-		// this.searchBar.getDocument().addDocumentListener(new
-		// SearchBarListener());
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
 		this.deleteDoc.addActionListener(new DeleteDocumentListener());
@@ -277,7 +273,9 @@ public class DocumentSelectGUI extends JFrame {
 		ownDisplayList.addListSelectionListener(new ListSelectionHandler());
 		editDisplayList.addListSelectionListener(new ListSelectionHandler());
 		tabbedDocs.addChangeListener(new tabbedChangedListener());
-
+		openDoc.addActionListener(new OpenDocumentListener());
+		addUser.addActionListener(new AddUserButtonListener());
+		removeUser.addActionListener(new RemoveButtonListener());
 	}
 
 	public ObjectOutputStream sendToServer() {
@@ -407,6 +405,7 @@ public class DocumentSelectGUI extends JFrame {
 
 			// get selected user name
 			String username = userListJL.getSelectedValue();
+			System.out.println("");
 
 			// send client request to server to add user, then send username
 			if (username != null) {
@@ -422,7 +421,7 @@ public class DocumentSelectGUI extends JFrame {
 				System.out.println(docName);
 
 				try {
-					toServer.writeObject(ClientRequest.REMOVE_PERMISSION);
+					toServer.writeObject(ClientRequest.ADD_PERMISSION);
 					toServer.writeObject(username);
 					toServer.writeObject(docName);
 
@@ -430,8 +429,7 @@ public class DocumentSelectGUI extends JFrame {
 					System.out.println(response);
 
 					switch (response) {
-					case PERMISSION_REMOVED:
-						// user
+					case PERMISSION_ADDED:
 						refreshEditingUserLists(docName);
 						break;
 					case NO_DOCUMENT:
@@ -455,22 +453,20 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent clicked) {
 			// get selected user name
-			String username = userListJL.getSelectedValue();
-
+			String username = editingUsersJList.getSelectedValue(); 
 			// send client request to server to add user, then send username
 			if (username != null) {
 
 				int index = ownDisplayList.getSelectedIndex();
 				if (index < 0) {
-					JOptionPane.showMessageDialog(null, "Please select a document.");
+					JOptionPane.showMessageDialog(null, "Please select a document that you own.");
 					return;
 				}
 
 				String docName = ownedDocList.getElementAt(index);
-				System.out.println(docName);
 
 				try {
-					toServer.writeObject(ClientRequest.ADD_PERMISSION);
+					toServer.writeObject(ClientRequest.REMOVE_PERMISSION);
 					toServer.writeObject(username);
 					toServer.writeObject(docName);
 
@@ -478,15 +474,19 @@ public class DocumentSelectGUI extends JFrame {
 					System.out.println(response);
 					
 					switch (response) {
-					case PERMISSION_ADDED:
+					case PERMISSION_REMOVED:
 						// user
 						refreshEditingUserLists(docName);
 						break;
 					case NO_DOCUMENT:
-						JOptionPane.showMessageDialog(null, "Cannot add user to a document that does not exist.");
+						JOptionPane.showMessageDialog(null, "Cannot remove user from a document that does not exist.");
 						break;
+					case PERMISSION_DENIED:
+						JOptionPane.showMessageDialog(null, "You cannot remove the owner from the document's editor list.");
 					default:
 						System.out.println("Incompatible server response");
+						break;
+					
 					}
 
 				} catch (IOException e1) {
@@ -661,9 +661,9 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			JList<String> list = (JList<String>) e.getSource();
-			
 			String docName = (String) list.getSelectedValue();
 			System.out.println(docName);
+
 			if (list.isSelectionEmpty()) {
 			} else {
 				refreshEditingUserLists(docName);
