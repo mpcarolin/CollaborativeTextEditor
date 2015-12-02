@@ -483,10 +483,10 @@ public class DocumentSelectGUI extends JFrame {
 						break;
 					case PERMISSION_DENIED:
 						JOptionPane.showMessageDialog(null, "You cannot remove the owner from the document's editor list.");
+						break;
 					default:
 						System.out.println("Incompatible server response");
 						break;
-					
 					}
 
 				} catch (IOException e1) {
