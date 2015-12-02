@@ -23,6 +23,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -111,6 +113,7 @@ public class EditorGUI extends JFrame {
 	private JToggleButton editButton;
 	private String style = "";
 	private int align = 0;
+	private DocumentSelectGUI documentGUI;
 	private Action boldAction = new HTMLEditorKit.BoldAction();
 	private Action italicsAction = new HTMLEditorKit.ItalicAction();
 	private Action underlineAction = new HTMLEditorKit.UnderlineAction();
@@ -144,7 +147,9 @@ public class EditorGUI extends JFrame {
 		timer = new Timer(2000, new TimerListener());
 	}
 
-	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer) {
+	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer,DocumentSelectGUI documentgui) {
+		this.documentGUI= documentgui;
+		documentGUI.setVisible(false);
 		this.fromServer = fromServer;
 		this.toServer = toServer;
 		// get screen size for proportional gui elements
@@ -154,7 +159,8 @@ public class EditorGUI extends JFrame {
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
 		// set defaults and layoutGUI
 		this.setTitle("Collaborative Text Editor");
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
@@ -434,6 +440,51 @@ public class EditorGUI extends JFrame {
 		font.setEnabled(false);
 		fontStyle.setEnabled(false);
 
+	}
+	private class windowListener implements WindowListener{
+
+		@Override
+		public void windowOpened(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowClosing(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowClosed(WindowEvent e) {
+			// TODO Auto-generated method stub
+			documentGUI.setVisible(true);
+		}
+
+		@Override
+		public void windowIconified(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowDeiconified(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowActivated(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowDeactivated(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 	// makes the hyperlinks clickable if edit is on. 
 	private class editableListener implements ActionListener {
