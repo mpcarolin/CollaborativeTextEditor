@@ -150,7 +150,7 @@ public class EditorGUI extends JFrame {
 
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer,DocumentSelectGUI documentgui) {
 		this.documentGUI= documentgui;
-		//documentGUI.setVisible(false);
+		documentGUI.setVisible(false);
 		this.fromServer = fromServer;
 		this.toServer = toServer;
 		// get screen size for proportional gui elements
@@ -459,7 +459,7 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void windowClosed(WindowEvent e) {
 			// TODO Auto-generated method stub
-			//documentGUI.setVisible(true);
+			documentGUI.setVisible(true);
 			try {
 				toServer.writeObject(ClientRequest.CLOSE_DOC);
 			} catch (IOException e1) {
@@ -514,7 +514,7 @@ public class EditorGUI extends JFrame {
 			// TODO Auto-generated method stub
 
 			String message = textArea.getSelectedText();
-			website = JOptionPane.showInputDialog("Enter URL:");
+			website = JOptionPane.showInputDialog("Enter URL (ex: http://www.google.com)");
 			String replacement = "<a href=\\" + "\"" + website + "\\" + "\"" + ">" + message + "</a>";
 			try {
 				editor.insertHTML((HTMLDocument) textArea.getDocument(), carrotPosition, replacement, 0, 0, HTML.Tag.A);
