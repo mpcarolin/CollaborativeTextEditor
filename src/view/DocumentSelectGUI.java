@@ -51,12 +51,10 @@ public class DocumentSelectGUI extends JFrame {
 	private JList<String> ownDisplayList, editDisplayList, userListJL, editingUsersJList;
 	private JTabbedPane tabbedDocs;
 	private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
-	private boolean firstTime;
 
 	public DocumentSelectGUI(ObjectInputStream fromServer, ObjectOutputStream toServer) {
 		this.fromServer = fromServer;
 		this.toServer = toServer;
-		this.firstTime = true;
 		instantiateLists();
 		layoutGUI();
 		getDisplayList();
@@ -589,7 +587,26 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Document does not exist.");
 					return;
 				case DOCUMENT_OPENED:
-					EditorGUI editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
+					DocumentSelectGUI.this.setVisible(false);
+					Thread openEditorGUIListener = new Thread() {
+						@Override
+						public void run() {
+							EditorGUI editor = null; 
+							while (true) {
+							System.out.println("");
+								if (editor == null) {
+									editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
+								}
+								if (!editor.isShowing() || !editor.isEnabled()) {
+									System.out.println(editor);
+									DocumentSelectGUI.this.setVisible(true);
+									editor.dispose();
+									break;
+								}
+							}
+						}
+					};
+					openEditorGUIListener.start();
 //					DocumentSelectGUI.this.setVisible(false);
 //					while (editor.isShowing()) {
 //					}
