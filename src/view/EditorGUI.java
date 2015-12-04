@@ -205,7 +205,6 @@ public class EditorGUI extends JFrame {
 		// //uncommit with rest of code
 		rightPanel.add(openChatButton, BorderLayout.SOUTH);
 		chatText = new JTextField();
-		chatText.addActionListener(new newTextListener()); // uncommint with
 		// rest of code
 		chatText.setMaximumSize(new Dimension(100, 10));
 		chatText.setVisible(false);
@@ -408,6 +407,7 @@ public class EditorGUI extends JFrame {
 		this.setVisible(true);
 
 		// ActionListener
+		chatText.addActionListener(new newTextListener());
 		textArea.addHyperlinkListener(new hyperLinkListener());
 		editButton.addActionListener(new editableListener());
 		textArea.addMouseListener(new mouseListener());
@@ -972,11 +972,12 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void run() {
-			while (isRunning) {
+			while (true) {
 				// obtain updated doc text from server in a try-catch
 				try {
 					ServerResponse whatToUpdate = (ServerResponse) fromServer.readObject();
 					String updatedText = (String) fromServer.readObject();
+					System.out.print(whatToUpdate);
 					if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
 						updatedoc(updatedText);
 					} else if (whatToUpdate == ServerResponse.CHAT_UPDATE) {
