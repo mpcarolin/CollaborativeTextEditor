@@ -595,7 +595,7 @@ public class EditorGUI extends JFrame {
 			// TODO Auto-generated method stub
 			try {
 				toServer.writeObject(ClientRequest.REVERT_DOC);
-
+				System.out.println("Doc reverted");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -716,10 +716,11 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			// TODO Auto-generated method stub
-			startTimer();
 			try {
 				toServer.writeObject(ClientRequest.DOC_TEXT);
 				toServer.writeObject(textArea.getText());
+				startTimer();
+
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -728,10 +729,11 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			// TODO Auto-generated method stub
-			startTimer();
 			try {
 				toServer.writeObject(ClientRequest.DOC_TEXT);
 				toServer.writeObject(textArea.getText());
+				//startTimer();
+
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -740,7 +742,7 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			// TODO Auto-generated method stub
-			startTimer();
+			//startTimer();
 			try {
 				toServer.writeObject(ClientRequest.DOC_TEXT);
 				toServer.writeObject(textArea.getText());
@@ -1051,6 +1053,7 @@ public class EditorGUI extends JFrame {
 		// then stop the timer so it doesn't repeat revision requests
 		public void actionPerformed(ActionEvent e) {
 			try {
+				System.out.println("saved revision");
 				toServer.writeObject(ClientRequest.SAVE_REVISION);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block

@@ -486,6 +486,7 @@ class ClientHandler extends Thread {
     * Reverts the current OpenDocument to its most recent revison.
     */
    public void revertDocument() {
+	   System.out.println(currentOpenDoc.revert());
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert(), true);
    }
 
