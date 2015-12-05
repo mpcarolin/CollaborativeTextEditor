@@ -51,8 +51,10 @@ public class DocumentSelectGUI extends JFrame {
 	private JList<String> ownDisplayList, editDisplayList, userListJL, editingUsersJList;
 	private JTabbedPane tabbedDocs;
 	private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
-
-	public DocumentSelectGUI(ObjectInputStream fromServer, ObjectOutputStream toServer) {
+	private String userName;
+	
+	public DocumentSelectGUI(String username, ObjectInputStream fromServer, ObjectOutputStream toServer) {
+		this.userName = username;
 		this.fromServer = fromServer;
 		this.toServer = toServer;
 		instantiateLists();
@@ -158,7 +160,7 @@ public class DocumentSelectGUI extends JFrame {
 
 		// Create the document GUI
 		// this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Document Selector Hub");
+		this.setTitle(userName + "'s Document Selector Hub");
 		// this.setSize(900, 520);
 		this.setLocation(getInt(screenWidth), getInt(screenHeight));
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -195,8 +197,8 @@ public class DocumentSelectGUI extends JFrame {
 		// //TODO end of hardcode attempts.
 
 		// Create and/or instantiate all Labels, Panels, etc...
-		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
-		JLabel optionLabel = new JLabel("Document Sharing", SwingConstants.CENTER);
+		JLabel documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
+		JLabel optionLabel = new JLabel("Users with access to the selected document", SwingConstants.CENTER);
 		JPanel optionPanelInner = new JPanel();
 		JPanel topInnerOption = new JPanel();
 		JPanel bottomInnerOption = new JPanel();
@@ -236,6 +238,9 @@ public class DocumentSelectGUI extends JFrame {
 		topHolder.add(editingUsersJList);
 		bottomHolder.setLayout(new BorderLayout());
 		bottomHolder.setBackground(Color.WHITE);
+		JLabel removeUsers = new JLabel("Select a user to add", SwingConstants.CENTER);
+		removeUsers.setFont(new Font("default", Font.BOLD, 13));
+		bottomInnerOption.add(removeUsers, BorderLayout.NORTH);
 		topInnerOption.add(topHolder, BorderLayout.CENTER);
 		topInnerOption.add(removeUser, BorderLayout.SOUTH);
 		bottomInnerOption.add(bottomHolder, BorderLayout.CENTER);
@@ -292,7 +297,11 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			updateUsers(searchBar.getText());
+			if (!searchBar.getText().isEmpty()) {
+				updateUsers(searchBar.getText());
+			} else {
+				userListDLM.clear();
+			}
 		}
 
 		private void updateUsers(String text) {

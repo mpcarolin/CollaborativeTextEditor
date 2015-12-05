@@ -250,4 +250,8 @@ public class LoginGUI extends JFrame {
 			ObjectInputStream in = null;
 			new LoginGUI(in, out);
 		}
+
+		public String getUsername() {
+			return usernameField.getText();
+		}
 }
