@@ -300,7 +300,7 @@ public class DocumentSelectGUI extends JFrame {
 			if (!searchBar.getText().isEmpty()) {
 				updateUsers(searchBar.getText());
 			} else {
-				userList.clear();
+				userListDLM.clear();
 			}
 		}
 
