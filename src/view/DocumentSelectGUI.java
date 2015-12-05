@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -29,7 +31,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -52,7 +53,7 @@ public class DocumentSelectGUI extends JFrame {
 	private JTabbedPane tabbedDocs;
 	private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
 	private String userName;
-	
+
 	public DocumentSelectGUI(String username, ObjectInputStream fromServer, ObjectOutputStream toServer) {
 		this.userName = username;
 		this.fromServer = fromServer;
@@ -90,10 +91,7 @@ public class DocumentSelectGUI extends JFrame {
 			editingUserListModel.clear();
 			toServer.writeObject(ClientRequest.GET_EDITORS);
 			toServer.writeObject(docName);
-			System.out.println("before response");
-
 			ServerResponse response = (ServerResponse) fromServer.readObject();
-			System.out.println(response);
 			switch (response) {
 			case NO_DOCUMENT:
 				JOptionPane.showMessageDialog(null, "That document no longer exists.");
@@ -124,7 +122,7 @@ public class DocumentSelectGUI extends JFrame {
 		ownedDocList.clear();
 		editDocList.clear();
 		try {
-			toServer.writeObject(ClientRequest.GET_DOCS);
+			toServer.writeObject(ClientRequest.GET_DOCS);			
 			ownedModel = (List<String>) fromServer.readObject();
 			ownedEditable = (List<String>) fromServer.readObject();
 			for (String s : ownedModel) {
@@ -216,8 +214,8 @@ public class DocumentSelectGUI extends JFrame {
 		// top or bottom
 		removeUser = new JButton("Remove User");
 		addUser = new JButton("Add User");
-		searchBar = new JTextField();
-
+		searchBar = new JTextField("Search for a name here");
+		searchBar.setForeground(Color.GRAY);
 		// button listeners
 
 		bottomHolder = new JPanel();
@@ -269,6 +267,7 @@ public class DocumentSelectGUI extends JFrame {
 
 	private void registerListeners() {
 		searchBar.addKeyListener(new searchBarListener());
+		searchBar.addMouseListener(new SearchMouseListener());
 		this.createDoc.addActionListener(new CreateDocumentListener());
 		this.refreshList.addActionListener(new RefreshListListener());
 		this.deleteDoc.addActionListener(new DeleteDocumentListener());
@@ -283,6 +282,31 @@ public class DocumentSelectGUI extends JFrame {
 
 	public ObjectOutputStream sendToServer() {
 		return toServer;
+	}
+
+	private class SearchMouseListener implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			searchBar.setText("");
+			searchBar.setForeground(Color.BLACK);
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+		}
 	}
 
 	private class searchBarListener implements KeyListener {
@@ -322,7 +346,6 @@ public class DocumentSelectGUI extends JFrame {
 			}
 			getUserUpdates();
 		}
-
 	}
 
 	// private class SearchBarListener implements DocumentListener {
@@ -436,7 +459,6 @@ public class DocumentSelectGUI extends JFrame {
 					toServer.writeObject(docName);
 
 					ServerResponse response = (ServerResponse) fromServer.readObject();
-					System.out.println(response);
 
 					switch (response) {
 					case PERMISSION_ADDED:
@@ -598,30 +620,31 @@ public class DocumentSelectGUI extends JFrame {
 				case DOCUMENT_OPENED:
 					EditorGUI editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
 
-//					DocumentSelectGUI.this.setVisible(false);
-//					Thread openEditorGUIListener = new Thread() {
-//						@Override
-//						public void run() {
-//							EditorGUI editor = null; 
-//							while (true) {
-//							System.out.println("");
-//								if (editor == null) {
-//									editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
-//								}
-//								if (!editor.isShowing() || !editor.isEnabled()) {
-//									System.out.println(editor);
-//									DocumentSelectGUI.this.setVisible(true);
-//									editor.dispose();
-//									break;
-//								}
-//							}
-//						}
-//					};
-//					openEditorGUIListener.start();
-//					DocumentSelectGUI.this.setVisible(false);
-//					while (editor.isShowing()) {
-//					}
-//					DocumentSelectGUI.this.setVisible(true);
+					// DocumentSelectGUI.this.setVisible(false);
+					// Thread openEditorGUIListener = new Thread() {
+					// @Override
+					// public void run() {
+					// EditorGUI editor = null;
+					// while (true) {
+					// System.out.println("");
+					// if (editor == null) {
+					// editor = new EditorGUI(fromServer, toServer,
+					// DocumentSelectGUI.this);
+					// }
+					// if (!editor.isShowing() || !editor.isEnabled()) {
+					// System.out.println(editor);
+					// DocumentSelectGUI.this.setVisible(true);
+					// editor.dispose();
+					// break;
+					// }
+					// }
+					// }
+					// };
+					// openEditorGUIListener.start();
+					// DocumentSelectGUI.this.setVisible(false);
+					// while (editor.isShowing()) {
+					// }
+					// DocumentSelectGUI.this.setVisible(true);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
