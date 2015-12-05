@@ -1,18 +1,17 @@
 package model;
 
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 public class OpenDocument {
    
    private Document document;
-   private List<ObjectOutputStream> editingUsers;
+   private Set<ObjectOutputStream> editingUsers;
    
    public OpenDocument(Document document, ObjectOutputStream openingUser) {
       this.document = document;
-      editingUsers = new ArrayList<ObjectOutputStream>();
+      editingUsers = new HashSet<ObjectOutputStream>();
       addEditor(openingUser);
    }
    
@@ -48,11 +47,11 @@ public class OpenDocument {
       document.replaceText(text, editor);
    }
    
-   public List<ObjectOutputStream> getOutStreams() { 
+   public Set<ObjectOutputStream> getOutStreams() { 
       return editingUsers;
    }
    
    public Document getDocument() {
-	   return document;
+       return document;
    }
 }

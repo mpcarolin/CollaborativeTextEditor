@@ -533,6 +533,7 @@ class ClientHandler extends Thread {
          Server.openDocuments.remove(currentOpenDoc);
       }
       clientOut.flush();
+      clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
    }
 
    /*
@@ -550,7 +551,7 @@ class ClientHandler extends Thread {
       } else {
          Server.allDocuments.remove(docName);
          currentUser.removeDocument(docName);
-         clientOut.writeObject(ServerResponse.DOCUMENT_DELETED);
+         clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
       }
    }
 
