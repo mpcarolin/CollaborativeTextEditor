@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -64,15 +65,19 @@ import model.ServerResponse;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
+
 	private double screenWidth;
 	private double screenHeight;
-	private boolean isclosed = false;
 	private int carrotPosition;
+
+	// server and client instances
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
+
+	// Editor components
 	private JTextPane textArea;
 	private HTMLEditorKit editor;
-	private int size = 12;
+	private int currentFontSize = 12;
 	private JTextArea chatTextArea;
 	private JScrollPane scroll, chatScroll;
 	private JPanel screenPanel, rightPanel;
@@ -82,23 +87,29 @@ public class EditorGUI extends JFrame {
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
-	private JMenu file;
+	
+	// menu items
 	private JMenuBar toolBar;
+	private JMenu file;
 	private JToggleButton boldButton, italicsButton, underlineButton;
 	private JButton colorFont;
-	private boolean bold, underline, italic;
 	private Color color = Color.BLACK;
 	private DocumentListener doclistener;
 	private JButton linkButton;
 	private JToggleButton editButton;
 	private String style = "";
 	private int align = 0;
+
+	// document gui that called this class
 	private DocumentSelectGUI documentGUI;
+	
+	// Editor actions
+	private boolean bold, underline, italic;
 	private Action boldAction = new HTMLEditorKit.BoldAction();
 	private Action italicsAction = new HTMLEditorKit.ItalicAction();
 	private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 	private Action ColorAction = new StyledEditorKit.ForegroundAction("colorButtonListener", color);
-	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", size);
+	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", currentFontSize);
 	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("", "<ul><li></li></ul>", HTML.Tag.BODY,
 			HTML.Tag.UL);
 	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
@@ -314,6 +325,13 @@ public class EditorGUI extends JFrame {
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
+
+		/*
+		 * Mouse listener to obtain ten revisions from server
+		 */
+		revisionListMenu.addMouseListener(new LoadRevisionListener());
+		
+		
 		file.add(fileButton);
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
@@ -416,7 +434,7 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void windowClosing(WindowEvent e) {
-			isclosed = true;
+			//isclosed = true;
 		}
 
 		@Override
@@ -540,6 +558,7 @@ public class EditorGUI extends JFrame {
 	}
 
 	private class rightListener implements ActionListener {
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			align = 2;
@@ -575,10 +594,10 @@ public class EditorGUI extends JFrame {
 	private class selectSizeListener implements ItemListener {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			size = (int) e.getItem();
-			font.addActionListener(new StyledEditorKit.FontSizeAction("action", size) {
+			currentFontSize = (int) e.getItem();
+			font.addActionListener(new StyledEditorKit.FontSizeAction("action", currentFontSize) {
 				public void actionPerformed(ActionEvent e) {
-					new StyledEditorKit.FontSizeAction("Action", size).actionPerformed(e);
+					new StyledEditorKit.FontSizeAction("Action", currentFontSize).actionPerformed(e);
 				}
 			});
 			fontSizeAction.setEnabled(true);
@@ -887,7 +906,11 @@ public class EditorGUI extends JFrame {
 						stopRunning();
 						return;
 					case REVISION_LIST:
-						//return;
+						LinkedList<String> revisionDates = (LinkedList<String>) fromServer.readObject();
+						for (String date : revisionDates) {
+							revisionListMenu.add(date);
+						}
+						return;
 					default:
 						stopRunning();
 						return;
@@ -973,7 +996,37 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
+	
+	private class LoadRevisionListener implements MouseListener {
 
+		@Override
+		public void mouseClicked(MouseEvent e) {}
+
+		@Override
+		public void mousePressed(MouseEvent e) {}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			hoverDisplayRevisions();
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		
+		private void hoverDisplayRevisions() {
+			// send server request for list of last 10 major revisions
+			try {
+				toServer.writeObject(ClientRequest.GET_REVISIONS);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 	// testing
 	public static void main(String[] args) {
 		EditorGUI jake = new EditorGUI();
