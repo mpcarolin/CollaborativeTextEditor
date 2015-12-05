@@ -527,11 +527,12 @@ class ClientHandler extends Thread {
     * Removes the User from the current OpenDocument. Closes the current
     * OpenDocument if the user was the only editor.
     */
-   private void closeDocument() {
+   private void closeDocument() throws IOException {
       currentOpenDoc.removeEditor(clientOut);
       if (currentOpenDoc.noEditors()) {
          Server.openDocuments.remove(currentOpenDoc);
       }
+      clientOut.flush();
    }
 
    /*
