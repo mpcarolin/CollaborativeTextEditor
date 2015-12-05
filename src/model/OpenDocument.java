@@ -2,6 +2,7 @@ package model;
 
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class OpenDocument {
@@ -53,5 +54,9 @@ public class OpenDocument {
    
    public Document getDocument() {
        return document;
+   }
+   
+   public List<Revision> getRevisionList() {
+       return document.getTenRevisions();
    }
 }

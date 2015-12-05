@@ -222,7 +222,7 @@ class ClientHandler extends Thread {
                saveRevision();
                break;
             case GET_REVISIONS:
-        	getRevisions();
+        	sendRevisionList();
         	break;
             case UNDO:
                revertDocument();
@@ -394,20 +394,9 @@ class ClientHandler extends Thread {
       } else {
          if (!user.hasPermission(docName)) {
             user.addEditableDocument(docName);
-
-            System.out.println("Users documents after adding new document");
-            for (String s : user.getEditableDocuments())
-               System.out.println("Document" + s);
-            System.out.println();
-
          }
          if (!document.isEditableBy(username)) {
             document.addEditor(username);
-
-            System.out.println("Document editors after adding new editor");
-            for (String s : document.getEditors())
-               System.out.println("Editor: " + s);
-            System.out.println();
          }
          clientOut.writeObject(ServerResponse.PERMISSION_ADDED);
       }
@@ -480,16 +469,18 @@ class ClientHandler extends Thread {
    private void saveRevision() {
       currentOpenDoc.saveRevision(currentUser.getName());
    }
-
-   public void sendRevisionList() {
-
+   
+   private void sendRevisionList() throws IOException {
+       clientOut.writeObject(ServerResponse.REVISION_LIST);
+       clientOut.reset();
+       clientOut.writeObject(currentOpenDoc.getRevisionList());
+       
    }
 
    /*
-    * Reverts the current OpenDocument to its most recent revison.
+    * Reverts the current OpenDocument to its most recent revision.
     */
    public void revertDocument() {
-	   System.out.println(currentOpenDoc.revert());
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert(), true);
    }
 
@@ -531,14 +522,11 @@ class ClientHandler extends Thread {
     * OpenDocument if the user was the only editor.
     */
    private void closeDocument() throws IOException {
-      clientOut.flush();
       currentOpenDoc.removeEditor(clientOut);
       if (currentOpenDoc.noEditors()) {
          Server.openDocuments.remove(currentOpenDoc);
       }
-
       clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
-      clientOut.reset();
    }
 
    /*
