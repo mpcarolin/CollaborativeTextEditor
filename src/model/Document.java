@@ -18,8 +18,6 @@ public class Document implements Serializable {
    private List<String> editorNames;
    private ArrayList<Revision> history;	// maintained like a stack
 
-
-   
    public Document(String documentName, String ownerName) {
       this.documentName = documentName;
       this.ownerName = ownerName;
@@ -106,7 +104,7 @@ public class Document implements Serializable {
     * Returns null if out of bounds
     */
   
-   public Revision getRevisionForUser(int nthRevision ) {
+   private Revision getRevisionForUser(int nthRevision ) {
 	   if (nthRevision >= 0 && nthRevision < 10) {
 		   return history.get((nthRevision) * 100);
 	   }
