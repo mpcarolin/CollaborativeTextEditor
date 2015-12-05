@@ -292,7 +292,11 @@ public class DocumentSelectGUI extends JFrame {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			updateUsers(searchBar.getText());
+			if (!searchBar.getText().isEmpty()) {
+				updateUsers(searchBar.getText());
+			} else {
+				userList.clear();
+			}
 		}
 
 		private void updateUsers(String text) {

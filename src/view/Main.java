@@ -36,7 +36,7 @@ public class Main {
             e.printStackTrace();
          }
       }
-     new DocumentSelectGUI(fromServer, toServer);
+     new DocumentSelectGUI(login.getUsername(), fromServer, toServer);
    }
 
 }
