@@ -179,7 +179,12 @@ public class DocumentSelectGUI extends JFrame {
 		editDocPanel.setBackground(Color.BLACK);
 
 		// Create and/or instantiate all Labels, Panels, etc...
-		JLabel documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
+		JLabel documentLabel;
+		if (userName.equals("Filbert")) {
+			documentLabel = new JLabel(userName + "'s Bundle of Sticks", SwingConstants.CENTER);
+		} else {
+			documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
+		}
 		JLabel optionLabel = new JLabel("Users with access to the selected document", SwingConstants.CENTER);
 		JPanel optionPanelInner = new JPanel();
 		JPanel topInnerOption = new JPanel();
