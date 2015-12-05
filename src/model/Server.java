@@ -120,7 +120,7 @@ public class Server {
    }
 
    static void setUpSaveTimer() {
-      Timer saveTimer = new Timer(180000, new ActionListener() {
+      Timer saveTimer = new Timer(30000, new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent arg0) {
             saveData();
@@ -424,7 +424,7 @@ class ClientHandler extends Thread {
       } else {
          Server.allUsers.get(username).removeDocument(docName);
          document.removeEditor(username);
-        // clientOut.writeObject(ServerResponse.PERMISSION_REMOVED);
+         clientOut.writeObject(ServerResponse.PERMISSION_REMOVED);
       }
    }
 
