@@ -104,7 +104,7 @@ public class Document implements Serializable {
      * Returns null if out of bounds
      */
 
-    private Revision getRevisionForUser(int nthRevision) {
+    private Revision getRevision(int nthRevision) {
 	if (nthRevision >= 0 && nthRevision < 10) {
 	    return history.get((nthRevision) * 100);
 	}
@@ -117,12 +117,12 @@ public class Document implements Serializable {
      * 
      * Designated for the client editor gui that needs 10 revisions to view.
      */
-    public List<Revision> getTenRevisionsForUser() {
+    public List<Revision> getTenRevisions() {
 	List<Revision> revisions = new LinkedList<Revision>();
 
 	// find up to 10 revisions (separated by 100 revisions)
 	for (int i = 0; i < 10; i++) {
-	    Revision rev = getRevisionForUser(i);
+	    Revision rev = getRevision(i);
 	    if (rev == null) {
 		return revisions;
 	    }
