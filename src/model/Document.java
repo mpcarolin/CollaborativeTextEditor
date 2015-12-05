@@ -97,4 +97,44 @@ public class Document implements Serializable {
    public void removeEditor(String username) {
       editorNames.remove(username);
    }
+   
+   /* 
+    * Get's the nth + 1 revision for the client editor 
+    * gui. Argument should be between 0-9, referring
+    * to increments of 100 revisions stored.
+    * 
+    * Returns null if out of bounds
+    */
+  
+   public Revision getRevisionForUser(int nthRevision ) {
+	   if (nthRevision >= 0 && nthRevision < 10) {
+		   return history.get((nthRevision) * 100);
+	   }
+	   
+	   return null;
+   }
+   
+   /*
+    * Returns UP to 10 revisions, separated in increments of 100,
+    * as a linked list. If less than 1000 revisions are stored, it will return
+    * fewer.
+    * 
+    * Designated for the client editor gui that needs 10 revisions to view.
+    */
+   public LinkedList<Revision> getTenRevisionsForUser() {
+	   LinkedList<Revision> revisions = new LinkedList<Revision>();
+	   
+	   // find up to 10 revisions (separated by 100 revisions)
+	   for (int i = 0; i < 10; i++) {
+		   Revision rev = getRevisionForUser(i);
+		   if (rev == null) {
+			   return revisions;
+		   }
+		   revisions.add(rev);
+	   }
+	   
+	   return revisions;
+   }
+   
+   
 }
