@@ -103,10 +103,7 @@ public class DocumentSelectGUI extends JFrame {
 				for (String editor : editingUsersList) {
 					editingUserListModel.addElement(editor);
 				}
-
 				editingUsersJList.setModel(editingUserListModel);
-				// topHolder.add(editingUsersJList);
-
 				break;
 
 			default:
@@ -122,7 +119,7 @@ public class DocumentSelectGUI extends JFrame {
 		ownedDocList.clear();
 		editDocList.clear();
 		try {
-			toServer.writeObject(ClientRequest.GET_DOCS);			
+			toServer.writeObject(ClientRequest.GET_DOCS);
 			ownedModel = (List<String>) fromServer.readObject();
 			ownedEditable = (List<String>) fromServer.readObject();
 			for (String s : ownedModel) {
@@ -138,11 +135,6 @@ public class DocumentSelectGUI extends JFrame {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		// if (!firstTime) {
-		// firstTime = false;
-		// ownedDocPanel.add(ownDisplayList);
-		// editDocPanel.add(editDisplayList);
-		// }
 	}
 
 	private int getInt(double number) {
@@ -157,9 +149,7 @@ public class DocumentSelectGUI extends JFrame {
 		this.setSize((int) screenWidth - 100, (int) screenHeight - 100);
 
 		// Create the document GUI
-		// this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle(userName + "'s Document Selector Hub");
-		// this.setSize(900, 520);
 		this.setLocation(getInt(screenWidth), getInt(screenHeight));
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setResizable(false);
@@ -183,19 +173,18 @@ public class DocumentSelectGUI extends JFrame {
 		docPanel.setLocation(0, 20);
 		thePanel.add(docPanel);
 
-		// //TODO Attempts to hardcode placed in here
 		ownedDocPanel = new JScrollPane(ownDisplayList);
-		ownedDocPanel.setBackground(Color.YELLOW);
+		ownedDocPanel.setBackground(Color.BLACK);
 		editDocPanel = new JScrollPane(editDisplayList);
-		editDocPanel.setBackground(Color.RED);
-		// ownedModel = new LinkedList<String>();
-		// ownedModel.add("HELLO.txt");
-		// ownedDocList.addElement(ownedModel.get(0));
-		// ownDisplayList.setModel(ownedDocList);
-		// //TODO end of hardcode attempts.
+		editDocPanel.setBackground(Color.BLACK);
 
 		// Create and/or instantiate all Labels, Panels, etc...
-		JLabel documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
+		JLabel documentLabel;
+		if (userName.equals("Filbert")) {
+			documentLabel = new JLabel(userName + "'s Bundle of Sticks", SwingConstants.CENTER);
+		} else {
+			documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
+		}
 		JLabel optionLabel = new JLabel("Users with access to the selected document", SwingConstants.CENTER);
 		JPanel optionPanelInner = new JPanel();
 		JPanel topInnerOption = new JPanel();
@@ -243,7 +232,6 @@ public class DocumentSelectGUI extends JFrame {
 		topInnerOption.add(removeUser, BorderLayout.SOUTH);
 		bottomInnerOption.add(bottomHolder, BorderLayout.CENTER);
 		bottomInnerOption.add(addUser, BorderLayout.SOUTH);
-		// searchBar.setText("Search for username here.");
 		bottomHolder.add(searchBar, BorderLayout.SOUTH);
 		optionPanelInner.add(topInnerOption);
 		optionPanelInner.add(bottomInnerOption);
@@ -333,7 +321,6 @@ public class DocumentSelectGUI extends JFrame {
 				toServer.writeObject(ClientRequest.GET_USERS);
 				toServer.writeObject(text);
 				userList = (List<String>) fromServer.readObject();
-				// System.out.println(userList.get(0));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -348,54 +335,14 @@ public class DocumentSelectGUI extends JFrame {
 		}
 	}
 
-	// private class SearchBarListener implements DocumentListener {
-	//
-	// @Override
-	// public void insertUpdate(DocumentEvent e) {
-	// updateUsers(searchBar.getText());
-	// // send client request
-	// // send text
-	// // get list
-	// // display list
-	// // repeat
-	// }
-	//
-	// @Override
-	// public void removeUpdate(DocumentEvent e) {
-	// //updateUsers(searchBar.getText());
-	// }
-	//
-	// @Override
-	// public void changedUpdate(DocumentEvent e) {
-	// }
-	//
-	// private void updateUsers(String text) {
-	// try {
-	// toServer.writeObject(ClientRequest.GET_USERS);
-	// toServer.writeObject(text);
-	// userList = (List<String>) fromServer.readObject();
-	// System.out.println(userList.get(0));
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// } catch (ClassNotFoundException e) {
-	// e.printStackTrace();
-	// }
-	// userListDLM.clear();
-	// for (String str : userList) {
-	// if (str.contains(text))
-	// userListDLM.addElement(str);
-	// }
-	// getUserUpdates();
-	// }
-	// }
-
 	private class CreateDocumentListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Open Pane to get the new document's name
 			String newDocName = JOptionPane.showInputDialog("Please enter the new document's name:");
-			if (newDocName == null) {
+			if (newDocName == null || newDocName.equals("")) {
+				JOptionPane.showMessageDialog(null, "Please enter a name for the document.");
 				return;
 			}
 			try {
@@ -533,9 +480,6 @@ public class DocumentSelectGUI extends JFrame {
 
 	private class DeleteDocumentListener implements ActionListener {
 
-		// if exists
-		// if owner
-		// if currently edited
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String docName = null;
@@ -618,33 +562,7 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Document does not exist.");
 					return;
 				case DOCUMENT_OPENED:
-					EditorGUI editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
-
-					// DocumentSelectGUI.this.setVisible(false);
-					// Thread openEditorGUIListener = new Thread() {
-					// @Override
-					// public void run() {
-					// EditorGUI editor = null;
-					// while (true) {
-					// System.out.println("");
-					// if (editor == null) {
-					// editor = new EditorGUI(fromServer, toServer,
-					// DocumentSelectGUI.this);
-					// }
-					// if (!editor.isShowing() || !editor.isEnabled()) {
-					// System.out.println(editor);
-					// DocumentSelectGUI.this.setVisible(true);
-					// editor.dispose();
-					// break;
-					// }
-					// }
-					// }
-					// };
-					// openEditorGUIListener.start();
-					// DocumentSelectGUI.this.setVisible(false);
-					// while (editor.isShowing()) {
-					// }
-					// DocumentSelectGUI.this.setVisible(true);
+					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
