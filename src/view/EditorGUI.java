@@ -127,7 +127,7 @@ public class EditorGUI extends JFrame {
 		timer = new Timer(2000, new TimerListener());
 	}
 
-	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui) {
+	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui, String startingText) {
 		this.documentGUI = documentgui;
 		documentGUI.setVisible(false);
 		this.fromServer = fromServer;
@@ -144,14 +144,17 @@ public class EditorGUI extends JFrame {
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
+		/*
 		try {
-			String document = (String) fromServer.readObject();
-			textArea.setText(document);
+			//String document = (String) fromServer.readObject();
+			//textArea.setText(document);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		*/
+		textArea.setText(startingText);
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
 
@@ -912,8 +915,10 @@ public class EditorGUI extends JFrame {
 			}
 		}
 		
-		private void stopRunning() {
+		private void stopRunning() throws IOException {
 			isRunning = false;
+			toServer.reset();
+			//EditorGUI.this.notifyAll();
 		}
 	}
 

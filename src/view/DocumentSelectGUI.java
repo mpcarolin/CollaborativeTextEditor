@@ -349,14 +349,17 @@ public class DocumentSelectGUI extends JFrame {
 				toServer.writeObject(ClientRequest.CREATE_DOC);
 				toServer.writeObject(newDocName);
 				ServerResponse response = (ServerResponse) fromServer.readObject();
+			
 				switch (response) {
 				case DOCUMENT_EXISTS:
 					JOptionPane.showMessageDialog(null, "Sorry, this document already exists.");
 					return;
 				case DOCUMENT_CREATED:
+					// obtain text from server to send to editor gui first -- enables us to the refresh
+					// the display list before launching the gui
+					String startingText = (String) fromServer.readObject();
 					getDisplayList();
-					toServer.flush();
-					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
+					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
@@ -367,6 +370,11 @@ public class DocumentSelectGUI extends JFrame {
 				e1.printStackTrace();
 			} catch (ClassNotFoundException e1) {
 				e1.printStackTrace();
+			//} catch (InterruptedException e1) {
+				// this is for the selectGUI.wait() method call
+			//	e1.printStackTrace();
+			} catch (IllegalMonitorStateException imse) {
+				imse.printStackTrace();
 			}
 		}
 	}
@@ -564,7 +572,8 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_OPENED:
 					toServer.flush();
-					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
+					String text = (String) fromServer.readObject();
+					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text);
 					return;
 				default:
 					JOptionPane.showMessageDialog(null, "Incompatible server response.");
