@@ -532,8 +532,10 @@ class ClientHandler extends Thread {
       if (currentOpenDoc.noEditors()) {
          Server.openDocuments.remove(currentOpenDoc);
       }
-      clientOut.flush();
+
       clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
+      clientOut.flush();
+      clientOut.reset();
    }
 
    /*
