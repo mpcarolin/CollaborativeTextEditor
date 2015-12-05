@@ -16,7 +16,7 @@ public class Document implements Serializable {
    private String documentName;
    private String ownerName;
    private List<String> editorNames;
-   private ArrayList<Revision> history;
+   private ArrayList<Revision> history;	// maintained like a stack
 
 
    
@@ -26,6 +26,7 @@ public class Document implements Serializable {
       editorNames = Collections.synchronizedList(new LinkedList<String>());
       editorNames.add(ownerName);
       //history = new Stack<Revision>();
+      history = new ArrayList<Revision>();
       currentText = "";
    }
    
@@ -41,17 +42,16 @@ public class Document implements Serializable {
    // creates a new revision object with revising user and the current saved text 
    public void saveRevision(String revisingUser) {
       // resize history if it exceeds constant 
-      // TODO: probably ditch this b/c we need to construct full text using revisions
       if (history.size() >= NUM_REVISIONS_STORED) {
          history.remove(0);
       }
 	   Revision revision = new Revision(currentText, peekLastRevision().getFullText(), revisingUser);
-      history.push(revision);
+	   history.add(revision);
    }
    
    public Revision peekLastRevision() { 
 	   if (history.size() > 0) {
-		  return history.peek(); 
+		  return history.get(history.size()); 
 	   } else {
 		  return new Revision("", "", null);
 	   }
@@ -67,7 +67,7 @@ public class Document implements Serializable {
    
    public Revision getLastRevision() {
 	  if (history.size() > 0) { 
-		  Revision lastRevision = history.pop();
+		  Revision lastRevision = history.remove(history.size());
 		  currentText = lastRevision.getFullText();
 		  return lastRevision;
 	  }
