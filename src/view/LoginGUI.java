@@ -14,6 +14,7 @@ import java.io.ObjectOutputStream;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -170,6 +171,11 @@ public class LoginGUI extends JFrame {
 				try {
 					String username = usernameField.getText();
 					String password = String.valueOf(passwordField.getPassword());
+					
+					if (username.isEmpty() || password.isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Please enter a username or password to create an account");
+						return;
+					}
 					
 					// send server username and password
 					toServer.writeObject(ClientRequest.CREATE_ACCOUNT);
