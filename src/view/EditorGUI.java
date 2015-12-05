@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -36,6 +37,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -47,6 +49,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyleConstants;
@@ -64,41 +68,55 @@ import model.ServerResponse;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
+
 	private double screenWidth;
 	private double screenHeight;
-	private boolean isclosed = false;
 	private int carrotPosition;
+
+	// server and client instances
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
+
+	// Editor components
 	private JTextPane textArea;
 	private HTMLEditorKit editor;
-	private int size = 12;
+	private int currentFontSize = 12;
 	private JTextArea chatTextArea;
 	private JScrollPane scroll, chatScroll;
 	private JPanel screenPanel, rightPanel;
 	private JButton openChatButton;
 	private JToggleButton centerAlign, rightAlign, leftAlign;
-	private JMenu revisionListMenu;
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
-	private JMenu file;
+
+	// file dropdown menu items
+	private JMenu revisionListMenu;
+	private JPopupMenu revisionPop;
+
+	
+	// menu items
 	private JMenuBar toolBar;
+	private JMenu file;
 	private JToggleButton boldButton, italicsButton, underlineButton;
 	private JButton colorFont;
-	private boolean bold, underline, italic;
 	private Color color = Color.BLACK;
 	private DocumentListener doclistener;
 	private JButton linkButton;
 	private JToggleButton editButton;
 	private String style = "";
 	private int align = 0;
+
+	// document gui that called this class
 	private DocumentSelectGUI documentGUI;
+	
+	// Editor actions
+	private boolean bold, underline, italic;
 	private Action boldAction = new HTMLEditorKit.BoldAction();
 	private Action italicsAction = new HTMLEditorKit.ItalicAction();
 	private Action underlineAction = new HTMLEditorKit.UnderlineAction();
 	private Action ColorAction = new StyledEditorKit.ForegroundAction("colorButtonListener", color);
-	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", size);
+	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", currentFontSize);
 	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("", "<ul><li></li></ul>", HTML.Tag.BODY,
 			HTML.Tag.UL);
 	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
@@ -310,10 +328,50 @@ public class EditorGUI extends JFrame {
 		// fontStyle.setMinimumSize(new Dimension(50,30));
 		// fontStyle.setPreferredSize(new Dimension(50,30));
 
-		// File Menu Bar
+		// File Menu Bar elements 
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
+		String[] strings = {"a", "b", "c"};
+
+		/*
+		 *  Fill the Revision Drop-down menu with revisions,
+		 *  and assign each revision item to a listener that,
+		 *  upon being clicked, requests the the server to 
+		 *  r
+		 */
+		for (String string : strings) {
+			JMenuItem newRevision = new JMenuItem(string);
+			newRevision.addMouseListener(new MouseListener() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					JMenuItem current = (JMenuItem)e.getSource();
+					String revisionKey = current.getText();
+					
+					try {
+						toServer.writeObject(ClientRequest.REVERT_DOC);
+						toServer.writeObject(revisionKey);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+				public void mouseReleased(MouseEvent e) {}
+				public void mouseClicked(MouseEvent e) { }
+				public void mouseEntered(MouseEvent e) {}
+				public void mouseExited(MouseEvent e) {}
+				
+			});
+			revisionListMenu.add(newRevision);
+		}
+
+		
+
+		/*
+		 * Mouse listener to obtain ten revisions from server
+		 */
+		revisionListMenu.addMouseListener(new LoadRevisionListener());
+		
+		
 		file.add(fileButton);
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
@@ -416,7 +474,7 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void windowClosing(WindowEvent e) {
-			isclosed = true;
+			//isclosed = true;
 		}
 
 		@Override
@@ -540,6 +598,7 @@ public class EditorGUI extends JFrame {
 	}
 
 	private class rightListener implements ActionListener {
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			align = 2;
@@ -575,10 +634,10 @@ public class EditorGUI extends JFrame {
 	private class selectSizeListener implements ItemListener {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			size = (int) e.getItem();
-			font.addActionListener(new StyledEditorKit.FontSizeAction("action", size) {
+			currentFontSize = (int) e.getItem();
+			font.addActionListener(new StyledEditorKit.FontSizeAction("action", currentFontSize) {
 				public void actionPerformed(ActionEvent e) {
-					new StyledEditorKit.FontSizeAction("Action", size).actionPerformed(e);
+					new StyledEditorKit.FontSizeAction("Action", currentFontSize).actionPerformed(e);
 				}
 			});
 			fontSizeAction.setEnabled(true);
@@ -887,7 +946,15 @@ public class EditorGUI extends JFrame {
 						stopRunning();
 						return;
 					case REVISION_LIST:
-						//return;
+						LinkedList<String> revisionDates = (LinkedList<String>) fromServer.readObject();
+						for (String date : revisionDates) {
+							revisionListMenu.add(date);
+						}
+						return;
+					case DOCUMENT_REVERTED:
+						String revertedText = (String) fromServer.readObject();
+						EditorGUI.this.updatedoc(revertedText);
+						return;
 					default:
 						stopRunning();
 						return;
@@ -973,7 +1040,56 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
+	
+	private class LoadRevisionListener implements MouseListener {
 
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			System.out.println(e.getSource());
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			hoverDisplayRevisions();
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		
+		private void hoverDisplayRevisions() {
+			revisionListMenu.doClick();
+			System.out.println("called click");
+		}
+	}
+	
+	private class RevisionPopUpListener implements PopupMenuListener  {
+
+		@Override
+		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			try {
+				toServer.writeObject(ClientRequest.GET_REVISIONS);
+			} catch (IOException io) {
+				io.printStackTrace();
+			}
+			
+		}
+
+		@Override
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {		}
+
+		@Override
+		public void popupMenuCanceled(PopupMenuEvent e) {
+			
+		}
+		
+	}
+	
 	// testing
 	public static void main(String[] args) {
 		EditorGUI jake = new EditorGUI();
