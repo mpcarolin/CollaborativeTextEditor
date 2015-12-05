@@ -9,9 +9,6 @@ import java.util.Stack;
 
 public class Document implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 5200300073687331464L;
     private static final int NUM_REVISIONS_STORED = 1000;
     // private Stack<Revision> history;
@@ -19,7 +16,7 @@ public class Document implements Serializable {
     private String documentName;
     private String ownerName;
     private List<String> editorNames;
-    private ArrayList<Revision> history; // maintained like a stack
+    private List<Revision> history; // maintained like a stack
 
     public Document(String documentName, String ownerName) {
 	this.documentName = documentName;
@@ -111,7 +108,6 @@ public class Document implements Serializable {
 	if (nthRevision >= 0 && nthRevision < 10) {
 	    return history.get((nthRevision) * 100);
 	}
-
 	return null;
     }
 
@@ -121,8 +117,8 @@ public class Document implements Serializable {
      * 
      * Designated for the client editor gui that needs 10 revisions to view.
      */
-    public LinkedList<Revision> getTenRevisionsForUser() {
-	LinkedList<Revision> revisions = new LinkedList<Revision>();
+    public List<Revision> getTenRevisionsForUser() {
+	List<Revision> revisions = new LinkedList<Revision>();
 
 	// find up to 10 revisions (separated by 100 revisions)
 	for (int i = 0; i < 10; i++) {
@@ -132,7 +128,6 @@ public class Document implements Serializable {
 	    }
 	    revisions.add(rev);
 	}
-
 	return revisions;
     }
 
