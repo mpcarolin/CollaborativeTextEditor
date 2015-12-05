@@ -153,6 +153,7 @@ public class EditorGUI extends JFrame {
 	    e.printStackTrace();
 	}
 
+	isRunning = true;
 	ServerListener serverListener = new ServerListener();
 	serverListener.start();
 
@@ -435,7 +436,7 @@ public class EditorGUI extends JFrame {
 		EditorGUI.this.setVisible(false);
 		EditorGUI.this.setEnabled(false);
 		toServer.writeObject(ClientRequest.CLOSE_DOC);
-		// isRunning = false;
+		isRunning = false;
 	    } catch (IOException e1) {
 		e1.printStackTrace();
 	    }
@@ -836,7 +837,6 @@ public class EditorGUI extends JFrame {
 	    underlineAction.actionPerformed(e);
 	    underline = !underline;
 	    if (textArea.getSelectedText() == null) {
-
 		if (underline) {
 		    underlineAction.setEnabled(true);
 		} else {
@@ -906,7 +906,6 @@ public class EditorGUI extends JFrame {
 	textArea.getDocument().removeDocumentListener(doclistener);
 	textArea.setText(text);
 	textArea.getDocument().addDocumentListener(doclistener);
-
     }
 
     public void updatechat(String text) {
