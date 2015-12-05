@@ -25,7 +25,7 @@ public class OpenDocument {
    }
    
    public String revert() {
-      return document.getLastRevision().getFullText();
+      return document.getLastRevisionText();
    }
    
    public void removeEditor(ObjectOutputStream oldEditor) {
@@ -56,7 +56,7 @@ public class OpenDocument {
        return document;
    }
    
-   public List<Revision> getRevisionList() {
-       return document.getTenRevisions();
+   public List<String> getRevisionList() {
+       return document.getTenRevisionKeys();
    }
 }

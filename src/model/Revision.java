@@ -57,7 +57,7 @@ public class Revision implements Serializable {
      * Getter methods
      */
     public List<String> getRevisingActions() {
-		return revisingActions;
+	return revisingActions;
     }
 
     public String getFullText() {
@@ -76,8 +76,12 @@ public class Revision implements Serializable {
 	return revisingUser;
     }
 
-    @Override
     public String toString() {
+	return getEditTime().getHour() % 12 + ":" + getEditTime().getMinute() + " on " + getEditDate() + "by "
+		+ revisingUser;
+    }
+
+    public String toStringChanges() {
 	String toPrint = "At " + getEditTime().getHour() % 12 + ":" + getEditTime().getMinute() + " on " + getEditDate()
 		+ ", " + revisingUser + " made the following edits:\n";
 

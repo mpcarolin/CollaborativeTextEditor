@@ -225,7 +225,7 @@ class ClientHandler extends Thread {
         	sendRevisionList();
         	break;
             case UNDO:
-               revertDocument();
+               undoDocument();
                break;
             case CLOSE_DOC:
                closeDocument();
@@ -480,7 +480,7 @@ class ClientHandler extends Thread {
    /*
     * Reverts the current OpenDocument to its most recent revision.
     */
-   public void revertDocument() {
+   public void undoDocument() {
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert(), true);
    }
 
