@@ -221,7 +221,10 @@ class ClientHandler extends Thread {
             case SAVE_REVISION:
                saveRevision();
                break;
-            case REVERT_DOC:
+            case GET_REVISIONS:
+        	getRevisions();
+        	break;
+            case UNDO:
                revertDocument();
                break;
             case CLOSE_DOC:
