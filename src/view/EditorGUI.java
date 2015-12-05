@@ -1,4 +1,3 @@
-
 package view;
 
 import java.awt.BorderLayout;
@@ -661,7 +660,6 @@ public class EditorGUI extends JFrame {
 		toServer.writeObject(ClientRequest.DOC_TEXT);
 		toServer.writeObject(textArea.getText());
 		// startTimer();
-
 	    } catch (IOException e1) {
 		e1.printStackTrace();
 	    }
@@ -710,6 +708,7 @@ public class EditorGUI extends JFrame {
 			boldButton.setSelected(false);
 		    }
 		} catch (Exception e1) {
+		    e1.printStackTrace();
 		}
 		try {
 		    AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -725,6 +724,7 @@ public class EditorGUI extends JFrame {
 			italicsButton.setSelected(false);
 		    }
 		} catch (Exception e1) {
+		    e1.printStackTrace();
 		}
 		try {
 		    AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -798,7 +798,6 @@ public class EditorGUI extends JFrame {
 			font.setSelectedIndex(14);
 			return;
 		    }
-
 		}
 	    }
 	}
