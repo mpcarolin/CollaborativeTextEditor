@@ -37,6 +37,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -48,6 +49,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyleConstants;
@@ -83,10 +86,14 @@ public class EditorGUI extends JFrame {
 	private JPanel screenPanel, rightPanel;
 	private JButton openChatButton;
 	private JToggleButton centerAlign, rightAlign, leftAlign;
-	private JMenu revisionListMenu;
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
+
+	// file dropdown menu items
+	private JMenu revisionListMenu;
+	private JPopupMenu revisionPop;
+
 	
 	// menu items
 	private JMenuBar toolBar;
@@ -321,10 +328,43 @@ public class EditorGUI extends JFrame {
 		// fontStyle.setMinimumSize(new Dimension(50,30));
 		// fontStyle.setPreferredSize(new Dimension(50,30));
 
-		// File Menu Bar
+		// File Menu Bar elements 
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
+		String[] strings = {"a", "b", "c"};
+
+		/*
+		 *  Fill the Revision Drop-down menu with revisions,
+		 *  and assign each revision item to a listener that,
+		 *  upon being clicked, requests the the server to 
+		 *  r
+		 */
+		for (String string : strings) {
+			JMenuItem newRevision = new JMenuItem(string);
+			newRevision.addMouseListener(new MouseListener() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					JMenuItem current = (JMenuItem)e.getSource();
+					String revisionKey = current.getText();
+					
+					try {
+						toServer.writeObject(ClientRequest.REVERT_DOC);
+						toServer.writeObject(revisionKey);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+				public void mouseReleased(MouseEvent e) {}
+				public void mouseClicked(MouseEvent e) { }
+				public void mouseEntered(MouseEvent e) {}
+				public void mouseExited(MouseEvent e) {}
+				
+			});
+			revisionListMenu.add(newRevision);
+		}
+
+		
 
 		/*
 		 * Mouse listener to obtain ten revisions from server
@@ -911,6 +951,10 @@ public class EditorGUI extends JFrame {
 							revisionListMenu.add(date);
 						}
 						return;
+					case DOCUMENT_REVERTED:
+						String revertedText = (String) fromServer.readObject();
+						EditorGUI.this.updatedoc(revertedText);
+						return;
 					default:
 						stopRunning();
 						return;
@@ -1000,7 +1044,9 @@ public class EditorGUI extends JFrame {
 	private class LoadRevisionListener implements MouseListener {
 
 		@Override
-		public void mouseClicked(MouseEvent e) {}
+		public void mouseClicked(MouseEvent e) {
+			System.out.println(e.getSource());
+		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {}
@@ -1017,12 +1063,29 @@ public class EditorGUI extends JFrame {
 		public void mouseExited(MouseEvent e) {}
 		
 		private void hoverDisplayRevisions() {
-			// send server request for list of last 10 major revisions
+			revisionListMenu.doClick();
+			System.out.println("called click");
+		}
+	}
+	
+	private class RevisionPopUpListener implements PopupMenuListener  {
+
+		@Override
+		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 			try {
 				toServer.writeObject(ClientRequest.GET_REVISIONS);
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (IOException io) {
+				io.printStackTrace();
 			}
+			
+		}
+
+		@Override
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {		}
+
+		@Override
+		public void popupMenuCanceled(PopupMenuEvent e) {
+			
 		}
 		
 	}
