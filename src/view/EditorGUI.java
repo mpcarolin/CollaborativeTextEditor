@@ -876,7 +876,7 @@ public class EditorGUI extends JFrame {
     private class ServerListener extends Thread {
 	@Override
 	public void run() {
-	    while (true) {
+	    while (isRunning) {
 		// obtain updated doc text from server in a try-catch
 		try {
 		    ServerResponse whatToUpdate = (ServerResponse) fromServer.readObject();
