@@ -542,8 +542,8 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				toServer.writeObject(ClientRequest.REVERT_DOC);
-				System.out.println("Doc reverted");
+				toServer.writeObject(ClientRequest.UNDO);
+				System.out.println("Reverted to most recent revision");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

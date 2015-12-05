@@ -9,6 +9,7 @@ import java.util.Stack;
 
 public class Document implements Serializable {
 
+
     private static final long serialVersionUID = 5200300073687331464L;
     private static final int NUM_REVISIONS_STORED = 1000;
     // private Stack<Revision> history;
@@ -130,5 +131,4 @@ public class Document implements Serializable {
 	}
 	return revisions;
     }
-
 }

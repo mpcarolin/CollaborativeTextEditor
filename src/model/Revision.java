@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
 
 import model.diff_match_patch.Diff;
 
@@ -14,7 +15,7 @@ public class Revision implements Serializable {
     private String revisingUser;
     private LocalTime revisingTime;
     private LocalDate revisingDate;
-    private LinkedList<String> revisingActions;
+    private List<String> revisingActions;
 
     public Revision(String newText, String oldText, String revisingUser) {
 	this.newText = newText;
@@ -55,8 +56,8 @@ public class Revision implements Serializable {
     /*
      * Getter methods
      */
-    public LinkedList<String> getRevisingActions() {
-	return revisingActions;
+    public List<String> getRevisingActions() {
+		return revisingActions;
     }
 
     public String getFullText() {
