@@ -218,7 +218,7 @@ public class DocumentSelectGUI extends JFrame {
 		removeUser = new JButton("Remove User");
 		addUser = new JButton("Add User");
 		searchBar = new JTextField("Search for a name here");
-
+		searchBar.setForeground(Color.GRAY);
 		// button listeners
 
 		bottomHolder = new JPanel();
@@ -292,6 +292,7 @@ public class DocumentSelectGUI extends JFrame {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			searchBar.setText("");
+			searchBar.setForeground(Color.BLACK);
 		}
 
 		@Override
