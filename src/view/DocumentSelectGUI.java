@@ -395,7 +395,8 @@ public class DocumentSelectGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			// Open Pane to get the new document's name
 			String newDocName = JOptionPane.showInputDialog("Please enter the new document's name:");
-			if (newDocName == null) {
+			if (newDocName == null || newDocName.equals("")) {
+				JOptionPane.showMessageDialog(null, "Please enter a name for the document.");
 				return;
 			}
 			try {
