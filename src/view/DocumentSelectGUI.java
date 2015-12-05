@@ -197,7 +197,7 @@ public class DocumentSelectGUI extends JFrame {
 		// //TODO end of hardcode attempts.
 
 		// Create and/or instantiate all Labels, Panels, etc...
-		JLabel documentLabel = new JLabel("Documents", SwingConstants.CENTER);
+		JLabel documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
 		JLabel optionLabel = new JLabel("Users with access to the selected document", SwingConstants.CENTER);
 		JPanel optionPanelInner = new JPanel();
 		JPanel topInnerOption = new JPanel();
