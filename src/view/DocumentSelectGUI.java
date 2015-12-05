@@ -355,6 +355,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_CREATED:
 					getDisplayList();
+					toServer.flush();
 					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
 					return;
 				default:
@@ -562,6 +563,7 @@ public class DocumentSelectGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "Document does not exist.");
 					return;
 				case DOCUMENT_OPENED:
+					toServer.flush();
 					new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
 					return;
 				default:
