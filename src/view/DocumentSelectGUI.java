@@ -90,10 +90,7 @@ public class DocumentSelectGUI extends JFrame {
 			editingUserListModel.clear();
 			toServer.writeObject(ClientRequest.GET_EDITORS);
 			toServer.writeObject(docName);
-			System.out.println("before response");
-
 			ServerResponse response = (ServerResponse) fromServer.readObject();
-			System.out.println(response);
 			switch (response) {
 			case NO_DOCUMENT:
 				JOptionPane.showMessageDialog(null, "That document no longer exists.");
@@ -124,7 +121,7 @@ public class DocumentSelectGUI extends JFrame {
 		ownedDocList.clear();
 		editDocList.clear();
 		try {
-			toServer.writeObject(ClientRequest.GET_DOCS);
+			toServer.writeObject(ClientRequest.GET_DOCS);			
 			ownedModel = (List<String>) fromServer.readObject();
 			ownedEditable = (List<String>) fromServer.readObject();
 			for (String s : ownedModel) {
@@ -436,7 +433,6 @@ public class DocumentSelectGUI extends JFrame {
 					toServer.writeObject(docName);
 
 					ServerResponse response = (ServerResponse) fromServer.readObject();
-					System.out.println(response);
 
 					switch (response) {
 					case PERMISSION_ADDED:
