@@ -91,6 +91,16 @@ public class DocumentSelectGUI extends JFrame {
 			editingUserListModel.clear();
 			toServer.writeObject(ClientRequest.GET_EDITORS);
 			toServer.writeObject(docName);
+//			Object object= fromServer.readObject();
+//			ServerResponse response;
+//			if(object instanceof ServerResponse){
+//				response= (ServerResponse) object;
+//			} 
+//			else{ 
+//				response=null;
+//				System.out.println(object.getClass());
+//				System.out.println(((String) object).toString()); 
+//			}
 			ServerResponse response = (ServerResponse) fromServer.readObject();
 			switch (response) {
 			case NO_DOCUMENT:
@@ -619,6 +629,7 @@ public class DocumentSelectGUI extends JFrame {
 					return;
 				case DOCUMENT_OPENED:
 					EditorGUI editor = new EditorGUI(fromServer, toServer, DocumentSelectGUI.this);
+					//EditorGUI editor = new EditorGUI(fromServer, toServer);
 
 					// DocumentSelectGUI.this.setVisible(false);
 					// Thread openEditorGUIListener = new Thread() {

@@ -127,6 +127,40 @@ public class EditorGUI extends JFrame {
 		timer = new Timer(2000, new TimerListener());
 	}
 
+	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer) {
+		//this.documentGUI = documentgui;
+		//documentGUI.setVisible(false);
+		this.fromServer = fromServer;
+		this.toServer = toServer;
+		// get screen size for proportional gui elements
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		screenWidth = screensize.getWidth() * 0.75;
+		screenHeight = screensize.getHeight() * 0.8;
+		this.setSize((int) screenWidth - 100, (int) screenHeight);
+		// set defaults and layoutGUI
+		this.setTitle("Collaborative Text Editor");
+		//this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+		this.addWindowListener(new windowListener());
+		this.setLayout(new GridBagLayout());
+		layoutGUI();
+		this.setVisible(true);
+		try {
+			String document = (String) fromServer.readObject();
+			textArea.setText(document);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		ServerListener serverListener = new ServerListener();
+		serverListener.start();
+
+		// instantiate timer with 2000 ms == 2 seconds.
+		//timer = new Timer(2000, new TimerListener());
+
+	}
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui) {
 		this.documentGUI = documentgui;
 		documentGUI.setVisible(false);
@@ -424,18 +458,22 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void windowClosing(WindowEvent e) {
-			isclosed=true;
 		}
 
 		@Override
 		public void windowClosed(WindowEvent e) {
 			
-			documentGUI.setVisible(true);
 			try {
+
+				toServer.writeObject(ClientRequest.CLOSE_DOC);	
+				Object object= fromServer.readObject();
 				EditorGUI.this.setVisible(false);
 				EditorGUI.this.setEnabled(false);
-				toServer.writeObject(ClientRequest.CLOSE_DOC);				
+				documentGUI.setVisible(true);
 			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			
