@@ -53,6 +53,7 @@ public class DocumentSelectGUI extends JFrame {
 	private JTabbedPane tabbedDocs;
 	private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
 	private String userName;
+	private Font font;
 
 	public DocumentSelectGUI(String username, ObjectInputStream fromServer, ObjectOutputStream toServer) {
 		this.userName = username;
@@ -65,15 +66,20 @@ public class DocumentSelectGUI extends JFrame {
 	}
 
 	private void instantiateLists() {
+		font = new Font("default", Font.PLAIN, 13);
 		editingUsersList = new LinkedList<String>();
 		ownedDocList = new DefaultListModel<String>();
 		editDocList = new DefaultListModel<String>();
 		ownDisplayList = new JList<String>();
+		ownDisplayList.setFont(font);
 		editDisplayList = new JList<String>();
+		editDisplayList.setFont(font);
 		userListDLM = new DefaultListModel<String>();
 		editingUserListModel = new DefaultListModel<String>();
 		userListJL = new JList<String>();
+		userListJL.setFont(font);
 		editingUsersJList = new JList<String>(editingUserListModel);
+		editingUsersJList.setFont(font);
 	}
 
 	private void getUserUpdates() {
@@ -211,11 +217,11 @@ public class DocumentSelectGUI extends JFrame {
 
 		tabbedDocs = new JTabbedPane();
 
-		documentLabel.setFont(new Font("default", Font.BOLD, 13));
+		documentLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		documentLabel.setSize(600, 20);
 		documentLabel.setLocation(0, 0);
 		thePanel.add(documentLabel);
-		optionLabel.setFont(new Font("default", Font.BOLD, 13));
+		optionLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		optionPanel.add(optionLabel, BorderLayout.NORTH);
 		optionPanelInner.setLayout(new GridLayout(2, 1, 2, 2));
 		topInnerOption.setLayout(new BorderLayout());
@@ -226,7 +232,7 @@ public class DocumentSelectGUI extends JFrame {
 		bottomHolder.setLayout(new BorderLayout());
 		bottomHolder.setBackground(Color.WHITE);
 		JLabel removeUsers = new JLabel("Select a user to add", SwingConstants.CENTER);
-		removeUsers.setFont(new Font("default", Font.BOLD, 13));
+		removeUsers.setFont(new Font("Arial", Font.BOLD, 14));
 		bottomInnerOption.add(removeUsers, BorderLayout.NORTH);
 		topInnerOption.add(topHolder, BorderLayout.CENTER);
 		topInnerOption.add(removeUser, BorderLayout.SOUTH);
