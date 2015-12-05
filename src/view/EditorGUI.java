@@ -325,21 +325,10 @@ public class EditorGUI extends JFrame {
 
 		// this.add(file);
 		font = new JComboBox<Integer>();
-		font.addItem(8);
-		font.addItem(9);
-		font.addItem(10);
-		font.addItem(11);
-		font.addItem(12);
-		font.addItem(14);
-		font.addItem(16);
-		font.addItem(18);
-		font.addItem(20);
-		font.addItem(22);
-		font.addItem(24);
-		font.addItem(28);
-		font.addItem(36);
-		font.addItem(48);
-		font.addItem(72);
+		int[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 36, 48, 72};
+		for (int fontSize : fontSizes) {
+			font.addItem(fontSize);
+		}
 		font.setSelectedIndex(5);
 		font.setMinimumSize(new Dimension(50, 30));
 
@@ -897,17 +886,12 @@ public class EditorGUI extends JFrame {
 					case DOCUMENT_CLOSED:
 						stopRunning();
 						return;
+					case REVISION_LIST:
+						//return;
 					default:
 						stopRunning();
 						return;
 					}
-					/*
-					if (whatToUpdate == ServerResponse.DOCUMENT_UPDATE) {
-						updatedoc(updatedText);
-					} else if (whatToUpdate == ServerResponse.CHAT_UPDATE) {
-						updatechat(updatedText);
-					}
-					*/
 				} catch (Exception e) {
 					e.printStackTrace();
 					isRunning = false;
