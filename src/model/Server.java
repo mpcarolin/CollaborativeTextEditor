@@ -221,12 +221,14 @@ class ClientHandler extends Thread {
             case SAVE_REVISION:
                saveRevision();
                break;
-            case GET_REVISIONS:
-        	sendRevisionList();
-        	break;
             case UNDO:
                undoDocument();
                break;
+            case GET_REVISIONS:
+        	sendRevisionList();
+        	break;
+            case REVERT_DOC:
+        	revertDocument();
             case CLOSE_DOC:
                closeDocument();
                break;
@@ -473,15 +475,19 @@ class ClientHandler extends Thread {
    private void sendRevisionList() throws IOException {
        clientOut.writeObject(ServerResponse.REVISION_LIST);
        clientOut.reset();
-       clientOut.writeObject(currentOpenDoc.getRevisionList());
-       
+       clientOut.writeObject(currentOpenDoc.getRevisionList());    
+   }
+   
+   private void revertDocument() throws ClassNotFoundException, IOException {
+       String documentKey = (String) clientIn.readObject();
+       sendUpdateToClients(ServerResponse.DOCUMENT_REVERTED, currentOpenDoc.revert(documentKey), true);
    }
 
    /*
     * Reverts the current OpenDocument to its most recent revision.
     */
    public void undoDocument() {
-      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert(), true);
+      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), true);
    }
 
    /*
