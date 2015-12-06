@@ -39,7 +39,8 @@ public class Server {
     * to deal with them.
     */
    public static void main(String[] args) throws IOException {      
-      loadData();
+      
+       loadData();
 
       setUpSaveTimer();
 
@@ -519,7 +520,7 @@ class ClientHandler extends Thread {
       if (removeStreams) {
          currentOpenDoc.removeClosedEditorStreams(closedEditors);
          removeStreams = false;
-         if (currentOpenDoc.noEditors()) {
+         if (currentOpenDoc.hasNoEditors()) {
             Server.openDocuments.remove(currentOpenDoc);
          }
       }
@@ -531,7 +532,7 @@ class ClientHandler extends Thread {
     */
    private void closeDocument() throws IOException {
       currentOpenDoc.removeEditor(clientOut);
-      if (currentOpenDoc.noEditors()) {
+      if (currentOpenDoc.hasNoEditors()) {
          Server.openDocuments.remove(currentOpenDoc);
       }
       clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
