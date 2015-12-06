@@ -273,7 +273,9 @@ public class DocumentSelectGUI extends JFrame {
 	addUser.addActionListener(new AddUserButtonListener());
 	removeUser.addActionListener(new RemoveButtonListener());
     }
-
+    public String getUserName(){
+    	return userName;
+    }
     public ObjectOutputStream sendToServer() {
 	return toServer;
     }
@@ -366,7 +368,7 @@ public class DocumentSelectGUI extends JFrame {
 		    // the display list before launching the gui
 		    String startingText = (String) fromServer.readObject();
 		    getDisplayList();
-		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText);
+		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText,newDocName);
 		    return;
 		default:
 		    JOptionPane.showMessageDialog(null, "Incompatible server response.");
@@ -580,7 +582,7 @@ public class DocumentSelectGUI extends JFrame {
 		case DOCUMENT_OPENED:
 		    toServer.flush();
 		    String text = (String) fromServer.readObject();
-		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text);
+		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text, docName);
 		    return;
 		default:
 		    JOptionPane.showMessageDialog(null, "Incompatible server response.");

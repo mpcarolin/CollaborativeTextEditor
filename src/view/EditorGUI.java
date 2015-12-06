@@ -291,12 +291,45 @@ public class EditorGUI extends JFrame {
 	    e.printStackTrace();
 	}
 
+<<<<<<< HEAD
 	leftAlign = new JToggleButton();
 	leftAlign.setIcon(leftAlignIcon);
 	rightAlign = new JToggleButton();
 	rightAlign.setIcon(rightAlignIcon);
 	centerAlign = new JToggleButton();
 	centerAlign.setIcon(centerAlignIcon);
+=======
+	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui,
+			String startingText, String docname) {
+		this.documentGUI = documentgui;
+		documentGUI.setVisible(false);
+		this.fromServer = fromServer;
+		this.toServer = toServer;
+		// get screen size for proportional gui elements
+		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+		screenWidth = screensize.getWidth() * 0.75;
+		screenHeight = screensize.getHeight() * 0.8;
+		this.setSize((int) screenWidth - 100, (int) screenHeight);
+		// set defaults and layoutGUI
+		this.setTitle("Document: "+ docname+ " Logged in as: "+ documentgui.getUserName());
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.addWindowListener(new windowListener());
+		this.setLayout(new GridBagLayout());
+		layoutGUI();
+		this.setVisible(true);
+
+		/*
+		 * try { //String document = (String) fromServer.readObject();
+		 * //textArea.setText(document); } catch (ClassNotFoundException e) {
+		 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
+		 */
+		textArea.setText(startingText);
+		ServerListener serverListener = new ServerListener();
+		serverListener.start();
+
+		// instantiate timer with 2000 ms == 2 seconds.
+		// timer = new Timer(2000, new TimerListener());
+>>>>>>> 85cdf9bbaa7703e0fd52dd493ca1b6c12ce347c4
 
 	boldButton = new JToggleButton();
 	boldButton.setIcon(boldImageIcon);
@@ -726,6 +759,7 @@ public class EditorGUI extends JFrame {
 		} catch (Exception e1) {
 		    e1.printStackTrace();
 		}
+<<<<<<< HEAD
 		try {
 		    AttributeSet attributeSet = textArea.getCharacterAttributes();
 		    Object italics;
@@ -741,6 +775,119 @@ public class EditorGUI extends JFrame {
 		    }
 		} catch (Exception e1) {
 		    e1.printStackTrace();
+=======
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()) {
+				try {
+					AttributeSet attributeSet = textArea.getCharacterAttributes();
+					Object bold;
+					if (attributeSet == null) {
+						bold = null;
+					} else {
+						bold = attributeSet.getAttribute(StyleConstants.Bold);
+					}
+					if (bold != null && bold.equals(true)) {
+						boldButton.setSelected(true);
+					} else {
+						boldButton.setSelected(false);
+					}
+				} catch (Exception e1) {
+					boldButton.setSelected(false);
+					//e1.printStackTrace();
+				}
+				try {
+					AttributeSet attributeSet = textArea.getCharacterAttributes();
+					Object italics;
+					if (attributeSet == null) {
+						italics = null;
+					} else {
+						italics = attributeSet.getAttribute(StyleConstants.Italic);
+					}
+					if (italics != null && italics.equals(true)) {
+						italicsButton.setSelected(true);
+					} else {
+						italicsButton.setSelected(false);
+					}
+				} catch (Exception e1) {
+					italicsButton.setSelected(false);
+					//e1.printStackTrace();
+				}
+				try {
+					AttributeSet attributeSet = textArea.getCharacterAttributes();
+					Object underlined;
+					if (attributeSet == null) {
+						underlined = null;
+					} else {
+						underlined = attributeSet.getAttribute(StyleConstants.Underline);
+					}
+					if (underlined.equals(true)) {
+						underlineButton.setSelected(true);
+					} else {
+						underlineButton.setSelected(false);
+					}
+				} catch (Exception e1) {
+					underlineButton.setSelected(false);
+				}
+
+				// Change the font to the correct value
+				AttributeSet attributeSet = textArea.getCharacterAttributes();
+				Object fontSize;
+				fontSize = attributeSet.getAttribute(StyleConstants.FontSize);
+
+				if (fontSize == null) {
+					font.setSelectedIndex(5);
+				} else {
+					switch ((int) fontSize) {
+					case 8:
+						font.setSelectedIndex(0);
+						return;
+					case 9:
+						font.setSelectedIndex(1);
+						return;
+					case 10:
+						font.setSelectedIndex(2);
+						return;
+					case 11:
+						font.setSelectedIndex(3);
+						return;
+					case 12:
+						font.setSelectedIndex(4);
+						return;
+					// case 14: font.setSelectedIndex(5);
+					// return;
+					case 16:
+						font.setSelectedIndex(6);
+						return;
+					case 18:
+						font.setSelectedIndex(7);
+						return;
+					case 20:
+						font.setSelectedIndex(8);
+						return;
+					case 22:
+						font.setSelectedIndex(9);
+						return;
+					case 24:
+						font.setSelectedIndex(10);
+						return;
+					case 28:
+						font.setSelectedIndex(11);
+						return;
+					case 36:
+						font.setSelectedIndex(12);
+						return;
+					case 48:
+						font.setSelectedIndex(13);
+						return;
+					case 72:
+						font.setSelectedIndex(14);
+						return;
+					}
+				}
+			}
+>>>>>>> 85cdf9bbaa7703e0fd52dd493ca1b6c12ce347c4
 		}
 		try {
 		    AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -843,6 +990,7 @@ public class EditorGUI extends JFrame {
 		}
 	    }
 	}
+<<<<<<< HEAD
     }
 
     private class underLineButtonListener implements ActionListener {
@@ -855,9 +1003,65 @@ public class EditorGUI extends JFrame {
 		    underlineAction.setEnabled(true);
 		} else {
 		    underlineAction.setEnabled(false);
+=======
+
+	/* Listeners */
+	// Server listener
+	private class ServerListener extends Thread {
+
+		private volatile boolean isRunning = true;
+
+		@Override
+		public void run() {
+			while (isRunning) {
+				// obtain updated doc text from server in a try-catch
+				try {
+					ServerResponse response = (ServerResponse) fromServer.readObject();
+					System.out.println(response);
+					switch (response) {
+					case NO_DOCUMENT:
+						JOptionPane.showMessageDialog(null, "That revision is no longer stored.");
+						break;
+					case DOCUMENT_UPDATE:
+						String updatedText = (String) fromServer.readObject();
+						EditorGUI.this.updatedoc(updatedText);
+						break;
+					case CHAT_UPDATE:
+						String updatedChatText = (String) fromServer.readObject();
+						EditorGUI.this.updatechat(updatedChatText);
+						break;
+					case DOCUMENT_CLOSED:
+						stopRunning();
+						return;
+					case REVISION_LIST:
+						List<String> revisionKeys = (List<String>) fromServer.readObject();
+						refreshRevisionPopUp(revisionKeys);
+						return;
+					case DOCUMENT_REVERTED:
+						String revertedText = (String) fromServer.readObject();
+						EditorGUI.this.updatedoc(revertedText);
+						return;
+					default:
+						System.out.println("stopped the server listener");
+						stopRunning();
+						return;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					isRunning = false;
+				}
+			}
+		}
+
+
+		private void stopRunning() throws IOException {
+			isRunning = false;
+			toServer.reset();
+>>>>>>> 85cdf9bbaa7703e0fd52dd493ca1b6c12ce347c4
 		}
 	    }
 	}
+<<<<<<< HEAD
     }
 
     private class italicsButtonListener implements ActionListener {
@@ -870,6 +1074,54 @@ public class EditorGUI extends JFrame {
 		    italicsAction.setEnabled(true);
 		} else {
 		    italicsAction.setEnabled(false);
+=======
+
+	/*
+	 * Fill the Revision Drop-down menu with revisions, and assign each revision
+	 * item to a new listener that, upon being clicked, requests the the server
+	 * to send back a string that represents a earlier revision
+	 */
+	private void refreshRevisionPopUp(List<String> revisionKeys) {
+		//revisionListMenu.removeAll();
+		revisionListMenu.revalidate();
+
+		for (String key : revisionKeys) {
+			JMenuItem newKey = new JMenuItem(key);
+
+			/*
+			 * newKey.addMouseListener(new MouseListener() {
+			 * 
+			 * @Override public void mousePressed(MouseEvent clickedOnKey) {
+			 * JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
+			 * String revisionKey = currentKey.getText();
+			 * 
+			 * try { toServer.writeObject(ClientRequest.REVERT_DOC);
+			 * toServer.writeObject(revisionKey); } catch (IOException e1) {
+			 * e1.printStackTrace(); } }
+			 * 
+			 * public void mouseReleased(MouseEvent e) {} public void
+			 * mouseClicked(MouseEvent e) { } public void
+			 * mouseEntered(MouseEvent e) {} public void mouseExited(MouseEvent
+			 * e) {} });
+			 */
+			newKey.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JMenuItem currentKey = (JMenuItem) e.getSource();
+					String revisionKey = currentKey.getText();
+						System.out.println("about to sent revert_doc");
+						try {
+							toServer.writeObject(ClientRequest.REVERT_DOC);
+							toServer.writeObject(revisionKey);
+
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+				}
+			});
+			revisionListMenu.add(newKey);
+>>>>>>> 85cdf9bbaa7703e0fd52dd493ca1b6c12ce347c4
 		}
 	    }
 	}
