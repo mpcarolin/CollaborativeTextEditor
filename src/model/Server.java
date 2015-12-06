@@ -471,12 +471,18 @@ class ClientHandler extends Thread {
       currentOpenDoc.saveRevision(currentUser.getName());
    }
    
+   /*
+    * Sends a list of Revisions to the client.
+    */
    private void sendRevisionList() throws IOException {
        clientOut.writeObject(ServerResponse.REVISION_LIST);
        clientOut.reset();
        clientOut.writeObject(currentOpenDoc.getRevisionList());    
    }
    
+   /*
+    * Reverts the current OpenDocument to the requested revision.
+    */
    private void revertDocument() throws ClassNotFoundException, IOException {
        String documentKey = (String) clientIn.readObject();
        sendUpdateToClients(ServerResponse.DOCUMENT_REVERTED, currentOpenDoc.revert(documentKey), true);
