@@ -164,6 +164,7 @@ public class EditorGUI extends JFrame {
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
+
 		/*
 		 * try { //String document = (String) fromServer.readObject();
 		 * //textArea.setText(document); } catch (ClassNotFoundException e) {
@@ -948,7 +949,7 @@ public class EditorGUI extends JFrame {
 	 * to send back a string that represents a earlier revision
 	 */
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
-		revisionListMenu.removeAll();
+		//revisionListMenu.removeAll();
 		revisionListMenu.revalidate();
 
 		for (String key : revisionKeys) {
@@ -984,6 +985,7 @@ public class EditorGUI extends JFrame {
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
+
 				}
 			});
 			revisionListMenu.add(newKey);
