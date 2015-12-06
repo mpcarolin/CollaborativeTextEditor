@@ -368,7 +368,7 @@ public class DocumentSelectGUI extends JFrame {
 		    // the display list before launching the gui
 		    String startingText = (String) fromServer.readObject();
 		    getDisplayList();
-		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText);
+		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText,newDocName);
 		    return;
 		default:
 		    JOptionPane.showMessageDialog(null, "Incompatible server response.");

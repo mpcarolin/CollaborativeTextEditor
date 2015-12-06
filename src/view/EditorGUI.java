@@ -985,7 +985,6 @@ public class EditorGUI extends JFrame {
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
-
 				}
 			});
 			revisionListMenu.add(newKey);
