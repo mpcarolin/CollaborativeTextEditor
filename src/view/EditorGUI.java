@@ -949,7 +949,7 @@ public class EditorGUI extends JFrame {
 		 *  back a string that represents a earlier revision 
 		 */
 		private void refreshRevisionPopUp(List<String> revisionKeys) {
-			revisionListMenu.removeAll();
+			//revisionListMenu.removeAll();
 
 			for (String key : revisionKeys) {
 				JMenuItem newKey = new JMenuItem(key);
@@ -1074,7 +1074,16 @@ public class EditorGUI extends JFrame {
 			}
 		}
 		@Override
-		public void mouseExited(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {
+			revisionListMenu.removeAll();
+			/*
+			int i = 0;
+			JMenuItem revisionKey = revisionListMenu.getItem(i);
+			while (revisionKey != null) {
+				
+			}
+			*/
+		}
 		
 	}
 	
