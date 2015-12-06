@@ -55,7 +55,9 @@ public class RevisionHistory implements Serializable {
     }
     
     public String getRevisionText(String revisionKey) {
-	return revisionMap.get(revisionKey);
+	String str = revisionMap.get(revisionKey);
+	System.out.println(str); // debugging
+	return str;
     }
 
     public List<String> getTenRevisionKeys() {
