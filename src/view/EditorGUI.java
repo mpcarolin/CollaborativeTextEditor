@@ -159,7 +159,7 @@ public class EditorGUI extends JFrame {
 		screenHeight = screensize.getHeight() * 0.8;
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
 		// set defaults and layoutGUI
-		this.setTitle("Collaborative Text Editor");
+		this.setTitle("Collaborative Text Editor: "+ documentgui.getUserName());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());

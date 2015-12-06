@@ -273,7 +273,9 @@ public class DocumentSelectGUI extends JFrame {
 	addUser.addActionListener(new AddUserButtonListener());
 	removeUser.addActionListener(new RemoveButtonListener());
     }
-
+    public String getUserName(){
+    	return userName;
+    }
     public ObjectOutputStream sendToServer() {
 	return toServer;
     }
