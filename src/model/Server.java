@@ -228,6 +228,7 @@ class ClientHandler extends Thread {
         	sendRevisionList();
         	break;
             case REVERT_DOC:
+        	System.out.println("In servers revert_doc case in switch");
         	revertDocument();
             case CLOSE_DOC:
                closeDocument();
@@ -332,15 +333,8 @@ class ClientHandler extends Thread {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else {
          clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
-
-         System.out.println("Sent list");
-         for (String s : document.getEditors())
-            System.out.println("Editor: " + s);
-         System.out.println();
-
          clientOut.reset();
          clientOut.writeObject(document.getEditors());
-
       }
    }
 
@@ -485,6 +479,9 @@ class ClientHandler extends Thread {
     */
    private void revertDocument() throws ClassNotFoundException, IOException {
        String documentKey = (String) clientIn.readObject();
+       
+       System.out.println("In servers revertDocument method: " + documentKey); // debugging
+       
        sendUpdateToClients(ServerResponse.DOCUMENT_REVERTED, currentOpenDoc.revert(documentKey), true);
    }
 
