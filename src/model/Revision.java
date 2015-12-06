@@ -10,7 +10,7 @@ import model.diff_match_patch.Diff;
 
 public class Revision implements Serializable {
 
-    private static final long serialVersionUID = 1389885153513784014L;
+    private static final long serialVersionUID = 1454713840479876119L;
     private String newText;
     private String revisingUser;
     private LocalTime revisingTime;
@@ -88,7 +88,6 @@ public class Revision implements Serializable {
 	for (String action : this.getRevisingActions()) {
 	    toPrint += action + "\n";
 	}
-
 	return toPrint;
     }
 
