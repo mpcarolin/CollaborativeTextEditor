@@ -3,6 +3,7 @@ package model;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class Revision implements Serializable {
 	this.revisingUser = revisingUser;
 	revisingTime = LocalTime.now();
 	revisingDate = LocalDate.now();
-	revisingActions = new LinkedList<String>();
+	revisingActions = new ArrayList<String>();
 
 	// gather the differences between newText and the oldText
 	diff_match_patch differences = new diff_match_patch();
