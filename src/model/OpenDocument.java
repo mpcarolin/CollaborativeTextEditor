@@ -40,7 +40,7 @@ public class OpenDocument {
       editingUsers.removeAll(oldEditors);
    }
    
-   public boolean noEditors() {
+   public boolean hasNoEditors() {
       return editingUsers.size() == 0;
    }
    
