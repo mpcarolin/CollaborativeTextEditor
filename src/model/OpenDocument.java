@@ -28,8 +28,8 @@ public class OpenDocument {
       return document.getLastRevisionText();
    }
    
-   public String revert(String documentKey) {
-       return document.getRevisionText(documentKey);
+   public void revert(String documentKey) {
+       document.setRevisionText(documentKey);
    }
    
    public void removeEditor(ObjectOutputStream oldEditor) {
@@ -48,8 +48,8 @@ public class OpenDocument {
       return document.getText();
    }
    
-   public void updateText(String text, String editor) {
-      document.replaceText(text, editor);
+   public void updateText(String text) {
+      document.replaceText(text);
    }
    
    public Set<ObjectOutputStream> getOutStreams() { 
