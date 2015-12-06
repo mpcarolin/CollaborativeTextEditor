@@ -776,7 +776,6 @@ public class EditorGUI extends JFrame {
 				if (fontSize == null) {
 					font.setSelectedIndex(5);
 				} else {
-					System.out.print(fontSize);
 					switch ((int) fontSize) {
 					case 8:
 						font.setSelectedIndex(0);
@@ -907,6 +906,7 @@ public class EditorGUI extends JFrame {
 				// obtain updated doc text from server in a try-catch
 				try {
 					ServerResponse response = (ServerResponse) fromServer.readObject();
+					System.out.println(response);
 					switch (response) {
 					case NO_DOCUMENT:
 						JOptionPane.showMessageDialog(null, "That revision is no longer stored.");
@@ -928,6 +928,7 @@ public class EditorGUI extends JFrame {
 						return;
 					case DOCUMENT_REVERTED:
 						String revertedText = (String) fromServer.readObject();
+						System.out.println(revertedText);
 						EditorGUI.this.updatedoc(revertedText);
 						return;
 					default:
