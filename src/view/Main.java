@@ -14,9 +14,9 @@ public class Main {
 
    public static void main(String[] args) {
 
-      // open connection
       ObjectInputStream fromServer = null;
       ObjectOutputStream toServer = null;
+      // open connection
       Socket server = null;
 
       try {
