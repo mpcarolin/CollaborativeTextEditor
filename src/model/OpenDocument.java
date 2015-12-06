@@ -4,17 +4,14 @@ import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.PriorityBlockingQueue;
 
 public class OpenDocument {
    
    private Document document;
    private Set<ObjectOutputStream> editingUsers;
-   public PriorityBlockingQueue<Edit> editQueue;
    
    public OpenDocument(Document document, ObjectOutputStream openingUser) {
       this.document = document;
-      editQueue = new PriorityBlockingQueue<Edit>();
       editingUsers = new HashSet<ObjectOutputStream>();
       addEditor(openingUser);
    }
