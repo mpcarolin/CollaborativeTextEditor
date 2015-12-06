@@ -36,7 +36,9 @@ public class Main {
             e.printStackTrace();
          }
       }
+
      new DocumentSelectGUI(login.getUsername(), fromServer, toServer);
+
    }
 
 }
