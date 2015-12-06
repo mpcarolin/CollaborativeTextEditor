@@ -164,6 +164,7 @@ public class EditorGUI extends JFrame {
 		this.setLayout(new GridBagLayout());
 		layoutGUI();
 		this.setVisible(true);
+
 		/*
 		try {
 			//String document = (String) fromServer.readObject();
@@ -952,7 +953,7 @@ public class EditorGUI extends JFrame {
 	 *  back a string that represents a earlier revision 
 	 */
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
-		revisionListMenu.removeAll();
+		//revisionListMenu.removeAll();
 		revisionListMenu.revalidate();
 
 		for (String key : revisionKeys) {
@@ -987,12 +988,14 @@ public class EditorGUI extends JFrame {
 					String revisionKey = currentKey.getText();
 					
 					try {
-						System.out.println("about to sent revert_doc");
+						System.out.println("about to send revert_doc");
 						toServer.writeObject(ClientRequest.REVERT_DOC);
 						toServer.writeObject(revisionKey);
+						System.out.println("sent revert_doc and key");
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
+					revisionListMenu.removeAll();
 				}
 			});
 			revisionListMenu.add(newKey);
