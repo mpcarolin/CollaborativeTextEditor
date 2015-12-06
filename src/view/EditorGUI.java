@@ -920,11 +920,11 @@ public class EditorGUI extends JFrame {
 					case REVISION_LIST:
 						List<String> revisionKeys = (List<String>) fromServer.readObject();
 						refreshRevisionPopUp(revisionKeys);
-						return;
+						break;
 					case DOCUMENT_REVERTED:
 						String revertedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(revertedText);
-						return;
+						break;
 					default:
 						System.out.println("stopped the server listener");
 						stopRunning();
