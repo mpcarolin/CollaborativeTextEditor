@@ -39,7 +39,8 @@ public class Server {
     * to deal with them.
     */
    public static void main(String[] args) throws IOException {      
-      loadData();
+      
+       loadData();
 
       setUpSaveTimer();
 
@@ -221,9 +222,15 @@ class ClientHandler extends Thread {
             case SAVE_REVISION:
                saveRevision();
                break;
-            case REVERT_DOC:
-               revertDocument();
+            case UNDO:
+               undoDocument();
                break;
+            case GET_REVISIONS:
+        	sendRevisionList();
+        	break;
+            case REVERT_DOC:
+        	System.out.println("In servers revert_doc case in switch");
+        	revertDocument();
             case CLOSE_DOC:
                closeDocument();
                break;
@@ -321,22 +328,14 @@ class ClientHandler extends Thread {
     * document.
     */
    private void sendEditorList() throws ClassNotFoundException, IOException {
-
       String docName = (String) clientIn.readObject();
       Document document = Server.allDocuments.get(docName);
       if (document == null) {
          clientOut.writeObject(ServerResponse.NO_DOCUMENT);
       } else {
          clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
-
-         System.out.println("Sent list");
-         for (String s : document.getEditors())
-            System.out.println("Editor: " + s);
-         System.out.println();
-
          clientOut.reset();
          clientOut.writeObject(document.getEditors());
-
       }
    }
 
@@ -391,20 +390,9 @@ class ClientHandler extends Thread {
       } else {
          if (!user.hasPermission(docName)) {
             user.addEditableDocument(docName);
-
-            System.out.println("Users documents after adding new document");
-            for (String s : user.getEditableDocuments())
-               System.out.println("Document" + s);
-            System.out.println();
-
          }
          if (!document.isEditableBy(username)) {
             document.addEditor(username);
-
-            System.out.println("Document editors after adding new editor");
-            for (String s : document.getEditors())
-               System.out.println("Editor: " + s);
-            System.out.println();
          }
          clientOut.writeObject(ServerResponse.PERMISSION_ADDED);
       }
@@ -477,17 +465,32 @@ class ClientHandler extends Thread {
    private void saveRevision() {
       currentOpenDoc.saveRevision(currentUser.getName());
    }
-
-   public void sendRevisionList() {
-
+   
+   /*
+    * Sends a list of Revisions to the client.
+    */
+   private void sendRevisionList() throws IOException {
+       clientOut.writeObject(ServerResponse.REVISION_LIST);
+       clientOut.reset();
+       clientOut.writeObject(currentOpenDoc.getRevisionList());    
+   }
+   
+   /*
+    * Reverts the current OpenDocument to the requested revision.
+    */
+   private void revertDocument() throws ClassNotFoundException, IOException {
+       String documentKey = (String) clientIn.readObject();
+       
+       System.out.println("In servers revertDocument method: " + documentKey); // debugging
+       
+       sendUpdateToClients(ServerResponse.DOCUMENT_REVERTED, currentOpenDoc.revert(documentKey), true);
    }
 
    /*
-    * Reverts the current OpenDocument to its most recent revison.
+    * Reverts the current OpenDocument to its most recent revision.
     */
-   public void revertDocument() {
-	   System.out.println(currentOpenDoc.revert());
-      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert(), true);
+   public void undoDocument() {
+      sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), true);
    }
 
    /*
@@ -517,7 +520,7 @@ class ClientHandler extends Thread {
       if (removeStreams) {
          currentOpenDoc.removeClosedEditorStreams(closedEditors);
          removeStreams = false;
-         if (currentOpenDoc.noEditors()) {
+         if (currentOpenDoc.hasNoEditors()) {
             Server.openDocuments.remove(currentOpenDoc);
          }
       }
@@ -529,10 +532,9 @@ class ClientHandler extends Thread {
     */
    private void closeDocument() throws IOException {
       currentOpenDoc.removeEditor(clientOut);
-      if (currentOpenDoc.noEditors()) {
+      if (currentOpenDoc.hasNoEditors()) {
          Server.openDocuments.remove(currentOpenDoc);
       }
-      clientOut.flush();
       clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
    }
 

@@ -31,7 +31,7 @@ public class Main {
 
       while (login.isVisible()) {
          try {
-            Thread.sleep(3);
+           Thread.sleep(3);
          } catch (InterruptedException e) {
             e.printStackTrace();
          }
