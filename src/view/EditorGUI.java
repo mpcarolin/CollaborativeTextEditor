@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -292,6 +293,7 @@ public class EditorGUI extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 		leftAlign = new JToggleButton();
 		leftAlign.setIcon(leftAlignIcon);
 		rightAlign = new JToggleButton();
@@ -334,35 +336,7 @@ public class EditorGUI extends JFrame {
 		revisionListMenu = new JMenu("Load Revision");
 		String[] strings = {"a", "b", "c"};
 
-		/*
-		 *  Fill the Revision Drop-down menu with revisions,
-		 *  and assign each revision item to a listener that,
-		 *  upon being clicked, requests the the server to 
-		 *  r
-		 */
-		for (String string : strings) {
-			JMenuItem newRevision = new JMenuItem(string);
-			newRevision.addMouseListener(new MouseListener() {
-				@Override
-				public void mousePressed(MouseEvent e) {
-					JMenuItem current = (JMenuItem)e.getSource();
-					String revisionKey = current.getText();
-					
-					try {
-						toServer.writeObject(ClientRequest.REVERT_DOC);
-						toServer.writeObject(revisionKey);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-				public void mouseReleased(MouseEvent e) {}
-				public void mouseClicked(MouseEvent e) { }
-				public void mouseEntered(MouseEvent e) {}
-				public void mouseExited(MouseEvent e) {}
-				
-			});
-			revisionListMenu.add(newRevision);
-		}
+	
 
 		
 
@@ -934,6 +908,9 @@ public class EditorGUI extends JFrame {
 				try {
 					ServerResponse response = (ServerResponse) fromServer.readObject();
 					switch (response) {
+					case NO_DOCUMENT:
+						JOptionPane.showMessageDialog(null, "That revision is no longer stored.");
+						break;
 					case DOCUMENT_UPDATE:
 						String updatedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(updatedText);
@@ -946,10 +923,8 @@ public class EditorGUI extends JFrame {
 						stopRunning();
 						return;
 					case REVISION_LIST:
-						LinkedList<String> revisionDates = (LinkedList<String>) fromServer.readObject();
-						for (String date : revisionDates) {
-							revisionListMenu.add(date);
-						}
+						List<String> revisionKeys = (List<String>) fromServer.readObject();
+						refreshRevisionPopUp(revisionKeys);
 						return;
 					case DOCUMENT_REVERTED:
 						String revertedText = (String) fromServer.readObject();
@@ -965,11 +940,46 @@ public class EditorGUI extends JFrame {
 				}
 			}
 		}
-		
+
+		/*
+		 *  Fill the Revision Drop-down menu with revisions,
+		 *  and assign each revision item to a new listener that,
+		 *  upon being clicked, requests the the server to send
+		 *  back a string that represents a earlier revision 
+		 */
+		private void refreshRevisionPopUp(List<String> revisionKeys) {
+			revisionListMenu.removeAll();
+
+			for (String key : revisionKeys) {
+				JMenuItem newKey = new JMenuItem(key);
+
+				newKey.addMouseListener(new MouseListener() {
+					@Override
+					public void mousePressed(MouseEvent clickedOnKey) {
+						JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
+						String revisionKey = currentKey.getText();
+						
+						try {
+							toServer.writeObject(ClientRequest.REVERT_DOC);
+							toServer.writeObject(revisionKey);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					}
+
+					public void mouseReleased(MouseEvent e) {}
+					public void mouseClicked(MouseEvent e) { }
+					public void mouseEntered(MouseEvent e) {}
+					public void mouseExited(MouseEvent e) {}
+				});
+
+				revisionListMenu.add(newKey);
+			}	
+		}
+
 		private void stopRunning() throws IOException {
 			isRunning = false;
 			toServer.reset();
-			//EditorGUI.this.notifyAll();
 		}
 	}
 
@@ -1056,16 +1066,15 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			hoverDisplayRevisions();
+			try {
+				toServer.writeObject(ClientRequest.GET_REVISIONS);
+			} catch (IOException io) {
+				io.printStackTrace();
+			}
 		}
-
 		@Override
 		public void mouseExited(MouseEvent e) {}
 		
-		private void hoverDisplayRevisions() {
-			revisionListMenu.doClick();
-			System.out.println("called click");
-		}
 	}
 	
 	private class RevisionPopUpListener implements PopupMenuListener  {
@@ -1077,7 +1086,6 @@ public class EditorGUI extends JFrame {
 			} catch (IOException io) {
 				io.printStackTrace();
 			}
-			
 		}
 
 		@Override
