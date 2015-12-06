@@ -24,8 +24,12 @@ public class OpenDocument {
       document.saveRevision(username);
    }
    
-   public String revert() {
-      return document.getLastRevision().getFullText();
+   public String undo() {
+      return document.getLastRevisionText();
+   }
+   
+   public String revert(String documentKey) {
+       return document.getRevisionText(documentKey);
    }
    
    public void removeEditor(ObjectOutputStream oldEditor) {
@@ -56,7 +60,7 @@ public class OpenDocument {
        return document;
    }
    
-   public List<Revision> getRevisionList() {
-       return document.getTenRevisions();
+   public List<String> getRevisionList() {
+       return document.getTenRevisionKeys();
    }
 }
