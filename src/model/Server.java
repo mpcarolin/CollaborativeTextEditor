@@ -501,11 +501,11 @@ class ClientHandler extends Thread {
     * that have disconnected and removes them from the list of OuputStreams in
     * the current OpenDocument.
     */
-   public void sendUpdateToClients(ServerResponse response, String text, boolean revert) {
+   public void sendUpdateToClients(ServerResponse response, String text, boolean revertingDoc) {
       removeStreams = false;
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
-         if (!revert && response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
+         if (!revertingDoc && response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
             continue;
          }
          try {
