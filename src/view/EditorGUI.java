@@ -120,8 +120,8 @@ public class EditorGUI extends JFrame {
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", currentFontSize);
 	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("", "<ul><li></li></ul>", HTML.Tag.BODY,
 			HTML.Tag.UL);
-	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
-			HTML.Tag.UL);
+//	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
+//			HTML.Tag.UL);
 
 	private Timer timer = new Timer(2000, new TimerListener());
 	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
@@ -1077,7 +1077,7 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			System.out.println("ABout to send get-revisions");
+			System.out.println("About to send get-revisions");
 			doClickGetRevisions();
 			System.out.println("just sent get-revisions");
 		}

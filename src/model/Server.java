@@ -483,7 +483,7 @@ class ClientHandler extends Thread {
        
        System.out.println("In servers revertDocument method: " + documentKey); // debugging
        
-       sendUpdateToClients(ServerResponse.DOCUMENT_REVERTED, currentOpenDoc.revert(documentKey), true);
+       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.revert(documentKey), true);
    }
 
    /*
