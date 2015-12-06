@@ -77,12 +77,12 @@ public class Revision implements Serializable {
     }
 
     public String toString() {
-	return getEditTime().getHour() % 12 + ":" + getEditTime().getMinute() + " on " + getEditDate() + " by "
-		+ revisingUser;
+	return getEditTime().getHour() + ":" + getEditTime().getMinute() + ":" + getEditTime().getSecond() + " on "
+		+ getEditDate() + " by " + revisingUser;
     }
 
     public String toStringChanges() {
-	String toPrint = "At " + getEditTime().getHour() % 12 + ":" + getEditTime().getMinute() + " on " + getEditDate()
+	String toPrint = "At " + getEditTime().getHour() + ":" + getEditTime().getMinute() + " on " + getEditDate()
 		+ ", " + revisingUser + " made the following edits:\n";
 
 	for (String action : this.getRevisingActions()) {
