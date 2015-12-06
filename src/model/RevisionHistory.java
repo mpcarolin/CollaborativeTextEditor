@@ -25,10 +25,10 @@ public class RevisionHistory implements Serializable {
     public void add(Revision revision) {
 	// replace 3 with 100 after testing
 	if (revisionDeque.size() % 3 == 0) {
-	    tenRevisions.add(0, revision.toString());
-	    if (tenRevisions.size() == 11) {
-		tenRevisions.remove(10);
+	    if (tenRevisions.size() == 10) {
+		tenRevisions.remove(9);
 	    }
+	    tenRevisions.add(0, revision.toString());
 	}
 	if (revisionDeque.size() >= NUM_REVISIONS_STORED) {
 	    revisionMap.remove(revisionDeque.removeLast().toString());
@@ -53,12 +53,12 @@ public class RevisionHistory implements Serializable {
 	    return "";
 	}
     }
-    
+
     public String getRevisionText(String revisionKey) {
 	String str = revisionMap.get(revisionKey);
-	
+
 	System.out.println("In revisionHistory: " + str); // debugging
-	
+
 	return str;
     }
 

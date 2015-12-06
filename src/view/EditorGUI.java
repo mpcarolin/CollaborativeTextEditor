@@ -94,10 +94,8 @@ public class EditorGUI extends JFrame {
 	private JComboBox<String> fontStyle;
 
 	// file dropdown menu items
-	private JMenu revisionListMenu;
-	private JPopupMenu revisionPop;
+	private volatile JMenu revisionListMenu;
 
-	
 	// menu items
 	private JMenuBar toolBar;
 	private JMenu file;
@@ -112,7 +110,7 @@ public class EditorGUI extends JFrame {
 
 	// document gui that called this class
 	private DocumentSelectGUI documentGUI;
-	
+
 	// Editor actions
 	private boolean bold, underline, italic;
 	private Action boldAction = new HTMLEditorKit.BoldAction();
@@ -148,7 +146,8 @@ public class EditorGUI extends JFrame {
 		timer = new Timer(2000, new TimerListener());
 	}
 
-	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui, String startingText) {
+	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui,
+			String startingText) {
 		this.documentGUI = documentgui;
 		documentGUI.setVisible(false);
 		this.fromServer = fromServer;
@@ -166,15 +165,10 @@ public class EditorGUI extends JFrame {
 		layoutGUI();
 		this.setVisible(true);
 		/*
-		try {
-			//String document = (String) fromServer.readObject();
-			//textArea.setText(document);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		*/
+		 * try { //String document = (String) fromServer.readObject();
+		 * //textArea.setText(document); } catch (ClassNotFoundException e) {
+		 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
+		 */
 		textArea.setText(startingText);
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
@@ -259,6 +253,7 @@ public class EditorGUI extends JFrame {
 		toolBar = new JMenuBar();
 		toolBar.setPreferredSize(new Dimension(windowWidth - 300, 20));
 
+		// declare and load all gui images and icons
 		Image boldImage;
 		ImageIcon boldImageIcon = new ImageIcon();
 		Image italicImage;
@@ -332,22 +327,16 @@ public class EditorGUI extends JFrame {
 		// fontStyle.setMinimumSize(new Dimension(50,30));
 		// fontStyle.setPreferredSize(new Dimension(50,30));
 
-		// File Menu Bar elements 
+		// File Menu Bar elements
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
-		String[] strings = {"a", "b", "c"};
-
-	
-
-		
 
 		/*
 		 * Mouse listener to obtain ten revisions from server
 		 */
 		revisionListMenu.addMouseListener(new LoadRevisionListener());
-		
-		
+
 		file.add(fileButton);
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
@@ -359,7 +348,7 @@ public class EditorGUI extends JFrame {
 
 		// this.add(file);
 		font = new JComboBox<Integer>();
-		int[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 36, 48, 72};
+		int[] fontSizes = { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 36, 48, 72 };
 		for (int fontSize : fontSizes) {
 			font.addItem(fontSize);
 		}
@@ -450,7 +439,7 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void windowClosing(WindowEvent e) {
-			//isclosed = true;
+			// isclosed = true;
 		}
 
 		@Override
@@ -909,7 +898,6 @@ public class EditorGUI extends JFrame {
 			while (isRunning) {
 				// obtain updated doc text from server in a try-catch
 				try {
-					System.out.println("Second = " +  LocalTime.now().getSecond());
 					ServerResponse response = (ServerResponse) fromServer.readObject();
 					System.out.println(response);
 					switch (response) {
@@ -936,6 +924,7 @@ public class EditorGUI extends JFrame {
 						EditorGUI.this.updatedoc(revertedText);
 						return;
 					default:
+						System.out.println("stopped the server listener");
 						stopRunning();
 						return;
 					}
@@ -946,48 +935,67 @@ public class EditorGUI extends JFrame {
 			}
 		}
 
-		/*
-		 *  Fill the Revision Drop-down menu with revisions,
-		 *  and assign each revision item to a new listener that,
-		 *  upon being clicked, requests the the server to send
-		 *  back a string that represents a earlier revision 
-		 */
-		private void refreshRevisionPopUp(List<String> revisionKeys) {
-			//revisionListMenu.removeAll();
- System.out.println("i got to revisions");
-			for (String key : revisionKeys) {
-				JMenuItem newKey = new JMenuItem(key);
-
-				revisionListMenu.add(newKey);
-
-				newKey.addMouseListener(new MouseListener() {
-					@Override
-					public void mousePressed(MouseEvent clickedOnKey) {
-					
-						JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
-						String revisionKey = currentKey.getText();
-						
-						try {
-							toServer.writeObject(ClientRequest.REVERT_DOC);
-							toServer.writeObject(revisionKey);
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-					}
-
-					public void mouseReleased(MouseEvent e) {}
-					public void mouseClicked(MouseEvent e) { }
-					public void mouseEntered(MouseEvent e) {}
-					public void mouseExited(MouseEvent e) {}
-				});
-
-			}	
-		}
-
 		private void stopRunning() throws IOException {
 			isRunning = false;
 			toServer.reset();
 		}
+	}
+
+	/*
+	 * Fill the Revision Drop-down menu with revisions, and assign each revision
+	 * item to a new listener that, upon being clicked, requests the the server
+	 * to send back a string that represents a earlier revision
+	 */
+	private void refreshRevisionPopUp(List<String> revisionKeys) {
+		revisionListMenu.removeAll();
+		revisionListMenu.revalidate();
+
+		for (String key : revisionKeys) {
+			JMenuItem newKey = new JMenuItem(key);
+
+			/*
+			 * newKey.addMouseListener(new MouseListener() {
+			 * 
+			 * @Override public void mousePressed(MouseEvent clickedOnKey) {
+			 * JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
+			 * String revisionKey = currentKey.getText();
+			 * 
+			 * try { toServer.writeObject(ClientRequest.REVERT_DOC);
+			 * toServer.writeObject(revisionKey); } catch (IOException e1) {
+			 * e1.printStackTrace(); } }
+			 * 
+			 * public void mouseReleased(MouseEvent e) {} public void
+			 * mouseClicked(MouseEvent e) { } public void
+			 * mouseEntered(MouseEvent e) {} public void mouseExited(MouseEvent
+			 * e) {} });
+			 */
+			newKey.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JMenuItem currentKey = (JMenuItem) e.getSource();
+					String revisionKey = currentKey.getText();
+
+					try {
+						System.out.println("about to sent revert_doc");
+						toServer.writeObject(ClientRequest.REVERT_DOC);
+						toServer.writeObject(revisionKey);
+						if (fromServer.readObject() == ServerResponse.DOCUMENT_REVERTED) {
+							String revisedText = (String) fromServer.readObject();
+							updatedoc(revisedText);
+						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			});
+			revisionListMenu.add(newKey);
+		}
+
+		System.out.println("updated the pop ups!");
 	}
 
 	// revision
@@ -1057,62 +1065,50 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
-	
+
 	private class LoadRevisionListener implements MouseListener {
 
 		@Override
-		public void mouseClicked(MouseEvent e) { }
+		public void mouseClicked(MouseEvent e) {
+		}
 
 		@Override
-		public void mousePressed(MouseEvent e) {}
+		public void mousePressed(MouseEvent e) {
+		}
 
 		@Override
-		public void mouseReleased(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {
+		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			try {
-				toServer.writeObject(ClientRequest.GET_REVISIONS);
-			} catch (IOException io) {
-				io.printStackTrace();
-			}
+			System.out.println("ABout to send get-revisions");
+			doClickGetRevisions();
+			System.out.println("just sent get-revisions");
 		}
+
 		@Override
 		public void mouseExited(MouseEvent e) {
+			// serverListener.
 			/*
-			int i = 0;
-			JMenuItem revisionKey = revisionListMenu.getItem(i);
-			while (revisionKey != null) {
-				
-			}
-			*/
+			 * int i = 0; JMenuItem revisionKey = revisionListMenu.getItem(i);
+			 * while (revisionKey != null) {
+			 * 
+			 * }
+			 */
 		}
-		
-	}
-	
-	private class RevisionPopUpListener implements PopupMenuListener  {
 
-		@Override
-		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		public void doClickGetRevisions() {
 			try {
 				toServer.writeObject(ClientRequest.GET_REVISIONS);
 			} catch (IOException io) {
 				io.printStackTrace();
 			}
 		}
-
-		@Override
-		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {		}
-
-		@Override
-		public void popupMenuCanceled(PopupMenuEvent e) {
-			
-		}
-		
 	}
-	
+
 	// testing
 	public static void main(String[] args) {
-		EditorGUI jake = new EditorGUI();
+		// EditorGUI jake = new EditorGUI();
 	}
 }
