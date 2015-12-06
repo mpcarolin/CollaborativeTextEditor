@@ -77,7 +77,7 @@ public class Revision implements Serializable {
     }
 
     public String toString() {
-	return getEditTime().getHour() % 12 + ":" + getEditTime().getMinute() + " on " + getEditDate() + "by "
+	return getEditTime().getHour() % 12 + ":" + getEditTime().getMinute() + " on " + getEditDate() + " by "
 		+ revisingUser;
     }
 

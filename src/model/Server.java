@@ -326,7 +326,6 @@ class ClientHandler extends Thread {
     * document.
     */
    private void sendEditorList() throws ClassNotFoundException, IOException {
-
       String docName = (String) clientIn.readObject();
       Document document = Server.allDocuments.get(docName);
       if (document == null) {
