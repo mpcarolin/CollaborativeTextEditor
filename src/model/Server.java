@@ -455,7 +455,7 @@ class ClientHandler extends Thread {
     * Reads in the new Document update from the client.
     */
    private void updateDocument() throws ClassNotFoundException, IOException {
-      currentOpenDoc.updateText((String) clientIn.readObject(), currentUser.getName());
+      currentOpenDoc.updateText((String) clientIn.readObject());
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), false);
    }
 
@@ -483,13 +483,16 @@ class ClientHandler extends Thread {
        
        System.out.println("In servers revertDocument method: " + documentKey); // debugging
        
-       sendUpdateToClients(ServerResponse.DOCUMENT_REVERTED, currentOpenDoc.revert(documentKey), true);
+       currentOpenDoc.revert(documentKey);
+       
+       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), true);
    }
 
    /*
     * Reverts the current OpenDocument to its most recent revision.
     */
    public void undoDocument() {
+       
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), true);
    }
 

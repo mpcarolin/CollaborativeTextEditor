@@ -4,14 +4,17 @@ import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class OpenDocument {
    
    private Document document;
    private Set<ObjectOutputStream> editingUsers;
+   public PriorityBlockingQueue<Edit> editQueue;
    
    public OpenDocument(Document document, ObjectOutputStream openingUser) {
       this.document = document;
+      editQueue = new PriorityBlockingQueue<Edit>();
       editingUsers = new HashSet<ObjectOutputStream>();
       addEditor(openingUser);
    }
@@ -28,8 +31,8 @@ public class OpenDocument {
       return document.getLastRevisionText();
    }
    
-   public String revert(String documentKey) {
-       return document.getRevisionText(documentKey);
+   public void revert(String documentKey) {
+       document.setRevisionText(documentKey);
    }
    
    public void removeEditor(ObjectOutputStream oldEditor) {
@@ -48,8 +51,8 @@ public class OpenDocument {
       return document.getText();
    }
    
-   public void updateText(String text, String editor) {
-      document.replaceText(text, editor);
+   public void updateText(String text) {
+      document.replaceText(text);
    }
    
    public Set<ObjectOutputStream> getOutStreams() { 
