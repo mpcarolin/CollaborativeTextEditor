@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -727,7 +729,7 @@ public class EditorGUI extends JFrame {
 					} else {
 						bold = attributeSet.getAttribute(StyleConstants.Bold);
 					}
-					if (bold.equals(true)) {
+					if (bold != null && bold.equals(true)) {
 						boldButton.setSelected(true);
 					} else {
 						boldButton.setSelected(false);
@@ -743,7 +745,7 @@ public class EditorGUI extends JFrame {
 					} else {
 						italics = attributeSet.getAttribute(StyleConstants.Italic);
 					}
-					if (italics.equals(true)) {
+					if (italics != null && italics.equals(true)) {
 						italicsButton.setSelected(true);
 					} else {
 						italicsButton.setSelected(false);
@@ -905,6 +907,7 @@ public class EditorGUI extends JFrame {
 			while (isRunning) {
 				// obtain updated doc text from server in a try-catch
 				try {
+					System.out.println("Second = " +  LocalTime.now().getSecond());
 					ServerResponse response = (ServerResponse) fromServer.readObject();
 					System.out.println(response);
 					switch (response) {
@@ -928,7 +931,6 @@ public class EditorGUI extends JFrame {
 						return;
 					case DOCUMENT_REVERTED:
 						String revertedText = (String) fromServer.readObject();
-						System.out.println(revertedText);
 						EditorGUI.this.updatedoc(revertedText);
 						return;
 					default:
@@ -953,6 +955,7 @@ public class EditorGUI extends JFrame {
 
 			for (String key : revisionKeys) {
 				JMenuItem newKey = new JMenuItem(key);
+				revisionListMenu.add(newKey);
 
 				newKey.addMouseListener(new MouseListener() {
 					@Override
@@ -974,7 +977,6 @@ public class EditorGUI extends JFrame {
 					public void mouseExited(MouseEvent e) {}
 				});
 
-				revisionListMenu.add(newKey);
 			}	
 		}
 
@@ -1055,9 +1057,7 @@ public class EditorGUI extends JFrame {
 	private class LoadRevisionListener implements MouseListener {
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
-			System.out.println(e.getSource());
-		}
+		public void mouseClicked(MouseEvent e) { }
 
 		@Override
 		public void mousePressed(MouseEvent e) {}
@@ -1075,7 +1075,6 @@ public class EditorGUI extends JFrame {
 		}
 		@Override
 		public void mouseExited(MouseEvent e) {
-			revisionListMenu.removeAll();
 			/*
 			int i = 0;
 			JMenuItem revisionKey = revisionListMenu.getItem(i);
