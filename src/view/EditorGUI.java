@@ -147,7 +147,7 @@ public class EditorGUI extends JFrame {
 	}
 
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui,
-			String startingText) {
+			String startingText, String docname) {
 		this.documentGUI = documentgui;
 		documentGUI.setVisible(false);
 		this.fromServer = fromServer;
@@ -158,7 +158,7 @@ public class EditorGUI extends JFrame {
 		screenHeight = screensize.getHeight() * 0.8;
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
 		// set defaults and layoutGUI
-		this.setTitle("Collaborative Text Editor: "+ documentgui.getUserName());
+		this.setTitle("Document: "+ docname+ " Logged in as: "+ documentgui.getUserName());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());
@@ -935,6 +935,7 @@ public class EditorGUI extends JFrame {
 			}
 		}
 
+
 		private void stopRunning() throws IOException {
 			isRunning = false;
 			toServer.reset();
@@ -975,21 +976,14 @@ public class EditorGUI extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					JMenuItem currentKey = (JMenuItem) e.getSource();
 					String revisionKey = currentKey.getText();
-
-					try {
 						System.out.println("about to sent revert_doc");
-						toServer.writeObject(ClientRequest.REVERT_DOC);
-						toServer.writeObject(revisionKey);
-						if (fromServer.readObject() == ServerResponse.DOCUMENT_REVERTED) {
-							String revisedText = (String) fromServer.readObject();
-							updatedoc(revisedText);
+						try {
+							toServer.writeObject(ClientRequest.REVERT_DOC);
+							toServer.writeObject(revisionKey);
+
+						} catch (IOException e1) {
+							e1.printStackTrace();
 						}
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (ClassNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
 				}
 			});
 			revisionListMenu.add(newKey);

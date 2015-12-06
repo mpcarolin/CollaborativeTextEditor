@@ -582,7 +582,7 @@ public class DocumentSelectGUI extends JFrame {
 		case DOCUMENT_OPENED:
 		    toServer.flush();
 		    String text = (String) fromServer.readObject();
-		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text);
+		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text, docName);
 		    return;
 		default:
 		    JOptionPane.showMessageDialog(null, "Incompatible server response.");
