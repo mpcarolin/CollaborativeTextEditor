@@ -199,7 +199,7 @@ public class EditorGUI extends JFrame {
 		 */
 		editorListModel = new DefaultListModel<String>();		
 		editingUsersJList = new JList<String>(editorListModel);
-		JPanel toprightPanel = new JPanel(new BorderLayout());
+		JPanel toprightPanel = new JPanel(new GridBagLayout());
 		toprightPanel.setPreferredSize(new Dimension(400, 300));
 		toprightPanel.setMinimumSize(new Dimension(400, 300));
 		GridBagConstraints toprightConstraints = new GridBagConstraints();
@@ -218,7 +218,9 @@ public class EditorGUI extends JFrame {
 		topRightInnerMost.add(editingUsersJList, BorderLayout.CENTER);
 		topRightInner.add(editingUsersLabel, BorderLayout.NORTH);
 		topRightInner.add(topRightInnerMost, BorderLayout.CENTER);
-		toprightPanel.add(topRightInner, BorderLayout.CENTER);
+		GridBagConstraints topRightInnerConstraints = new GridBagConstraints();
+		topRightInnerConstraints.anchor = GridBagConstraints.NORTHEAST;
+		toprightPanel.add(topRightInner, topRightInnerConstraints);
 
 		
 		// Button to begin chat
