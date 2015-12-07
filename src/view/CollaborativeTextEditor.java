@@ -40,5 +40,4 @@ public class CollaborativeTextEditor {
      new DocumentSelectGUI(login.getUsername(), fromServer, toServer);
 
    }
-
 }

@@ -1,3 +1,8 @@
+/*
+ * Revision history collection that stores revisions in a deque, so it can be
+ * used as a queue and a stack. Also stores the revision text in a Map, so 
+ * any requested revision can be accessed in constant time. 
+ */
 package model;
 
 import java.io.Serializable;
@@ -10,7 +15,7 @@ import java.util.Map;
 
 public class RevisionHistory implements Serializable {
 
-    private static final long serialVersionUID = 151000323660152929L;
+    private static final long serialVersionUID = -8495186217239125636L;
     private static final int NUM_REVISIONS_STORED = 1000;
     private Map<String, String> revisionMap;
     private Deque<Revision> revisionDeque;
@@ -21,12 +26,15 @@ public class RevisionHistory implements Serializable {
 	revisionDeque = new ArrayDeque<Revision>();
 	tenRevisions = new ArrayList<String>();
     }
-    
+
     boolean isEmpty() {
 	return revisionDeque.isEmpty();
     }
 
     void add(Revision revision) {
+	// Every (3) revisions, add the newly added revision to the list of ten
+	// revisions that the user will see. If there are already ten, remove
+	// the oldest one
 	// replace 3 with 100 after testing
 	if (revisionDeque.size() % 3 == 0) {
 	    if (tenRevisions.size() == 10) {
@@ -34,6 +42,9 @@ public class RevisionHistory implements Serializable {
 	    }
 	    tenRevisions.add(0, revision.toString());
 	}
+
+	// If the revisionDeque is at maximum capacity, remove the oldest
+	// revision
 	if (revisionDeque.size() >= NUM_REVISIONS_STORED) {
 	    revisionMap.remove(revisionDeque.removeLast().toString());
 	}
@@ -42,15 +53,15 @@ public class RevisionHistory implements Serializable {
     }
 
     String peekLastRevisionText() {
-	if (revisionDeque.size() != 0) {
+	if (revisionDeque.size() > 0) {
 	    return revisionDeque.peekFirst().getFullText();
 	} else {
 	    return "";
 	}
     }
-    
+
     String peekLastRevisionKey() {
-	if (revisionDeque.size() != 0) {
+	if (revisionDeque.size() > 0) {
 	    return revisionDeque.peekFirst().toString();
 	} else {
 	    return "";
@@ -58,7 +69,7 @@ public class RevisionHistory implements Serializable {
     }
 
     String getLastRevisionText() {
-	if (revisionDeque.size() != 0) {
+	if (revisionDeque.size() > 0) {
 	    revisionMap.remove(revisionDeque.peekFirst().toString());
 	    return revisionDeque.removeFirst().getFullText();
 	} else {
@@ -67,8 +78,7 @@ public class RevisionHistory implements Serializable {
     }
 
     String getRevisionText(String revisionKey) {
-	String documentText = revisionMap.get(revisionKey);
-	return documentText;
+	return revisionMap.get(revisionKey);
     }
 
     List<String> getTenRevisionKeys() {

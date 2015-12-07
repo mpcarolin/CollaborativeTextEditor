@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class User implements Serializable {
 
-    private static final long serialVersionUID = 3035409877421839524L;
+    private static final long serialVersionUID = 930908671628905940L;
     private String username;
     private int salt;
     private int hashPass;
@@ -18,14 +18,18 @@ public class User implements Serializable {
     User(String newUser, String pass) {
 	this.username = newUser;
 	setPassword(pass);
+	ownedDocuments = new ArrayList<String>();
+	editableDocuments = new ArrayList<String>();
     }
 
+    /*
+     * Sets the users password. Creates a random 8 digit number for a password
+     * salt, concatenates it with the password, and saves the hash code.
+     */
     void setPassword(String pass) {
 	Random rng = new Random();
 	salt = rng.nextInt(90000000);
 	hashPass = (salt + pass).hashCode();
-	ownedDocuments = new ArrayList<String>();
-	editableDocuments = new ArrayList<String>();
     }
 
     String getName() {

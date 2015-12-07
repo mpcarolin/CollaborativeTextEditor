@@ -118,7 +118,10 @@ public class Server {
 	allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
 	allUsers.get("Orzy").addOwnedDocument("OrzysDoc");
     }
-
+    
+    /*
+     * Creates and starts a timer that calls the saveData method every 30 seconds.
+     */
     private static void setUpSaveTimer() {
 	Timer saveTimer = new Timer(30000, new ActionListener() {
 	    @Override
@@ -128,7 +131,10 @@ public class Server {
 	});
 	saveTimer.start();
     }
-
+    
+    /*
+     * Writes the HashMaps that contain the User and Document data to a file.
+     */
     private static void saveData() {
 	try {
 	    FileOutputStream bytesToDisk = new FileOutputStream("SaveFile");
