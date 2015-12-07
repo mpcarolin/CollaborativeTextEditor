@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+
 import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
@@ -195,14 +197,9 @@ public class EditorGUI extends JFrame {
 		/*
 		 * Editor JList and related components
 		 */
-		//editingUsersList = new ArrayList<String>(4);
-		editorListModel = new DefaultListModel<String>();
-		editingUsersJList = new JList<String>();
-//		JPanel topRightPanel = new JPanel(); 
-//		rightPanel.add(toprightPanel,  chatConstraints.ABOVE_BASELINE);
-//		toprightPanel.setBackground(Color.BLACK);
-		JPanel toprightPanel = new JPanel();
-		toprightPanel.setBackground(Color.BLACK);
+		editorListModel = new DefaultListModel<String>();		
+		editingUsersJList = new JList<String>(editorListModel);
+		JPanel toprightPanel = new JPanel(new BorderLayout());
 		toprightPanel.setPreferredSize(new Dimension(400, 300));
 		toprightPanel.setMinimumSize(new Dimension(400, 300));
 		GridBagConstraints toprightConstraints = new GridBagConstraints();
@@ -211,9 +208,17 @@ public class EditorGUI extends JFrame {
 		toprightConstraints.gridy = 3;
 		toprightConstraints.gridheight = 1;
 		toprightConstraints.weightx = 1;
-		editingUsersJList.setBackground(Color.BLUE);
-		toprightPanel.add(editingUsersJList, BorderLayout.CENTER);
 		this.add(toprightPanel, toprightConstraints);
+		JPanel topRightInner = new JPanel(new BorderLayout());
+		toprightPanel.setPreferredSize(new Dimension(300, 250));
+		toprightPanel.setMinimumSize(new Dimension(300, 250));
+		JPanel topRightInnerMost = new JPanel(new BorderLayout());
+		JLabel editingUsersLabel = new JLabel("Currently Editing Users:");
+		editingUsersLabel.setSize(250, 50);
+		topRightInnerMost.add(editingUsersJList, BorderLayout.CENTER);
+		topRightInner.add(editingUsersLabel, BorderLayout.NORTH);
+		topRightInner.add(topRightInnerMost, BorderLayout.CENTER);
+		toprightPanel.add(topRightInner, BorderLayout.CENTER);
 
 		
 		// Button to begin chat
