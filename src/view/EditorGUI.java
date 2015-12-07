@@ -24,6 +24,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
+
 import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
@@ -94,9 +96,9 @@ public class EditorGUI extends JFrame {
 	private volatile JMenuItem[] revisionKeyItems = new JMenuItem[10];
 	
 	// currently editing user list
-	//private volatile List<String> editingUsersList;
 	private JList<String> editingUsersJList;
 	private DefaultListModel<String> editorListModel;
+	private volatile Set<String> currentEditors;
 
 	// menu items
 	private JMenuBar toolBar;
@@ -139,37 +141,38 @@ public class EditorGUI extends JFrame {
 		this.setTitle("Collaborative Text Editor");
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setLayout(new GridBagLayout());
-		layoutGUI();
 		this.setVisible(true);
+		layoutGUI();
 
 		// instantiate timer with 2000 ms == 2 seconds.
 		timer = new Timer(2000, new TimerListener());
 	}
 
-	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui,
-			String startingText, String docname) {
+	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer,
+			DocumentSelectGUI documentgui, String startingText, String docname) {
 		this.documentGUI = documentgui;
-		documentGUI.setVisible(false);
 		this.fromServer = fromServer;
 		this.toServer = toServer;
+		documentGUI.setVisible(false);
+
 		// get screen size for proportional gui elements
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 		screenWidth = screensize.getWidth() * 0.75;
 		screenHeight = screensize.getHeight() * 0.8;
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
+
 		// set defaults and layoutGUI
 		this.setTitle("Document: " + docname + " Logged in as: " + documentgui.getUserName());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());
-		layoutGUI();
 		this.setVisible(true);
+		layoutGUI();
+		
+		// add 
+		currentEditors.add(documentGUI.getUserName());
+		refreshEditingUsersList(currentEditors);
 
-		/*
-		 * try { //String document = (String) fromServer.readObject();
-		 * //textArea.setText(document); } catch (ClassNotFoundException e) {
-		 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
-		 */
 		textArea.setText(startingText);
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
@@ -899,6 +902,14 @@ public class EditorGUI extends JFrame {
 		}
 	}
 
+	private void refreshEditingUsersList(Set<String> editingUsersList) {
+		editorListModel.clear();
+		for (String username : editingUsersList) {
+			editorListModel.addElement(username);
+		}
+		editingUsersJList.setModel(editorListModel);
+	}
+
 	/* Listeners */
 	// Server listener
 	private class ServerListener extends Thread {
@@ -919,12 +930,9 @@ public class EditorGUI extends JFrame {
 						break;
 					case DOCUMENT_UPDATE:
 						String updatedText = (String) fromServer.readObject();
-						//EditorGUI.this.updatedoc(updatedText);
 						textArea.getDocument().removeDocumentListener(doclistener);
 						textArea.setText(updatedText);
 						textArea.getDocument().addDocumentListener(doclistener);
-//						textArea.setEditable(false);
-//						editButton.setEnabled(false);
 						break;
 					case CHAT_UPDATE:
 						String updatedChatText = (String) fromServer.readObject();
@@ -943,16 +951,18 @@ public class EditorGUI extends JFrame {
 						EditorGUI.this.updatedoc(revertedText);
 						break;
 					case CURRENT_EDITORS:
-						List<String> editingUsersList = (List<String>) fromServer.readObject();
+						Set<String> editingUsersList = (Set<String>) fromServer.readObject();
 						refreshEditingUsersList(editingUsersList);
 						break; 
 					case DOCUMENT_UNEDITABLE:
+						//TODO: eventually make it so the server doesn't send anything
 						String emptyString = (String) fromServer.readObject();
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
 						System.out.print("made uneditable");
 						break;
 					case DOCUMENT_EDITABLE:
+						//TODO: eventually make it so the server doesn't send anything
 						String emptyStringTwo = (String) fromServer.readObject();
 						textArea.setEditable(true);
 						editButton.setEnabled(true);
@@ -969,14 +979,6 @@ public class EditorGUI extends JFrame {
 			}
 		}
 
-		private void refreshEditingUsersList(List<String> editingUsersList) {
-			editorListModel.clear();
-			for (String username : editingUsersList) {
-				editorListModel.addElement(username);
-			}
-			editingUsersJList.setModel(editorListModel);
-		}
-
 		private void stopRunning() throws IOException {
 			isRunning = false;
 			toServer.reset();
@@ -991,7 +993,6 @@ public class EditorGUI extends JFrame {
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
 		int i = 0;
 		revisionListMenu.removeAll();
-		 //revisionListMenu.revalidate();
 		for (String key : revisionKeys) {
 
 			JMenuItem newKey = new JMenuItem(key);
@@ -1002,9 +1003,7 @@ public class EditorGUI extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					JMenuItem currentKey = (JMenuItem) e.getSource();
 					String revisionKey = currentKey.getText();
-					System.out.println("about to sent revert_doc");
 					try {
-						System.out.println("revert_Doc has been sent!!!!");
 						toServer.writeObject(ClientRequest.REVERT_DOC);
 						toServer.writeObject(revisionKey);
 

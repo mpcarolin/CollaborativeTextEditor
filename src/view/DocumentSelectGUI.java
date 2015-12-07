@@ -20,6 +20,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -368,7 +369,7 @@ public class DocumentSelectGUI extends JFrame {
 		    // the display list before launching the gui
 		    String startingText = (String) fromServer.readObject();
 		    getDisplayList();
-		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText,newDocName);
+		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText, newDocName);
 		    return;
 		default:
 		    JOptionPane.showMessageDialog(null, "Incompatible server response.");
@@ -552,12 +553,12 @@ public class DocumentSelectGUI extends JFrame {
 
 	    // obtain the document name from the currently opened tab
 	    String docName = null;
-	    if (ownDisplayList.isShowing()) {
-		int index = ownDisplayList.getSelectedIndex();
-		docName = ownedDocList.getElementAt(index);
+		if (ownDisplayList.isShowing()) {
+			int index = ownDisplayList.getSelectedIndex();
+			docName = ownedDocList.getElementAt(index);
 	    } else {
-		int index = editDisplayList.getSelectedIndex();
-		docName = editDocList.getElementAt(index);
+			int index = editDisplayList.getSelectedIndex();
+			docName = editDocList.getElementAt(index);
 	    }
 	    connectAndOpen(docName);
 	}
@@ -591,9 +592,9 @@ public class DocumentSelectGUI extends JFrame {
 		    return;
 		}
 	    } catch (IOException e1) {
-		e1.printStackTrace();
+			e1.printStackTrace();
 	    } catch (ClassNotFoundException e1) {
-		e1.printStackTrace();
+			e1.printStackTrace();
 	    }
 	}
     }
