@@ -229,7 +229,6 @@ class ClientHandler extends Thread {
         	sendRevisionList();
         	break;
             case REVERT_DOC:
-        	System.out.println("In servers revert_doc case in switch");
         	revertDocument();
         	break;
             case CLOSE_DOC:
@@ -481,11 +480,7 @@ class ClientHandler extends Thread {
     */
    private void revertDocument() throws ClassNotFoundException, IOException {
        String documentKey = (String) clientIn.readObject();
-       
-       System.out.println("In servers revertDocument method: " + documentKey); // debugging
-       
        currentOpenDoc.revert(documentKey);
-       
        sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), true);
    }
 
@@ -493,7 +488,6 @@ class ClientHandler extends Thread {
     * Reverts the current OpenDocument to its most recent revision.
     */
    public void undoDocument() {
-       
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), true);
    }
 
@@ -557,7 +551,7 @@ class ClientHandler extends Thread {
       } else {
          Server.allDocuments.remove(docName);
          currentUser.removeDocument(docName);
-         clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
+         clientOut.writeObject(ServerResponse.DOCUMENT_DELETED);
       }
    }
 
