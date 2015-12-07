@@ -23,12 +23,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import javax.imageio.ImageIO;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -49,6 +48,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
@@ -61,10 +61,8 @@ import javax.swing.text.StyledEditorKit.FontFamilyAction;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
-
 import model.ClientRequest;
 import model.ServerResponse;
 
@@ -163,30 +161,25 @@ public class EditorGUI extends JFrame {
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
 
 		// set defaults and layoutGUI
-		this.setTitle("Document: " + docname + " Logged in as: " + documentgui.getUserName());
+		this.setTitle("Document: " + docname + "- " + documentgui.getUserName());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());
 		this.setVisible(true);
 		layoutGUI();
-		
-		// add 
+		// add users
 		currentEditors.add(documentGUI.getUserName());
 		refreshEditingUsersList(currentEditors);
-
+		// sets the text to the starting text
 		textArea.setText(startingText);
 		ServerListener serverListener = new ServerListener();
 		serverListener.start();
-
-		// instantiate timer with 2000 ms == 2 seconds.
-		// timer = new Timer(2000, new TimerListener());
-
 	}
 
 	public void layoutGUI() {
 		int windowWidth = (int) (screenWidth * 0.75);
 
-		// Chat Bar
+		// Right Panel and constrants
 		rightPanel = new JPanel(new BorderLayout());
 		rightPanel.setPreferredSize(new Dimension(400, 300));
 		rightPanel.setMinimumSize(new Dimension(400, 300));
@@ -206,6 +199,8 @@ public class EditorGUI extends JFrame {
 		JPanel toprightPanel = new JPanel(new GridBagLayout());
 		toprightPanel.setPreferredSize(new Dimension(400, 300));
 		toprightPanel.setMinimumSize(new Dimension(400, 300));
+		
+		// Constrants for top right panel
 		GridBagConstraints toprightConstraints = new GridBagConstraints();
 		toprightConstraints.anchor = GridBagConstraints.NORTHEAST;
 		toprightConstraints.gridx = 1;
@@ -217,6 +212,7 @@ public class EditorGUI extends JFrame {
 		topRightInner.setPreferredSize(new Dimension(300, 250));
 		topRightInner.setMinimumSize(new Dimension(300, 250));
 		JPanel topRightInnerMost = new JPanel(new BorderLayout());
+		topRightInnerMost.setBorder(BorderFactory.createLineBorder(Color.black));
 		JLabel editingUsersLabel = new JLabel("Currently Editing Users:");
 		editingUsersLabel.setSize(250, 50);
 		topRightInnerMost.add(editingUsersJList, BorderLayout.CENTER);
@@ -229,14 +225,10 @@ public class EditorGUI extends JFrame {
 		// Button to begin chat
 		openChatButton = new JButton("Open Chat!");
 		openChatButton.addActionListener(new chatButtonListener());
-		// openChatButton.addActionListener(new chatButtonListener());
-		// uncommit with rest of code
 		rightPanel.add(openChatButton, BorderLayout.SOUTH);
 		chatText = new JTextField();
-		// rest of code
 		chatText.setMaximumSize(new Dimension(100, 10));
 		chatText.setVisible(false);
-
 		rightPanel.add(chatText, BorderLayout.CENTER);
 
 		// Create textArea To write on
@@ -261,7 +253,6 @@ public class EditorGUI extends JFrame {
 		c.gridwidth = 1;
 		c.weightx = 0;
 		c.weighty = 0.5;
-		// c.anchor = GridBagConstraints.CENTER;
 		c.anchor = GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.VERTICAL;
 
@@ -275,13 +266,13 @@ public class EditorGUI extends JFrame {
 
 		// Create textArea To write on
 		textArea = new JTextPane();
+		textArea.setBorder(BorderFactory.createLineBorder(Color.black));
 		textArea.setContentType("text/html");
 		textArea.setEditorKit(editor);
 		textArea.setPreferredSize(new Dimension(textWidth + 500, 2000));
 
 		// Create ScrollPane to put textAreaon
 		scroll = new JScrollPane(textArea);
-		//scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.9)));
 		scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.85)));
 
 		// button group toolbar
@@ -325,60 +316,44 @@ public class EditorGUI extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		// Toggle buttons on Menus
 		leftAlign = new JToggleButton();
 		leftAlign.setIcon(leftAlignIcon);
 		rightAlign = new JToggleButton();
 		rightAlign.setIcon(rightAlignIcon);
 		centerAlign = new JToggleButton();
 		centerAlign.setIcon(centerAlignIcon);
-
 		boldButton = new JToggleButton();
 		boldButton.setIcon(boldImageIcon);
-
 		italicsButton = new JToggleButton();
 		italicsButton.setIcon(italicImageIcon);
-
 		underlineButton = new JToggleButton();
 		underlineButton.setIcon(underlineImageIcon);
-
 		colorFont = new JButton();
 		colorFont.setIcon(colorIcon);
-
 		bulletItem = new JButton(bulletAction);
 		bulletItem.setIcon(bulletIcon);
-
 		linkButton = new JButton();
 		linkButton.setText("Link");
-
 		editButton = new JToggleButton("Edit");
-		// textArea.insertComponent(new JButton("hello"));
-
 		fontStyle = new JComboBox<String>();
 		fontStyle.addItem(Font.SERIF);
 		fontStyle.addItem(Font.SANS_SERIF);
 		fontStyle.addItem(Font.MONOSPACED);
 		fontStyle.addItem(Font.DIALOG);
-		// fontStyle.setMinimumSize(new Dimension(50,30));
-		// fontStyle.setPreferredSize(new Dimension(50,30));
-
 		/*
 		 * File Menu Bar elements
 		 */
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
-
 		file.add(fileButton);
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
 		JMenuItem undo = new JMenuItem("Undo");
 		edit.add(undo);
-
 		toolBar.add(file);
 		toolBar.add(edit);
-
-		// this.add(file);
 		font = new JComboBox<Integer>();
 		int[] fontSizes = { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 36, 48, 72 };
 		for (int fontSize : fontSizes) {
@@ -386,14 +361,10 @@ public class EditorGUI extends JFrame {
 		}
 		font.setSelectedIndex(5);
 		font.setMinimumSize(new Dimension(50, 30));
-
-		// textArea.getDocument().addDocumentListener(new docListener());
 		JToolBar toolBar2 = new JToolBar();
 		toolBar2.setMinimumSize(new Dimension((int) screenWidth, 15));
-		// toolBar2.add(new JLabel("Size:"));
 		toolBar2.add(fontStyle);
 		toolBar2.add(font);
-		/// toolBar2.add(new JLabel("Fonts:"));
 		toolBar2.add(boldButton);
 		toolBar2.add(italicsButton);
 		toolBar2.add(underlineButton);
@@ -408,7 +379,6 @@ public class EditorGUI extends JFrame {
 		screenPanel.add(toolBar2);
 		this.setJMenuBar(toolBar);
 
-		fontSizeAction.setEnabled(true);
 		// Adds center Panel with text to Jframe
 		screenPanel.setVisible(true);
 		screenPanel.add(scroll);
@@ -430,17 +400,13 @@ public class EditorGUI extends JFrame {
 		italicsButton.addActionListener(new italicsButtonListener());
 		font.addItemListener(new selectSizeListener());
 		fontStyle.addItemListener(new selectStyleListener());
-		// textArea.addKeyListener(new DocCharacterListener());
-
 		doclistener = new docListener();
 		textArea.getDocument().addDocumentListener(doclistener);
 		colorFont.addActionListener(new colorButtonListener());
-		// textArea.addMouseMotionListener(new mousemotionListener());
 		textArea.addMouseListener(new clickListener());
 		boldAction.setEnabled(false);
 		italicsAction.setEnabled(false);
 		underlineAction.setEnabled(false);
-
 		boldButton.setEnabled(false);
 		italicsButton.setEnabled(false);
 		underlineButton.setEnabled(false);
@@ -449,8 +415,9 @@ public class EditorGUI extends JFrame {
 		fontStyle.setEditable(false);
 		font.setEnabled(false);
 		fontStyle.setEnabled(false);
+		fontSizeAction.setEnabled(true);
 	}
-
+	// Set the DocumentGUI to false when EditorGUI is closed
 	private class windowListener implements WindowListener {
 		@Override
 		public void windowOpened(WindowEvent e) {
@@ -523,7 +490,7 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
-
+	// Listeners for hyper link to launch browser
 	private class hyperLinkListener implements HyperlinkListener {
 		@Override
 		public void hyperlinkUpdate(HyperlinkEvent e) {
@@ -570,19 +537,18 @@ public class EditorGUI extends JFrame {
 		public void mouseExited(MouseEvent e) {
 		}
 	}
-
+	// Request for the last revision when Undo is Pressed
 	private class undoListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				toServer.writeObject(ClientRequest.UNDO);
-				System.out.println("Reverted to most recent revision through undo");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
 	}
-
+	// Listens to the right align button
 	private class rightListener implements ActionListener {
 
 		@Override
@@ -594,7 +560,7 @@ public class EditorGUI extends JFrame {
 			centerAlign.setSelected(false);
 		}
 	}
-
+	// listens to the left align button
 	private class leftListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -605,7 +571,7 @@ public class EditorGUI extends JFrame {
 			centerAlign.setSelected(false);
 		}
 	}
-
+	// listens to the left align button
 	private class centerListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -616,7 +582,7 @@ public class EditorGUI extends JFrame {
 			rightAlign.setSelected(false);
 		}
 	}
-
+	// 
 	private class selectSizeListener implements ItemListener {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
@@ -629,7 +595,7 @@ public class EditorGUI extends JFrame {
 			fontSizeAction.setEnabled(true);
 		}
 	}
-
+	// Selects the Font to use when typing in Document
 	private class selectStyleListener implements ItemListener {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
@@ -642,7 +608,7 @@ public class EditorGUI extends JFrame {
 			fontStyleAction.setEnabled(true);
 		}
 	}
-
+	// changes the color of the text
 	private class colorButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -651,34 +617,7 @@ public class EditorGUI extends JFrame {
 			new StyledEditorKit.ForegroundAction("action", color).actionPerformed(e);
 		}
 	}
-
-	//
-	// private class DocCharacterListener implements KeyListener {
-	// // ascii-48-126
-	// @Override
-	// public void keyTyped(KeyEvent e) {
-	// }
-	//
-	// @Override
-	// public void keyPressed(KeyEvent e) {
-	// // starts a timer waiting for a pause to send the revision command
-	// startTimer();
-	// }
-	//
-	// @Override
-	// public void keyReleased(KeyEvent e) {
-	// try {
-	// // System.out.print("I got to the KeyListener :" +
-	// // textArea.getText());
-	// toServer.writeObject(ClientRequest.DOC_TEXT);
-	// toServer.writeObject(textArea.getText());
-	// } catch (IOException e1) {
-	// e1.printStackTrace();
-	// }
-	//
-	// }
-	// }
-
+	// Listens for all changes to the doc
 	private class docListener implements DocumentListener {
 		@Override
 		public void insertUpdate(DocumentEvent e) {
@@ -690,7 +629,6 @@ public class EditorGUI extends JFrame {
 				e1.printStackTrace();
 			}
 		}
-
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			try {
@@ -701,20 +639,23 @@ public class EditorGUI extends JFrame {
 				e1.printStackTrace();
 			}
 		}
-
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			try {
 				toServer.writeObject(ClientRequest.DOC_TEXT);
 				toServer.writeObject(textArea.getText());
 				startTimer();
-				// ifTrueDontUpdate=true;
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
 	}
-
+	/*At the begining, buttons are set to false, so when clicking the textArea options become clickable
+	 *Also when clicking in the Document, changes buttons to be selected based on the current attributes in
+	 *the carrot position
+	*/
+	
+	
 	private class clickListener implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -727,7 +668,7 @@ public class EditorGUI extends JFrame {
 			font.setEnabled(true);
 			fontStyle.setEnabled(true);
 		}
-
+		
 		@Override
 		public void mousePressed(MouseEvent e) {
 			if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()) {
@@ -806,8 +747,6 @@ public class EditorGUI extends JFrame {
 					case 12:
 						font.setSelectedIndex(4);
 						return;
-					// case 14: font.setSelectedIndex(5);
-					// return;
 					case 16:
 						font.setSelectedIndex(6);
 						return;
@@ -839,20 +778,12 @@ public class EditorGUI extends JFrame {
 				}
 			}
 		}
-
 		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-		}
+		public void mouseReleased(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
 	}
-
+	// Sets the new text to be bold in document
 	private class boldButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -867,7 +798,7 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
-
+	// Sets the new text in document to be underlined
 	private class underLineButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -882,7 +813,7 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
-
+	// Sets the new text in document to be italics
 	private class italicsButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -897,9 +828,8 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
-
+	// Start Timer for Revision
 	private void startTimer() {
-		// initiate timer for indicating revisions to be saved in the server
 		if (timer.isRunning()) {
 			timer.restart();
 		} else {
@@ -907,7 +837,7 @@ public class EditorGUI extends JFrame {
 			timer.start();
 		}
 	}
-
+	// A panel to show the users currently editing
 	private void refreshEditingUsersList(Set<String> editingUsersList) {
 		editorListModel.clear();
 		for (String username : editingUsersList) {
@@ -917,7 +847,7 @@ public class EditorGUI extends JFrame {
 	}
 
 	/* Listeners */
-	// Server listener
+	// Server listener and chooses Which action to take according to the Server Response
 	private class ServerListener extends Thread {
 
 		private volatile boolean isRunning = true;
@@ -948,6 +878,7 @@ public class EditorGUI extends JFrame {
 						stopRunning();
 						return;
 					case REVISION_LIST:
+						@SuppressWarnings("unchecked")
 						List<String> revisionKeys = (List<String>) fromServer.readObject();
 						refreshRevisionPopUp(revisionKeys);
 						break;
@@ -957,11 +888,13 @@ public class EditorGUI extends JFrame {
 						EditorGUI.this.updatedoc(revertedText);
 						break;
 					case CURRENT_EDITORS:
+						@SuppressWarnings("unchecked")
 						Set<String> editingUsersList = (Set<String>) fromServer.readObject();
 						refreshEditingUsersList(editingUsersList);
 						break;
 					case DOCUMENT_UNEDITABLE:
-						//TODO: eventually make it so the server doesn't send anything
+						//eventually make it so the server doesn't send anything
+						@SuppressWarnings("unused")
 						String emptyString = (String) fromServer.readObject();
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
@@ -979,7 +912,8 @@ public class EditorGUI extends JFrame {
 						bulletItem.setEnabled(false);
 						break;
 					case DOCUMENT_EDITABLE:
-						//TODO: eventually make it so the server doesn't send anything
+						//eventually make it so the server doesn't send anything
+						@SuppressWarnings("unused")
 						String emptyStringTwo = (String) fromServer.readObject();
 						rightAlign.setEnabled(true);
 						leftAlign.setEnabled(true);
@@ -1007,7 +941,6 @@ public class EditorGUI extends JFrame {
 				}
 			}
 		}
-
 		private void stopRunning() throws IOException {
 			isRunning = false;
 			toServer.reset();
@@ -1022,7 +955,6 @@ public class EditorGUI extends JFrame {
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
 		int i = 0;
 		revisionListMenu.removeAll();
-		// revisionListMenu.revalidate();
 		for (String key : revisionKeys) {
 
 			JMenuItem newKey = new JMenuItem(key);
@@ -1048,35 +980,24 @@ public class EditorGUI extends JFrame {
 
 		System.out.println("updated the pop ups!");
 	}
-
-	// revision
-	public void updateRevisionEditorGui() {
-
-	}
-
+	// Update the Document with the new text
 	public void updatedoc(String text) {
-		// iSentThis = true;
-		System.out.println("About to update doc");
 		textArea.getDocument().removeDocumentListener(doclistener);
 		textArea.setText(text);
 		textArea.getDocument().addDocumentListener(doclistener);
-		System.out.println("updated the doc");
 	}
-
+	// Update the Chat Bar
 	public void updatechat(String text) {
 		chatString.append("\n" + text);
 		chatTextArea.setText(chatString.toString());
 	}
-
-	// // chatbox listener to send text to collaborators
+	// chatbox listener to send text to collaborators
 	private class newTextListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-
 			String text;
 			text = chatText.getText();
 			chatText.setText("");
-
 			try {
 				toServer.writeObject(ClientRequest.CHAT_MSG);
 				toServer.writeObject(text);
@@ -1085,7 +1006,7 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
-
+	// Opens and Closes the Text Area for the chat
 	private class chatButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -1119,40 +1040,7 @@ public class EditorGUI extends JFrame {
 			}
 		}
 	}
-
-	private class LoadRevisionListener implements MouseListener {
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			System.out.println("About to send get-revisions");
-			doClickGetRevisions();
-			System.out.println("just sent get-revisions");
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// serverListener.
-			/*
-			 * int i = 0; JMenuItem revisionKey = revisionListMenu.getItem(i);
-			 * while (revisionKey != null) {
-			 * 
-			 * }
-			 */
-		}
-	}
-
+	// Requests for the Revisions to show in the GUI
 	public void doClickGetRevisions() {
 		try {
 			toServer.writeObject(ClientRequest.GET_REVISIONS);
@@ -1160,7 +1048,6 @@ public class EditorGUI extends JFrame {
 			io.printStackTrace();
 		}
 	}
-
 	// testing
 	public static void main(String[] args) {
 		EditorGUI jake = new EditorGUI();
