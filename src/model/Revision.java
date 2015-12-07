@@ -12,28 +12,26 @@ public class Revision implements Serializable {
     private LocalTime revisingTime;
     private LocalDate revisingDate;
 
-    public Revision(String newText, String oldText, String revisingUser) {
+    Revision(String newText, String revisingUser) {
 	this.newText = newText;
 	this.revisingUser = revisingUser;
 	revisingTime = LocalTime.now();
 	revisingDate = LocalDate.now();
     }
 
-    /*
-     * Getter methods
-     */
-    public String getFullText() {
+    String getFullText() {
 	return newText;
     }
 
-    public LocalTime getEditTime() {
+    LocalTime getEditTime() {
 	return revisingTime;
     }
 
-    public LocalDate getEditDate() {
+    LocalDate getEditDate() {
 	return revisingDate;
     }
 
+    @Override
     public String toString() {
 	return getEditTime().getHour() + ":" + getEditTime().getMinute() + ":" + getEditTime().getSecond() + " on "
 		+ getEditDate() + " by " + revisingUser;

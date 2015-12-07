@@ -27,7 +27,7 @@ import javax.swing.Timer;
 
 public class Server {
 
-    public static final int SERVER_PORT = 9001;
+    private static final int SERVER_PORT = 9001;
 
     static Map<String, User> allUsers;
     static Map<String, Document> allDocuments;
@@ -118,8 +118,11 @@ public class Server {
 	allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
 	allUsers.get("Orzy").addOwnedDocument("OrzysDoc");
     }
-
-    static void setUpSaveTimer() {
+    
+    /*
+     * Creates and starts a timer that calls the saveData method every 30 seconds.
+     */
+    private static void setUpSaveTimer() {
 	Timer saveTimer = new Timer(30000, new ActionListener() {
 	    @Override
 	    public void actionPerformed(ActionEvent arg0) {
@@ -128,8 +131,11 @@ public class Server {
 	});
 	saveTimer.start();
     }
-
-    static void saveData() {
+    
+    /*
+     * Writes the HashMaps that contain the User and Document data to a file.
+     */
+    private static void saveData() {
 	try {
 	    FileOutputStream bytesToDisk = new FileOutputStream("SaveFile");
 	    ObjectOutputStream outFile = new ObjectOutputStream(bytesToDisk);
@@ -158,7 +164,7 @@ class ClientHandler extends Thread {
     /*
      * Opens the Input and Output Streams.
      */
-    public ClientHandler(Socket clientSocket) {
+    ClientHandler(Socket clientSocket) {
 	this.clientSocket = clientSocket;
 	try {
 	    clientIn = new ObjectInputStream(clientSocket.getInputStream());
@@ -460,7 +466,7 @@ class ClientHandler extends Thread {
 	    }
 	    clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
 	    clientOut.writeObject(currentOpenDoc.getText());
-	    sendUpdateToClients(ServerResponse.CURRENT_EDITORS, currentOpenDoc.getEditorNames(), true);
+	    sendUpdateToClients(ServerResponse.CURRENT_EDITORS, currentOpenDoc.getEditorNames(), false);
 	}
     }
 
@@ -469,7 +475,7 @@ class ClientHandler extends Thread {
      */
     private void updateChat() throws ClassNotFoundException, IOException {
 	String chatMessage = currentUser.getName() + ": " + (String) clientIn.readObject();
-	sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage, true);
+	sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage, false);
     }
 
     /*
@@ -477,8 +483,8 @@ class ClientHandler extends Thread {
      */
     private void updateDocument() throws ClassNotFoundException, IOException {
 	currentOpenDoc.updateText((String) clientIn.readObject());
-	sendUpdateToClients(ServerResponse.DOCUMENT_UNEDITABLE, currentUser.getName(), false);
-	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), false);
+	sendUpdateToClients(ServerResponse.DOCUMENT_UNEDITABLE, currentUser.getName(), true);
+	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), true);
     }
 
     /*
@@ -487,7 +493,7 @@ class ClientHandler extends Thread {
      */
     private void saveRevision() {
 	currentOpenDoc.saveRevision(currentUser.getName());
-	sendUpdateToClients(ServerResponse.DOCUMENT_EDITABLE, "", true);
+	sendUpdateToClients(ServerResponse.DOCUMENT_EDITABLE, "", false);
     }
 
     /*
@@ -505,14 +511,14 @@ class ClientHandler extends Thread {
     private void revertDocument() throws ClassNotFoundException, IOException {
 	String documentKey = (String) clientIn.readObject();
 	currentOpenDoc.revert(documentKey);
-	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), true);
+	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), false);
     }
 
     /*
      * Reverts the current OpenDocument to its most recent revision.
      */
-    public void undoDocument() {
-	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), true);
+    private void undoDocument() {
+	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), false);
     }
 
     /*
@@ -523,11 +529,11 @@ class ClientHandler extends Thread {
      * clients that have disconnected and removes them from the list of
      * OuputStreams in the current OpenDocument.
      */
-    public void sendUpdateToClients(ServerResponse response, Object update, boolean revertingDoc) {
+    private void sendUpdateToClients(ServerResponse response, Object update, boolean skipThisClient) {
 	removeStreams = false;
 	Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
 	for (ObjectOutputStream editorOutStream : currentOpenDoc.getEditorOutStreams()) {
-	    if (!revertingDoc && editorOutStream == clientOut) {
+	    if (skipThisClient && editorOutStream == clientOut) {
 		continue;
 	    }
 	    try {
@@ -558,7 +564,7 @@ class ClientHandler extends Thread {
 	if (currentOpenDoc.hasNoEditors()) {
 	    Server.openDocuments.remove(currentOpenDoc.getDocumentName());
 	} else {
-	    sendUpdateToClients(ServerResponse.CURRENT_EDITORS, currentOpenDoc.getEditorNames(), true);
+	    sendUpdateToClients(ServerResponse.CURRENT_EDITORS, currentOpenDoc.getEditorNames(), false);
 	}
     }
 

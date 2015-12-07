@@ -5,12 +5,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import model.Server;
+public class CollaborativeTextEditor {
 
-public class Main {
 
    //private static final String ADDRESS = "helen.twilightparadox.com";
    private static final String ADDRESS = "localhost";
+   private static final int SERVER_PORT = 9001;
 
 
    public static void main(String[] args) {
@@ -21,7 +21,7 @@ public class Main {
       Socket server = null;
 
       try {
-         server = new Socket(ADDRESS, Server.SERVER_PORT);
+         server = new Socket(ADDRESS, SERVER_PORT);
          toServer = new ObjectOutputStream(server.getOutputStream());
          fromServer = new ObjectInputStream(server.getInputStream());
       } catch (IOException e) {
@@ -41,5 +41,4 @@ public class Main {
      new DocumentSelectGUI(login.getUsername(), fromServer, toServer);
 
    }
-
 }

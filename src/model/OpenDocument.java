@@ -11,68 +11,68 @@ public class OpenDocument {
    private Set<ObjectOutputStream> editorStreams;
    private Set<String> editorNames;
    
-   public OpenDocument(Document document, ObjectOutputStream editorStream, String editorName) {
+   OpenDocument(Document document, ObjectOutputStream editorStream, String editorName) {
       this.document = document;
       editorStreams = new HashSet<ObjectOutputStream>();
       editorNames = new HashSet<String>();
       addEditor(editorStream, editorName);
    }
       
-   public void addEditor(ObjectOutputStream editorStream, String editorName) {
+   void addEditor(ObjectOutputStream editorStream, String editorName) {
       editorStreams.add(editorStream);
       editorNames.add(editorName);
    }
    
-   public void saveRevision(String username) {
+   void saveRevision(String username) {
       document.saveRevision(username);
    }
    
-   public String undo() {
+   String undo() {
       return document.getLastRevisionText();
    }
    
-   public void revert(String documentKey) {
-       document.setRevisionText(documentKey);
+   void revert(String documentKey) {
+       document.setTextToRevision(documentKey);
    }
    
-   public void removeEditor(ObjectOutputStream editorStream, String editorName) {
+   void removeEditor(ObjectOutputStream editorStream, String editorName) {
       editorStreams.remove(editorStream);
       editorNames.remove(editorName);
    }
    
-   public void removeClosedEditorStreams(Set<ObjectOutputStream> droppedEditors) {
-      editorStreams.removeAll(droppedEditors);
+   void removeClosedEditorStreams(Set<ObjectOutputStream> closedEditors) {
+      editorStreams.removeAll(closedEditors);
    }
    
-   public boolean hasNoEditors() {
+   boolean hasNoEditors() {
       return editorStreams.isEmpty();
    }
    
-   public String getText() {
+   String getText() {
       return document.getText();
    }
    
-   public void updateText(String text) {
+   void updateText(String text) {
       document.replaceText(text);
    }
    
-   public Set<ObjectOutputStream> getEditorOutStreams() { 
-      return editorStreams;
-   }
-   
-   public Set<String> getEditorNames() {
-       return editorNames;
-   }
-   
-   public Document getDocument() {
+   Document getDocument() {
        return document;
    }
    
-   public String getDocumentName() {
+   Set<ObjectOutputStream> getEditorOutStreams() { 
+      return editorStreams;
+   }
+   
+   Set<String> getEditorNames() {
+       return editorNames;
+   }
+   
+   String getDocumentName() {
        return document.getDocumentName();
    }
    
-   public List<String> getRevisionList() {
+   List<String> getRevisionList() {
        return document.getTenRevisionKeys();
    }
 }
