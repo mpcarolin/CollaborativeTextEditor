@@ -33,7 +33,7 @@ public class OpenDocument {
    }
    
    public void removeEditor(ObjectOutputStream oldEditor) {
-      editingUsers.remove(oldEditor);
+      System.out.println(editingUsers.remove(oldEditor));  // debugging
    }
    
    public void removeClosedEditorStreams(Set<ObjectOutputStream> oldEditors) {
@@ -41,7 +41,7 @@ public class OpenDocument {
    }
    
    public boolean hasNoEditors() {
-      return editingUsers.size() == 0;
+      return editingUsers.isEmpty();
    }
    
    public String getText() {
@@ -58,6 +58,10 @@ public class OpenDocument {
    
    public Document getDocument() {
        return document;
+   }
+   
+   public String getDocumentName() {
+       return document.getDocumentName();
    }
    
    public List<String> getRevisionList() {

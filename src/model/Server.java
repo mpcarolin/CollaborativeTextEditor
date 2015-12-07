@@ -519,7 +519,7 @@ class ClientHandler extends Thread {
          currentOpenDoc.removeClosedEditorStreams(closedEditors);
          removeStreams = false;
          if (currentOpenDoc.hasNoEditors()) {
-            Server.openDocuments.remove(currentOpenDoc);
+            Server.openDocuments.remove(currentOpenDoc.getDocumentName());
          }
       }
    }
@@ -531,7 +531,7 @@ class ClientHandler extends Thread {
    private void closeDocument() throws IOException {
       currentOpenDoc.removeEditor(clientOut);
       if (currentOpenDoc.hasNoEditors()) {
-         Server.openDocuments.remove(currentOpenDoc);
+	  Server.openDocuments.remove(currentOpenDoc.getDocumentName());
       }
       clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
    }
@@ -547,7 +547,7 @@ class ClientHandler extends Thread {
       } else if (!currentUser.owns(docName)) {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else if (Server.openDocuments.get(docName) != null) {
-         clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
+	  clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
       } else {
          Server.allDocuments.remove(docName);
          currentUser.removeDocument(docName);
