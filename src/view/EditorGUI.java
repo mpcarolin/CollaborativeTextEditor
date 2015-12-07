@@ -23,25 +23,22 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.LinkedList;
 import java.util.List;
-
 import javax.imageio.ImageIO;
 import javax.swing.Action;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -53,8 +50,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyleConstants;
@@ -97,6 +92,11 @@ public class EditorGUI extends JFrame {
 	// file dropdown menu items
 	private volatile JMenu revisionListMenu;
 	private volatile JMenuItem[] revisionKeyItems = new JMenuItem[10];
+	
+	// currently editing user list
+	//private volatile List<String> editingUsersList;
+	private JList<String> editingUsersJList;
+	private DefaultListModel<String> editorListModel;
 
 	// menu items
 	private JMenuBar toolBar;
@@ -122,8 +122,6 @@ public class EditorGUI extends JFrame {
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", currentFontSize);
 	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("", "<ul><li></li></ul>", HTML.Tag.BODY,
 			HTML.Tag.UL);
-//	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
-//			HTML.Tag.UL);
 
 	private Timer timer = new Timer(2000, new TimerListener());
 	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
@@ -337,13 +335,19 @@ public class EditorGUI extends JFrame {
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
 		
-	
-
 		/*
-		 * Mouse listener to obtain ten revisions from server
+		 * Editor JList and related components
 		 */
-		//revisionListMenu.addMouseListener(new LoadRevisionListener());
-
+		//editingUsersList = new ArrayList<String>(4);
+		editorListModel = new DefaultListModel<String>();
+		editingUsersJList = new JList<String>();
+		JPanel topRightPanel = new JPanel(); 
+		rightPanel.add(topRightPanel,  chatConstraints.ABOVE_BASELINE);
+		topRightPanel.setBackground(Color.BLACK);
+		topRightPanel.add(editingUsersJList, BorderLayout.NORTH);
+		editingUsersJList.setBackground(Color.BLUE);
+		
+		
 		file.add(fileButton);
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
@@ -433,7 +437,6 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void windowClosing(WindowEvent e) {
-			// isclosed = true;
 		}
 
 		@Override
@@ -922,6 +925,10 @@ public class EditorGUI extends JFrame {
 						String revertedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(revertedText);
 						break;
+					case CURRENT_EDITORS:
+						List<String> editingUsersList = (List<String>) fromServer.readObject();
+						refreshEditingUsersList(editingUsersList);
+						break; 
 					default:
 						System.out.println("stopped the server listener");
 						stopRunning();
@@ -932,6 +939,14 @@ public class EditorGUI extends JFrame {
 					isRunning = false;
 				}
 			}
+		}
+
+		private void refreshEditingUsersList(List<String> editingUsersList) {
+			editorListModel.clear();
+			for (String username : editingUsersList) {
+				editorListModel.addElement(username);
+			}
+			editingUsersJList.setModel(editorListModel);
 		}
 
 		private void stopRunning() throws IOException {
@@ -1091,6 +1106,6 @@ public class EditorGUI extends JFrame {
 
 	// testing
 	public static void main(String[] args) {
-		// EditorGUI jake = new EditorGUI();
+		 EditorGUI jake = new EditorGUI();
 	}
 }
