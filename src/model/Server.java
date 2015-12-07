@@ -227,10 +227,10 @@ class ClientHandler extends Thread {
                break;
             case GET_REVISIONS:
         	sendRevisionList();
-        	break;
+        		break;
             case REVERT_DOC:
         	revertDocument();
-        	break;
+        		break;
             case CLOSE_DOC:
                closeDocument();
                break;
