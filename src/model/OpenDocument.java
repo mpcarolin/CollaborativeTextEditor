@@ -10,7 +10,6 @@ public class OpenDocument {
    private Document document;
    private Set<ObjectOutputStream> editorStreams;
    private Set<String> editorNames;
-   private String currentEditorName;
    
    public OpenDocument(Document document, ObjectOutputStream editorStream, String editorName) {
       this.document = document;
@@ -18,15 +17,7 @@ public class OpenDocument {
       editorNames = new HashSet<String>();
       addEditor(editorStream, editorName);
    }
-   
-   public void setCurrentEditor(String editorName) {
-       currentEditorName = editorName;
-   }
-   
-   public String getCurrentEditor() {
-       return currentEditorName;
-   }
-   
+      
    public void addEditor(ObjectOutputStream editorStream, String editorName) {
       editorStreams.add(editorStream);
       editorNames.add(editorName);
