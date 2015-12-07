@@ -57,6 +57,7 @@ public class DocumentSelectGUI extends JFrame {
     private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
     private String userName;
     private Font font;
+    private JLabel optionLabel;
 
     public DocumentSelectGUI(String username, ObjectInputStream fromServer, ObjectOutputStream toServer) {
 	this.userName = username;
@@ -194,7 +195,7 @@ public class DocumentSelectGUI extends JFrame {
 	} else {
 	    documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
 	}
-	JLabel optionLabel = new JLabel("Users with access to the selected document", SwingConstants.CENTER);
+	optionLabel = new JLabel(" Editors", SwingConstants.CENTER);
 	JPanel optionPanelInner = new JPanel();
 	JPanel topInnerOption = new JPanel();
 	JPanel bottomInnerOption = new JPanel();
@@ -669,6 +670,7 @@ public class DocumentSelectGUI extends JFrame {
 
 	    if (list.isSelectionEmpty()) {
 	    } else {
+	    optionLabel.setText(docName + "'s Editors");
 		refreshEditingUserLists(docName);
 	    }
 	    list = null;
