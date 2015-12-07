@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -219,11 +219,13 @@ public class EditorGUI extends JFrame {
 		JPanel topRightInnerMost = new JPanel(new BorderLayout());
 		JLabel editingUsersLabel = new JLabel("Currently Editing Users:");
 		editingUsersLabel.setSize(250, 50);
+		topRightInner.setBackground(Color.LIGHT_GRAY);
 		topRightInnerMost.add(editingUsersJList, BorderLayout.CENTER);
 		topRightInner.add(editingUsersLabel, BorderLayout.NORTH);
 		topRightInner.add(topRightInnerMost, BorderLayout.CENTER);
 		GridBagConstraints topRightInnerConstraints = new GridBagConstraints();
 		topRightInnerConstraints.anchor = GridBagConstraints.NORTHEAST;
+		topRightInner.setBorder(BorderFactory.createRaisedBevelBorder());
 		toprightPanel.add(topRightInner, topRightInnerConstraints);
 
 		// Button to begin chat
