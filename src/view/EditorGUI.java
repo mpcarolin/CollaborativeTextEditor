@@ -91,9 +91,9 @@ public class EditorGUI extends JFrame {
 	// file dropdown menu items
 	private volatile JMenu revisionListMenu;
 	private volatile JMenuItem[] revisionKeyItems = new JMenuItem[10];
-	
+
 	// currently editing user list
-	//private volatile List<String> editingUsersList;
+	// private volatile List<String> editingUsersList;
 	private JList<String> editingUsersJList;
 	private DefaultListModel<String> editorListModel;
 
@@ -195,12 +195,12 @@ public class EditorGUI extends JFrame {
 		/*
 		 * Editor JList and related components
 		 */
-		//editingUsersList = new ArrayList<String>(4);
+		// editingUsersList = new ArrayList<String>(4);
 		editorListModel = new DefaultListModel<String>();
 		editingUsersJList = new JList<String>();
-//		JPanel topRightPanel = new JPanel(); 
-//		rightPanel.add(toprightPanel,  chatConstraints.ABOVE_BASELINE);
-//		toprightPanel.setBackground(Color.BLACK);
+		// JPanel topRightPanel = new JPanel();
+		// rightPanel.add(toprightPanel, chatConstraints.ABOVE_BASELINE);
+		// toprightPanel.setBackground(Color.BLACK);
 		JPanel toprightPanel = new JPanel();
 		toprightPanel.setBackground(Color.BLACK);
 		toprightPanel.setPreferredSize(new Dimension(400, 300));
@@ -215,7 +215,6 @@ public class EditorGUI extends JFrame {
 		toprightPanel.add(editingUsersJList, BorderLayout.CENTER);
 		this.add(toprightPanel, toprightConstraints);
 
-		
 		// Button to begin chat
 		openChatButton = new JButton("Open Chat!");
 		openChatButton.addActionListener(new chatButtonListener());
@@ -271,7 +270,8 @@ public class EditorGUI extends JFrame {
 
 		// Create ScrollPane to put textAreaon
 		scroll = new JScrollPane(textArea);
-		scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.9)));
+		//scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.9)));
+		scroll.setPreferredSize(new Dimension(textWidth - 30, (int) (screenHeight * 0.85)));
 
 		// button group toolbar
 		toolBar = new JMenuBar();
@@ -352,16 +352,12 @@ public class EditorGUI extends JFrame {
 		// fontStyle.setPreferredSize(new Dimension(50,30));
 
 		/*
-		 *  File Menu Bar elements
+		 * File Menu Bar elements
 		 */
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
-		
-		
-		
-		
-		
+
 		file.add(fileButton);
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
@@ -383,10 +379,10 @@ public class EditorGUI extends JFrame {
 		// textArea.getDocument().addDocumentListener(new docListener());
 		JToolBar toolBar2 = new JToolBar();
 		toolBar2.setMinimumSize(new Dimension((int) screenWidth, 15));
-		//toolBar2.add(new JLabel("Size:"));
+		// toolBar2.add(new JLabel("Size:"));
 		toolBar2.add(fontStyle);
 		toolBar2.add(font);
-		///toolBar2.add(new JLabel("Fonts:"));
+		/// toolBar2.add(new JLabel("Fonts:"));
 		toolBar2.add(boldButton);
 		toolBar2.add(italicsButton);
 		toolBar2.add(underlineButton);
@@ -504,12 +500,15 @@ public class EditorGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			String message = textArea.getSelectedText();
 			website = JOptionPane.showInputDialog("Enter URL (ex: http://www.google.com)");
-			String replacement = "<a href=\\" + "\"" + website + "\\" + "\"" + ">" + message + "</a>";
-			try {
-				editor.insertHTML((HTMLDocument) textArea.getDocument(), carrotPosition, replacement, 0, 0, HTML.Tag.A);
-				textArea.replaceSelection("");
-			} catch (BadLocationException | IOException e1) {
-				e1.printStackTrace();
+			if (website != null) {
+				String replacement = "<a href=\\" + "\"" + website + "\\" + "\"" + ">" + message + "</a>";
+				try {
+					editor.insertHTML((HTMLDocument) textArea.getDocument(), carrotPosition, replacement, 0, 0,
+							HTML.Tag.A);
+					textArea.replaceSelection("");
+				} catch (BadLocationException | IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
@@ -918,12 +917,12 @@ public class EditorGUI extends JFrame {
 						break;
 					case DOCUMENT_UPDATE:
 						String updatedText = (String) fromServer.readObject();
-						//EditorGUI.this.updatedoc(updatedText);
+						// EditorGUI.this.updatedoc(updatedText);
 						textArea.getDocument().removeDocumentListener(doclistener);
 						textArea.setText(updatedText);
 						textArea.getDocument().addDocumentListener(doclistener);
-//						textArea.setEditable(false);
-//						editButton.setEnabled(false);
+						// textArea.setEditable(false);
+						// editButton.setEnabled(false);
 						break;
 					case CHAT_UPDATE:
 						String updatedChatText = (String) fromServer.readObject();
@@ -944,7 +943,7 @@ public class EditorGUI extends JFrame {
 					case CURRENT_EDITORS:
 						List<String> editingUsersList = (List<String>) fromServer.readObject();
 						refreshEditingUsersList(editingUsersList);
-						break; 
+						break;
 					case DOCUMENT_UNEDITABLE:
 						String emptyString = (String) fromServer.readObject();
 						textArea.setEditable(false);
@@ -956,14 +955,12 @@ public class EditorGUI extends JFrame {
 						boldButton.setEnabled(false);
 						italicsButton.setEnabled(false);
 						underlineButton.setEnabled(false);
-						font.setEditable(false);
 						colorFont.setEnabled(false);
-						fontStyle.setEditable(false);
 						font.setEnabled(false);
 						fontStyle.setEnabled(false);
 						linkButton.setEnabled(false);
 						bulletItem.setEnabled(false);
-						
+
 						break;
 					case DOCUMENT_EDITABLE:
 						String emptyStringTwo = (String) fromServer.readObject();
@@ -975,9 +972,7 @@ public class EditorGUI extends JFrame {
 						boldButton.setEnabled(true);
 						italicsButton.setEnabled(true);
 						underlineButton.setEnabled(true);
-						font.setEditable(true);
 						colorFont.setEnabled(true);
-						fontStyle.setEditable(true);
 						font.setEnabled(true);
 						fontStyle.setEnabled(true);
 						linkButton.setEnabled(true);
@@ -1018,7 +1013,7 @@ public class EditorGUI extends JFrame {
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
 		int i = 0;
 		revisionListMenu.removeAll();
-		 //revisionListMenu.revalidate();
+		// revisionListMenu.revalidate();
 		for (String key : revisionKeys) {
 
 			JMenuItem newKey = new JMenuItem(key);
@@ -1040,13 +1035,13 @@ public class EditorGUI extends JFrame {
 					}
 				}
 			});
-			revisionListMenu.add(revisionKeyItems[i-1]);
+			revisionListMenu.add(revisionKeyItems[i - 1]);
 			System.out.println("Just added an action listener to: " + key);
 		}
 
 		System.out.println("updated the pop ups!");
 	}
-	
+
 	// revision
 	public void updateRevisionEditorGui() {
 
@@ -1150,17 +1145,17 @@ public class EditorGUI extends JFrame {
 			 */
 		}
 	}
-	
-		public void doClickGetRevisions() {
-			try {
-				toServer.writeObject(ClientRequest.GET_REVISIONS);
-			} catch (IOException io) {
-				io.printStackTrace();
-			}
+
+	public void doClickGetRevisions() {
+		try {
+			toServer.writeObject(ClientRequest.GET_REVISIONS);
+		} catch (IOException io) {
+			io.printStackTrace();
 		}
+	}
 
 	// testing
 	public static void main(String[] args) {
-		 EditorGUI jake = new EditorGUI();
+		EditorGUI jake = new EditorGUI();
 	}
 }
