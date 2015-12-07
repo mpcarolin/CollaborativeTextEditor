@@ -196,7 +196,6 @@ public class EditorGUI extends JFrame {
 		/*
 		 * Editor JList and related components
 		 */
-
 		editorListModel = new DefaultListModel<String>();		
 		editingUsersJList = new JList<String>(editorListModel);
 		JPanel toprightPanel = new JPanel(new GridBagLayout());
@@ -638,6 +637,7 @@ public class EditorGUI extends JFrame {
 				e1.printStackTrace();
 			}
 		}
+	
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			try {
@@ -846,11 +846,15 @@ public class EditorGUI extends JFrame {
 			timer.start();
 		}
 	}
+
 	// A panel to show the users currently editing
 	private void refreshEditingUsersList(Set<String> editingUsersList) {
 		editorListModel.clear();
 		for (String username : editingUsersList) {
-			editorListModel.addElement(username);
+			currentEditors.add(username);
+			if (!editorListModel.contains(username)) {
+				editorListModel.addElement(username);
+			}
 		}
 		editingUsersJList.setModel(editorListModel);
 	}
@@ -970,7 +974,8 @@ public class EditorGUI extends JFrame {
 
 		private void setCurrentTyper(String username) {
 			int indexToSelect = 0;
-			String[] editors = (String[]) currentEditors.toArray();
+			/*
+			Object[] editors = currentEditors.toArray();
 			//for (String editor : currentEditors) {
 			for (int i = 0; i < editors.length; i++) {
 				String editor = editors[i];
@@ -980,8 +985,22 @@ public class EditorGUI extends JFrame {
 					indexToSelect = i;
 				}
 			}
+			*/
+		
+			int i = 0;
+			for (String editor : currentEditors) {
+				CharSequence sequence = "   -   (Currently Editing)";
+				if (editor.equals(username)) {
+					indexToSelect = i;
+					editor = editor + sequence;
+				} else if (editor.contains(sequence)) {
+					editor = editor.substring(0, editor.indexOf(" "));
+				}
+				i++;
+			}
+			
 			editingUsersJList.setSelectedIndex(indexToSelect);
-			refreshEditingUsersList((Set<String>)currentEditors);
+			refreshEditingUsersList(currentEditors);
 		}
 
 		private void stopRunning() throws IOException {
