@@ -531,7 +531,7 @@ class ClientHandler extends Thread {
    private void closeDocument() throws IOException {
       currentOpenDoc.removeEditor(clientOut);
       if (currentOpenDoc.hasNoEditors()) {
-         System.out.println(Server.openDocuments.remove(currentOpenDoc));
+	  Server.openDocuments.remove(currentOpenDoc.getDocumentName());
       }
       clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
    }
