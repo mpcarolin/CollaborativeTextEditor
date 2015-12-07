@@ -977,7 +977,6 @@ public class EditorGUI extends JFrame {
 						fontStyle.setEnabled(false);
 						linkButton.setEnabled(false);
 						bulletItem.setEnabled(false);
-
 						break;
 					case DOCUMENT_EDITABLE:
 						//TODO: eventually make it so the server doesn't send anything
