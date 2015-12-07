@@ -671,7 +671,8 @@ public class DocumentSelectGUI extends JFrame {
 
 	    if (list.isSelectionEmpty()) {
 	    } else {
-	    optionLabel.setText(docName + "'s Editors");
+	    String displayName = docName.substring(0, docName.indexOf("  -  "));
+	    optionLabel.setText(displayName + "'s Editors");
 		refreshEditingUserLists(docName);
 	    }
 	    list = null;
