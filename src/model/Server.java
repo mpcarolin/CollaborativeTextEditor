@@ -227,10 +227,10 @@ class ClientHandler extends Thread {
                break;
             case GET_REVISIONS:
         	sendRevisionList();
-        	break;
+        		break;
             case REVERT_DOC:
-        	System.out.println("In servers revert_doc case in switch");
         	revertDocument();
+        		break;
             case CLOSE_DOC:
                closeDocument();
                break;
@@ -480,11 +480,7 @@ class ClientHandler extends Thread {
     */
    private void revertDocument() throws ClassNotFoundException, IOException {
        String documentKey = (String) clientIn.readObject();
-       
-       System.out.println("In servers revertDocument method: " + documentKey); // debugging
-       
        currentOpenDoc.revert(documentKey);
-       
        sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), true);
    }
 
@@ -492,7 +488,6 @@ class ClientHandler extends Thread {
     * Reverts the current OpenDocument to its most recent revision.
     */
    public void undoDocument() {
-       
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), true);
    }
 
@@ -524,7 +519,7 @@ class ClientHandler extends Thread {
          currentOpenDoc.removeClosedEditorStreams(closedEditors);
          removeStreams = false;
          if (currentOpenDoc.hasNoEditors()) {
-            Server.openDocuments.remove(currentOpenDoc);
+            Server.openDocuments.remove(currentOpenDoc.getDocumentName());
          }
       }
    }
@@ -536,7 +531,7 @@ class ClientHandler extends Thread {
    private void closeDocument() throws IOException {
       currentOpenDoc.removeEditor(clientOut);
       if (currentOpenDoc.hasNoEditors()) {
-         Server.openDocuments.remove(currentOpenDoc);
+	  Server.openDocuments.remove(currentOpenDoc.getDocumentName());
       }
       clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
    }
@@ -552,11 +547,11 @@ class ClientHandler extends Thread {
       } else if (!currentUser.owns(docName)) {
          clientOut.writeObject(ServerResponse.PERMISSION_DENIED);
       } else if (Server.openDocuments.get(docName) != null) {
-         clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
+	  clientOut.writeObject(ServerResponse.DOCUMENT_OPENED);
       } else {
          Server.allDocuments.remove(docName);
          currentUser.removeDocument(docName);
-         clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
+         clientOut.writeObject(ServerResponse.DOCUMENT_DELETED);
       }
    }
 

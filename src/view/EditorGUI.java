@@ -122,8 +122,8 @@ public class EditorGUI extends JFrame {
 	private Action fontSizeAction = new StyledEditorKit.FontSizeAction("fontSizeAction", currentFontSize);
 	private Action bulletAction = new HTMLEditorKit.InsertHTMLTextAction("", "<ul><li></li></ul>", HTML.Tag.BODY,
 			HTML.Tag.UL);
-	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
-			HTML.Tag.UL);
+//	private Action hyperLinkAction = new HTMLEditorKit.InsertHTMLTextAction("", "<a>link</a>", HTML.Tag.BODY,
+//			HTML.Tag.UL);
 
 	private Timer timer = new Timer(2000, new TimerListener());
 	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
@@ -160,7 +160,7 @@ public class EditorGUI extends JFrame {
 		screenHeight = screensize.getHeight() * 0.8;
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
 		// set defaults and layoutGUI
-		this.setTitle("Document: "+ docname+ " Logged in as: "+ documentgui.getUserName());
+		this.setTitle("Document: " + docname + " Logged in as: " + documentgui.getUserName());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());
@@ -719,7 +719,7 @@ public class EditorGUI extends JFrame {
 					}
 				} catch (Exception e1) {
 					boldButton.setSelected(false);
-					//e1.printStackTrace();
+					// e1.printStackTrace();
 				}
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -736,7 +736,7 @@ public class EditorGUI extends JFrame {
 					}
 				} catch (Exception e1) {
 					italicsButton.setSelected(false);
-					//e1.printStackTrace();
+					// e1.printStackTrace();
 				}
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -901,7 +901,10 @@ public class EditorGUI extends JFrame {
 						break;
 					case DOCUMENT_UPDATE:
 						String updatedText = (String) fromServer.readObject();
-						EditorGUI.this.updatedoc(updatedText);
+						//EditorGUI.this.updatedoc(updatedText);
+						textArea.getDocument().removeDocumentListener(doclistener);
+						textArea.setText(updatedText);
+						textArea.getDocument().addDocumentListener(doclistener);
 						break;
 					case CHAT_UPDATE:
 						String updatedChatText = (String) fromServer.readObject();
@@ -913,12 +916,12 @@ public class EditorGUI extends JFrame {
 					case REVISION_LIST:
 						List<String> revisionKeys = (List<String>) fromServer.readObject();
 						refreshRevisionPopUp(revisionKeys);
-						return;
+						break;
 					case DOCUMENT_REVERTED:
 						System.out.println("document about to be reverted");
 						String revertedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(revertedText);
-						return;
+						break;
 					default:
 						System.out.println("stopped the server listener");
 						stopRunning();
@@ -930,7 +933,6 @@ public class EditorGUI extends JFrame {
 				}
 			}
 		}
-
 
 		private void stopRunning() throws IOException {
 			isRunning = false;
@@ -944,54 +946,28 @@ public class EditorGUI extends JFrame {
 	 * to send back a string that represents a earlier revision
 	 */
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
-		for (JMenuItem item : revisionKeyItems) {
-			if (item == null) {
-				continue;
-			}
-			for (ActionListener listener : item.getActionListeners()) {
-				item.removeActionListener(listener);
-			}
-		}
-		revisionListMenu.removeAll();
-		revisionListMenu.revalidate();
-		
-		System.out.println("revision menu was hovered over");
 		int i = 0;
+		revisionListMenu.removeAll();
+		 //revisionListMenu.revalidate();
 		for (String key : revisionKeys) {
 
 			JMenuItem newKey = new JMenuItem(key);
 			revisionKeyItems[i++] = newKey;
-
-
-			/*
-			 * newKey.addMouseListener(new MouseListener() {
-			 * 
-			 * @Override public void mousePressed(MouseEvent clickedOnKey) {
-			 * JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
-			 * String revisionKey = currentKey.getText();
-			 * 
-			 * try { toServer.writeObject(ClientRequest.REVERT_DOC);
-			 * toServer.writeObject(revisionKey); } catch (IOException e1) {
-			 * e1.printStackTrace(); } }
-			 * 
-			 * public void mouseReleased(MouseEvent e) {} public void
-			 * mouseClicked(MouseEvent e) { } public void
-			 * mouseEntered(MouseEvent e) {} public void mouseExited(MouseEvent
-			 * e) {} });
-			 */
-			revisionKeyItems[i-1].addActionListener(new ActionListener() {
+			newKey.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					JMenuItem currentKey = (JMenuItem) e.getSource();
 					String revisionKey = currentKey.getText();
-						System.out.println("about to sent revert_doc");
-						try {
-							toServer.writeObject(ClientRequest.REVERT_DOC);
-							toServer.writeObject(revisionKey);
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
+					System.out.println("about to sent revert_doc");
+					try {
+						System.out.println("revert_Doc has been sent!!!!");
+						toServer.writeObject(ClientRequest.REVERT_DOC);
+						toServer.writeObject(revisionKey);
+
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 			revisionListMenu.add(revisionKeyItems[i-1]);
@@ -1088,7 +1064,7 @@ public class EditorGUI extends JFrame {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			System.out.println("ABout to send get-revisions");
+			System.out.println("About to send get-revisions");
 			doClickGetRevisions();
 			System.out.println("just sent get-revisions");
 		}
