@@ -168,9 +168,11 @@ public class EditorGUI extends JFrame {
 		this.setLayout(new GridBagLayout());
 		this.setVisible(true);
 		layoutGUI();
+
 		// add users
 		currentEditors.add(documentGUI.getUserName());
 		refreshEditingUsersList(currentEditors);
+
 		// sets the text to the starting text
 		textArea.setText(startingText);
 		ServerListener serverListener = new ServerListener();
@@ -935,7 +937,6 @@ public class EditorGUI extends JFrame {
 						fontStyle.setEnabled(true);
 						linkButton.setEnabled(true);
 						bulletItem.setEnabled(true);
-
 						break;
 					default:
 						System.out.println("stopped the server listener");

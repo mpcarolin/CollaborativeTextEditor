@@ -589,6 +589,7 @@ public class DocumentSelectGUI extends JFrame {
 		case DOCUMENT_OPENED:
 		    toServer.flush();
 		    String text = (String) fromServer.readObject();
+		    //Set<String> = (String) fromServ
 		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text, docName);
 		    return;
 		default:
@@ -670,7 +671,8 @@ public class DocumentSelectGUI extends JFrame {
 
 	    if (list.isSelectionEmpty()) {
 	    } else {
-	    optionLabel.setText(docName + "'s Editors");
+	    String displayName = docName.substring(0, docName.indexOf("  -  "));
+	    optionLabel.setText(displayName + "'s Editors");
 		refreshEditingUserLists(docName);
 	    }
 	    list = null;

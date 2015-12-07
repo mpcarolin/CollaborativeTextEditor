@@ -322,18 +322,18 @@ class ClientHandler extends Thread {
 	List<String> usersOwnedDocuments = new ArrayList<String>();
 	for (String docName : currentUser.getOwnedDocuments()) {
 	    if (Server.allDocuments.get(docName).hasNoRevisions()) {
-		usersOwnedDocuments.add(docName + "    Last Revision: None");
+		usersOwnedDocuments.add(docName + "  -  Last Revision: None");
 	    } else {
-		usersOwnedDocuments.add(docName + "    Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
+		usersOwnedDocuments.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
 	    }
 	}
 
 	List<String> usersEditableDocuments = new ArrayList<String>();
 	for (String docName : currentUser.getEditableDocuments()) {
 	    if (Server.allDocuments.get(docName).hasNoRevisions()) {
-		usersEditableDocuments.add(docName + "    Last Revision: None");
+		usersEditableDocuments.add(docName + "  -  Last Revision: None");
 	    } else {
-		usersEditableDocuments.add(docName + "    Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
+		usersEditableDocuments.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
 	    }
 	}
 
@@ -348,7 +348,7 @@ class ClientHandler extends Thread {
     private void sendEditorList() throws ClassNotFoundException, IOException {
 	String fullDocName = (String) clientIn.readObject();
 	
-	String docName = fullDocName.substring(0, fullDocName.indexOf("    "));
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
 	System.out.println(docName);
 	
 	Document document = Server.allDocuments.get(docName);
@@ -448,7 +448,7 @@ class ClientHandler extends Thread {
     private void openDocument() throws ClassNotFoundException, IOException {
 	String fullDocName = (String) clientIn.readObject();
 	
-	String docName = fullDocName.substring(0, fullDocName.indexOf("    "));
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
 	System.out.println(docName);
 	
 	Document openingDoc = Server.allDocuments.get(docName);
