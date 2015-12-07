@@ -19,9 +19,6 @@ public class Revision implements Serializable {
 	revisingDate = LocalDate.now();
     }
 
-    /*
-     * Getter methods
-     */
     String getFullText() {
 	return newText;
     }

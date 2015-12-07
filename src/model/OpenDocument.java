@@ -32,7 +32,7 @@ public class OpenDocument {
    }
    
    void revert(String documentKey) {
-       document.setRevisionText(documentKey);
+       document.setTextToRevision(documentKey);
    }
    
    void removeEditor(ObjectOutputStream editorStream, String editorName) {
@@ -40,8 +40,8 @@ public class OpenDocument {
       editorNames.remove(editorName);
    }
    
-   void removeClosedEditorStreams(Set<ObjectOutputStream> droppedEditors) {
-      editorStreams.removeAll(droppedEditors);
+   void removeClosedEditorStreams(Set<ObjectOutputStream> closedEditors) {
+      editorStreams.removeAll(closedEditors);
    }
    
    boolean hasNoEditors() {
@@ -56,16 +56,16 @@ public class OpenDocument {
       document.replaceText(text);
    }
    
+   Document getDocument() {
+       return document;
+   }
+   
    Set<ObjectOutputStream> getEditorOutStreams() { 
       return editorStreams;
    }
    
    Set<String> getEditorNames() {
        return editorNames;
-   }
-   
-   Document getDocument() {
-       return document;
    }
    
    String getDocumentName() {

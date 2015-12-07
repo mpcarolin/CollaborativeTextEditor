@@ -7,8 +7,8 @@ import java.net.Socket;
 
 public class CollaborativeTextEditor {
 
-   private static final String ADDRESS = "helen.twilightparadox.com";
-   //private static final String ADDRESS = "localhost";
+   //private static final String ADDRESS = "helen.twilightparadox.com";
+   private static final String ADDRESS = "localhost";
    private static final int SERVER_PORT = 9001;
 
 
@@ -40,5 +40,4 @@ public class CollaborativeTextEditor {
      new DocumentSelectGUI(login.getUsername(), fromServer, toServer);
 
    }
-
 }

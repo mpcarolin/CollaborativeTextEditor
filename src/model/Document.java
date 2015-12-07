@@ -7,9 +7,9 @@ import java.util.List;
 public class Document implements Serializable {
 
     private static final long serialVersionUID = 8599807108117037091L;
-    private String currentText;
     private String documentName;
     private String ownerName;
+    private String currentText;
     private List<String> editorNames;
     private RevisionHistory history;
 
@@ -26,15 +26,11 @@ public class Document implements Serializable {
 	currentText = newText;
     }
 
-    // appends a string to the end of the doc; no spaces are inserted
     void append(String textToAppend, String revisingUser) {
 	currentText = currentText + textToAppend;
     }
 
-    // creates a new revision object with revising user and the current saved
-    // text
     void saveRevision(String revisingUser) {
-	// resize history if it exceeds constant
 	history.add(new Revision(currentText, revisingUser));
     }
 
@@ -82,7 +78,7 @@ public class Document implements Serializable {
 	editorNames.remove(username);
     }
     
-    void setRevisionText(String revisionKey) {
+    void setTextToRevision(String revisionKey) {
 	replaceText(history.getRevisionText(revisionKey));
     }
 }
