@@ -193,6 +193,19 @@ public class EditorGUI extends JFrame {
 		chatConstraints.gridheight = 1;
 		chatConstraints.weightx = 1;
 
+		JPanel toprightPanel = new JPanel();
+		toprightPanel.setBackground(Color.BLACK);
+		toprightPanel.setPreferredSize(new Dimension(400, 300));
+		toprightPanel.setMinimumSize(new Dimension(400, 300));
+		GridBagConstraints toprightConstraints = new GridBagConstraints();
+		toprightConstraints.anchor = GridBagConstraints.NORTHEAST;
+		toprightConstraints.gridx = 1;
+		toprightConstraints.gridy = 3;
+		toprightConstraints.gridheight = 1;
+		toprightConstraints.weightx = 1;
+		this.add(toprightPanel, toprightConstraints);
+
+		
 		// Button to begin chat
 		openChatButton = new JButton("Open Chat!");
 		openChatButton.addActionListener(new chatButtonListener());
@@ -369,10 +382,10 @@ public class EditorGUI extends JFrame {
 		// textArea.getDocument().addDocumentListener(new docListener());
 		JToolBar toolBar2 = new JToolBar();
 		toolBar2.setMinimumSize(new Dimension((int) screenWidth, 15));
-		toolBar2.add(new JLabel("Size:"));
-		toolBar2.add(font);
-		toolBar2.add(new JLabel("Fonts:"));
+		//toolBar2.add(new JLabel("Size:"));
 		toolBar2.add(fontStyle);
+		toolBar2.add(font);
+		///toolBar2.add(new JLabel("Fonts:"));
 		toolBar2.add(boldButton);
 		toolBar2.add(italicsButton);
 		toolBar2.add(underlineButton);
@@ -908,6 +921,8 @@ public class EditorGUI extends JFrame {
 						textArea.getDocument().removeDocumentListener(doclistener);
 						textArea.setText(updatedText);
 						textArea.getDocument().addDocumentListener(doclistener);
+//						textArea.setEditable(false);
+//						editButton.setEnabled(false);
 						break;
 					case CHAT_UPDATE:
 						String updatedChatText = (String) fromServer.readObject();
@@ -929,6 +944,17 @@ public class EditorGUI extends JFrame {
 						List<String> editingUsersList = (List<String>) fromServer.readObject();
 						refreshEditingUsersList(editingUsersList);
 						break; 
+					case DOCUMENT_UNEDITABLE:
+						String emptyString = (String) fromServer.readObject();
+						textArea.setEditable(false);
+						editButton.setEnabled(false);
+						System.out.print("made uneditable");
+						break;
+					case DOCUMENT_EDITABLE:
+						String emptyStringTwo = (String) fromServer.readObject();
+						textArea.setEditable(true);
+						editButton.setEnabled(true);
+						break;
 					default:
 						System.out.println("stopped the server listener");
 						stopRunning();
