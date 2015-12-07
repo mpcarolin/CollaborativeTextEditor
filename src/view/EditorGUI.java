@@ -96,6 +96,7 @@ public class EditorGUI extends JFrame {
 
 	// file dropdown menu items
 	private volatile JMenu revisionListMenu;
+	private volatile JMenuItem[] revisionKeyItems = new JMenuItem[10];
 
 	// menu items
 	private JMenuBar toolBar;
@@ -329,15 +330,19 @@ public class EditorGUI extends JFrame {
 		// fontStyle.setMinimumSize(new Dimension(50,30));
 		// fontStyle.setPreferredSize(new Dimension(50,30));
 
-		// File Menu Bar elements
+		/*
+		 *  File Menu Bar elements
+		 */
 		file = new JMenu("File");
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
+		
+	
 
 		/*
 		 * Mouse listener to obtain ten revisions from server
 		 */
-		revisionListMenu.addMouseListener(new LoadRevisionListener());
+		//revisionListMenu.addMouseListener(new LoadRevisionListener());
 
 		file.add(fileButton);
 		file.add(revisionListMenu);
@@ -356,19 +361,6 @@ public class EditorGUI extends JFrame {
 		}
 		font.setSelectedIndex(5);
 		font.setMinimumSize(new Dimension(50, 30));
-
-		// // set tool bar layout and location
-		// GridBagConstraints toolbarConstraint = new GridBagConstraints();
-		// toolbarConstraint.anchor = GridBagConstraints.NORTHWEST;
-		// toolbarConstraint.gridx = 0;
-		// toolbarConstraint.gridy = 0;
-		// toolbarConstraint.fill = GridBagConstraints.EAST;
-		// toolbarConstraint.gridheight = 1;
-		// toolbarConstraint.gridwidth = 3;
-		// toolbarConstraint.weighty = 0;
-		// toolbarConstraint.weightx = 0;
-		// this.add(toolBar, toolbarConstraint);
-		// this.setJMenuBar(toolBar);
 
 		// textArea.getDocument().addDocumentListener(new docListener());
 		JToolBar toolBar2 = new JToolBar();
@@ -557,7 +549,7 @@ public class EditorGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			try {
 				toServer.writeObject(ClientRequest.UNDO);
-				System.out.println("Reverted to most recent revision");
+				System.out.println("Reverted to most recent revision through undo");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -900,6 +892,7 @@ public class EditorGUI extends JFrame {
 			while (isRunning) {
 				// obtain updated doc text from server in a try-catch
 				try {
+					System.out.println("About to read from server");
 					ServerResponse response = (ServerResponse) fromServer.readObject();
 					System.out.println(response);
 					switch (response) {
@@ -925,8 +918,18 @@ public class EditorGUI extends JFrame {
 						refreshRevisionPopUp(revisionKeys);
 						break;
 					case DOCUMENT_REVERTED:
+						System.out.println("document about to be reverted");
 						String revertedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(revertedText);
+						break;
+					case DOCUMENT_UNEDITABLE:
+						String emptyString = (String) fromServer.readObject();
+						textArea.setEditable(false);
+						editButton.setEnabled(false);
+					case DOCUMENT_EDITABLE:
+						String emptyStringTwo = (String) fromServer.readObject();
+						textArea.setEditable(true);
+						editButton.setEnabled(true);
 						break;
 					default:
 						System.out.println("stopped the server listener");
@@ -952,29 +955,13 @@ public class EditorGUI extends JFrame {
 	 * to send back a string that represents a earlier revision
 	 */
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
+		int i = 0;
 		revisionListMenu.removeAll();
 		 //revisionListMenu.revalidate();
-
 		for (String key : revisionKeys) {
-			JMenuItem newKey = new JMenuItem(key);
 
-			/*
-			  newKey.addMouseListener(new MouseListener() {
-			  
-			  @Override public void mousePressed(MouseEvent clickedOnKey) {
-			  JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
-			  String revisionKey = currentKey.getText();
-			  
-			  try { toServer.writeObject(ClientRequest.REVERT_DOC);
-			  toServer.writeObject(revisionKey); } catch (IOException e1) {
-			  e1.printStackTrace(); } }
-			  
-			  public void mouseReleased(MouseEvent e) {} public void
-			  mouseClicked(MouseEvent e) { } public void
-			   mouseEntered(MouseEvent e) {} public void mouseExited(MouseEvent
-			   e) {} });
-			   */
-			 
+			JMenuItem newKey = new JMenuItem(key);
+			revisionKeyItems[i++] = newKey;
 			newKey.addActionListener(new ActionListener() {
 
 				@Override
@@ -992,12 +979,13 @@ public class EditorGUI extends JFrame {
 					}
 				}
 			});
-			revisionListMenu.add(newKey);
+			revisionListMenu.add(revisionKeyItems[i-1]);
+			System.out.println("Just added an action listener to: " + key);
 		}
 
 		System.out.println("updated the pop ups!");
 	}
-
+	
 	// revision
 	public void updateRevisionEditorGui() {
 
@@ -1005,10 +993,11 @@ public class EditorGUI extends JFrame {
 
 	public void updatedoc(String text) {
 		// iSentThis = true;
-		//textArea.setText("");
+		System.out.println("About to update doc");
 		textArea.getDocument().removeDocumentListener(doclistener);
 		textArea.setText(text);
 		textArea.getDocument().addDocumentListener(doclistener);
+		System.out.println("updated the doc");
 	}
 
 	public void updatechat(String text) {
@@ -1056,8 +1045,9 @@ public class EditorGUI extends JFrame {
 		// then stop the timer so it doesn't repeat revision requests
 		public void actionPerformed(ActionEvent e) {
 			try {
-				System.out.println("saved revision");
 				toServer.writeObject(ClientRequest.SAVE_REVISION);
+				System.out.println("saved revision");
+				toServer.writeObject(ClientRequest.GET_REVISIONS);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				// stop timer regardless of server communication success
@@ -1098,7 +1088,8 @@ public class EditorGUI extends JFrame {
 			 * }
 			 */
 		}
-
+	}
+	
 		public void doClickGetRevisions() {
 			try {
 				toServer.writeObject(ClientRequest.GET_REVISIONS);
@@ -1106,7 +1097,6 @@ public class EditorGUI extends JFrame {
 				io.printStackTrace();
 			}
 		}
-	}
 
 	// testing
 	public static void main(String[] args) {
