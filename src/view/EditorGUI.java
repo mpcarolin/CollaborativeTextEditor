@@ -365,10 +365,10 @@ public class EditorGUI extends JFrame {
 		// textArea.getDocument().addDocumentListener(new docListener());
 		JToolBar toolBar2 = new JToolBar();
 		toolBar2.setMinimumSize(new Dimension((int) screenWidth, 15));
-		toolBar2.add(new JLabel("Size:"));
-		toolBar2.add(font);
-		toolBar2.add(new JLabel("Fonts:"));
+		//toolBar2.add(new JLabel("Size:"));
 		toolBar2.add(fontStyle);
+		toolBar2.add(font);
+		///toolBar2.add(new JLabel("Fonts:"));
 		toolBar2.add(boldButton);
 		toolBar2.add(italicsButton);
 		toolBar2.add(underlineButton);
