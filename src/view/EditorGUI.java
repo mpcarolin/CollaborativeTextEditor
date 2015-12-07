@@ -210,8 +210,8 @@ public class EditorGUI extends JFrame {
 		toprightConstraints.weightx = 1;
 		this.add(toprightPanel, toprightConstraints);
 		JPanel topRightInner = new JPanel(new BorderLayout());
-		toprightPanel.setPreferredSize(new Dimension(300, 250));
-		toprightPanel.setMinimumSize(new Dimension(300, 250));
+		topRightInner.setPreferredSize(new Dimension(300, 250));
+		topRightInner.setMinimumSize(new Dimension(300, 250));
 		JPanel topRightInnerMost = new JPanel(new BorderLayout());
 		JLabel editingUsersLabel = new JLabel("Currently Editing Users:");
 		editingUsersLabel.setSize(250, 50);
