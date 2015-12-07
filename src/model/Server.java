@@ -227,10 +227,10 @@ class ClientHandler extends Thread {
                break;
             case GET_REVISIONS:
         	sendRevisionList();
-        		break;
+        	break;
             case REVERT_DOC:
         	revertDocument();
-        		break;
+        	break;
             case CLOSE_DOC:
                closeDocument();
                break;
@@ -456,14 +456,19 @@ class ClientHandler extends Thread {
     */
    private void updateDocument() throws ClassNotFoundException, IOException {
       currentOpenDoc.updateText((String) clientIn.readObject());
+      
+      sendUpdateToClients(ServerResponse.DOCUMENT_UNEDITABLE, "", false);
+      
       sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), false);
    }
 
    /*
-    * Saves a revision.
+    * Saves a revision. Tells clients that the current openDocument is editable.
     */
    private void saveRevision() {
       currentOpenDoc.saveRevision(currentUser.getName());
+      currentOpenDoc.setCurrentEditor(null);
+      sendUpdateToClients(ServerResponse.DOCUMENT_EDITABLE, "", false);
    }
    
    /*

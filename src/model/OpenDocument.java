@@ -9,11 +9,21 @@ public class OpenDocument {
    
    private Document document;
    private Set<ObjectOutputStream> editingUsers;
+   private List<String> editingUserNames;
+   private String currentEditorName;
    
    public OpenDocument(Document document, ObjectOutputStream openingUser) {
       this.document = document;
       editingUsers = new HashSet<ObjectOutputStream>();
       addEditor(openingUser);
+   }
+   
+   public void setCurrentEditor(String editorName) {
+       currentEditorName = editorName;
+   }
+   
+   public String getCurrentEditor() {
+       return currentEditorName;
    }
    
    public void addEditor(ObjectOutputStream newEditor) {
@@ -33,7 +43,7 @@ public class OpenDocument {
    }
    
    public void removeEditor(ObjectOutputStream oldEditor) {
-      System.out.println(editingUsers.remove(oldEditor));  // debugging
+      editingUsers.remove(oldEditor);
    }
    
    public void removeClosedEditorStreams(Set<ObjectOutputStream> oldEditors) {
