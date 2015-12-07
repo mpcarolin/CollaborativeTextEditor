@@ -968,7 +968,6 @@ public class EditorGUI extends JFrame {
 						fontStyle.setEnabled(false);
 						linkButton.setEnabled(false);
 						bulletItem.setEnabled(false);
-
 						break;
 					case DOCUMENT_EDITABLE:
 						String emptyStringTwo = (String) fromServer.readObject();
