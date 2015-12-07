@@ -231,6 +231,7 @@ class ClientHandler extends Thread {
             case REVERT_DOC:
         	System.out.println("In servers revert_doc case in switch");
         	revertDocument();
+        	break;
             case CLOSE_DOC:
                closeDocument();
                break;

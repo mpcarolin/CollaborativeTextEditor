@@ -908,7 +908,10 @@ public class EditorGUI extends JFrame {
 						break;
 					case DOCUMENT_UPDATE:
 						String updatedText = (String) fromServer.readObject();
-						EditorGUI.this.updatedoc(updatedText);
+						//EditorGUI.this.updatedoc(updatedText);
+						textArea.getDocument().removeDocumentListener(doclistener);
+						textArea.setText(updatedText);
+						textArea.getDocument().addDocumentListener(doclistener);
 						break;
 					case CHAT_UPDATE:
 						String updatedChatText = (String) fromServer.readObject();
@@ -950,27 +953,28 @@ public class EditorGUI extends JFrame {
 	 */
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
 		revisionListMenu.removeAll();
-		 revisionListMenu.revalidate();
+		 //revisionListMenu.revalidate();
 
 		for (String key : revisionKeys) {
 			JMenuItem newKey = new JMenuItem(key);
 
 			/*
-			 * newKey.addMouseListener(new MouseListener() {
-			 * 
-			 * @Override public void mousePressed(MouseEvent clickedOnKey) {
-			 * JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
-			 * String revisionKey = currentKey.getText();
-			 * 
-			 * try { toServer.writeObject(ClientRequest.REVERT_DOC);
-			 * toServer.writeObject(revisionKey); } catch (IOException e1) {
-			 * e1.printStackTrace(); } }
-			 * 
-			 * public void mouseReleased(MouseEvent e) {} public void
-			 * mouseClicked(MouseEvent e) { } public void
-			 * mouseEntered(MouseEvent e) {} public void mouseExited(MouseEvent
-			 * e) {} });
-			 */
+			  newKey.addMouseListener(new MouseListener() {
+			  
+			  @Override public void mousePressed(MouseEvent clickedOnKey) {
+			  JMenuItem currentKey = (JMenuItem)clickedOnKey.getSource();
+			  String revisionKey = currentKey.getText();
+			  
+			  try { toServer.writeObject(ClientRequest.REVERT_DOC);
+			  toServer.writeObject(revisionKey); } catch (IOException e1) {
+			  e1.printStackTrace(); } }
+			  
+			  public void mouseReleased(MouseEvent e) {} public void
+			  mouseClicked(MouseEvent e) { } public void
+			   mouseEntered(MouseEvent e) {} public void mouseExited(MouseEvent
+			   e) {} });
+			   */
+			 
 			newKey.addActionListener(new ActionListener() {
 
 				@Override
@@ -979,6 +983,7 @@ public class EditorGUI extends JFrame {
 					String revisionKey = currentKey.getText();
 					System.out.println("about to sent revert_doc");
 					try {
+						System.out.println("revert_Doc has been sent!!!!");
 						toServer.writeObject(ClientRequest.REVERT_DOC);
 						toServer.writeObject(revisionKey);
 
@@ -1000,10 +1005,10 @@ public class EditorGUI extends JFrame {
 
 	public void updatedoc(String text) {
 		// iSentThis = true;
-		textArea.setText("");
+		//textArea.setText("");
 		textArea.getDocument().removeDocumentListener(doclistener);
 		textArea.setText(text);
-		textArea.getDocument().addDocumentListener(doclistener = new docListener());
+		textArea.getDocument().addDocumentListener(doclistener);
 	}
 
 	public void updatechat(String text) {
