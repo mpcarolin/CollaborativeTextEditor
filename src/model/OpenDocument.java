@@ -31,8 +31,8 @@ public class OpenDocument {
       return document.getLastRevisionText();
    }
    
-   void revert(String documentKey) {
-       document.setTextToRevision(documentKey);
+   void revert(String revisionKey) {
+       document.setTextToRevision(revisionKey);
    }
    
    void removeEditor(ObjectOutputStream editorStream, String editorName) {
