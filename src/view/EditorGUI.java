@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -99,7 +99,7 @@ public class EditorGUI extends JFrame {
 	// private volatile List<String> editingUsersList;
 	private JList<String> editingUsersJList;
 	private DefaultListModel<String> editorListModel;
-	private volatile Set<String> currentEditors;
+	private volatile Set<String> currentEditors = new HashSet<String>(4);
 
 	// menu items
 	private JMenuBar toolBar;
@@ -549,26 +549,15 @@ public class EditorGUI extends JFrame {
 	}
 
 	private class mouseListener implements MouseListener {
-		@Override
-		public void mouseClicked(MouseEvent e) {
-		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
 			carrotPosition = textArea.getCaretPosition();
 		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-		}
+		public void mouseClicked(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
 	}
 
 	private class undoListener implements ActionListener {
