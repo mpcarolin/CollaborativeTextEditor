@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -97,7 +98,7 @@ public class EditorGUI extends JFrame {
 	// private volatile List<String> editingUsersList;
 	private JList<String> editingUsersJList;
 	private DefaultListModel<String> editorListModel;
-	private volatile Set<String> currentEditors;
+	private volatile Set<String> currentEditors = new HashSet<String>(4);
 
 	// menu items
 	private JMenuBar toolBar;
@@ -215,11 +216,13 @@ public class EditorGUI extends JFrame {
 		topRightInnerMost.setBorder(BorderFactory.createLineBorder(Color.black));
 		JLabel editingUsersLabel = new JLabel("Currently Editing Users:");
 		editingUsersLabel.setSize(250, 50);
+		topRightInner.setBackground(Color.LIGHT_GRAY);
 		topRightInnerMost.add(editingUsersJList, BorderLayout.CENTER);
 		topRightInner.add(editingUsersLabel, BorderLayout.NORTH);
 		topRightInner.add(topRightInnerMost, BorderLayout.CENTER);
 		GridBagConstraints topRightInnerConstraints = new GridBagConstraints();
 		topRightInnerConstraints.anchor = GridBagConstraints.NORTHEAST;
+		topRightInner.setBorder(BorderFactory.createRaisedBevelBorder());
 		toprightPanel.add(topRightInner, topRightInnerConstraints);
 
 		// Button to begin chat
@@ -516,26 +519,15 @@ public class EditorGUI extends JFrame {
 	}
 
 	private class mouseListener implements MouseListener {
-		@Override
-		public void mouseClicked(MouseEvent e) {
-		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
 			carrotPosition = textArea.getCaretPosition();
 		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-		}
+		public void mouseClicked(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
 	}
 	// Request for the last revision when Undo is Pressed
 	private class undoListener implements ActionListener {

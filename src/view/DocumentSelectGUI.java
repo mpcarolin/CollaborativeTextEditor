@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -33,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -55,6 +57,7 @@ public class DocumentSelectGUI extends JFrame {
     private JButton createDoc, deleteDoc, openDoc, refreshList, removeUser, addUser;
     private String userName;
     private Font font;
+    private JLabel optionLabel;
 
     public DocumentSelectGUI(String username, ObjectInputStream fromServer, ObjectOutputStream toServer) {
 	this.userName = username;
@@ -192,7 +195,7 @@ public class DocumentSelectGUI extends JFrame {
 	} else {
 	    documentLabel = new JLabel(userName + "'s Documents", SwingConstants.CENTER);
 	}
-	JLabel optionLabel = new JLabel("Users with access to the selected document", SwingConstants.CENTER);
+	optionLabel = new JLabel(" Editors", SwingConstants.CENTER);
 	JPanel optionPanelInner = new JPanel();
 	JPanel topInnerOption = new JPanel();
 	JPanel bottomInnerOption = new JPanel();
@@ -230,6 +233,7 @@ public class DocumentSelectGUI extends JFrame {
 	topHolder.setLayout(new BorderLayout());
 	topHolder.setBackground(Color.WHITE);
 	topHolder.add(editingUsersJList);
+	topHolder.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 	bottomHolder.setLayout(new BorderLayout());
 	bottomHolder.setBackground(Color.WHITE);
 	JLabel removeUsers = new JLabel("Select a user to add", SwingConstants.CENTER);
@@ -240,6 +244,7 @@ public class DocumentSelectGUI extends JFrame {
 	bottomInnerOption.add(bottomHolder, BorderLayout.CENTER);
 	bottomInnerOption.add(addUser, BorderLayout.SOUTH);
 	bottomHolder.add(searchBar, BorderLayout.SOUTH);
+	bottomHolder.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 	optionPanelInner.add(topInnerOption);
 	optionPanelInner.add(bottomInnerOption);
 	optionPanel.add(optionPanelInner, BorderLayout.CENTER);
@@ -665,6 +670,7 @@ public class DocumentSelectGUI extends JFrame {
 
 	    if (list.isSelectionEmpty()) {
 	    } else {
+	    optionLabel.setText(docName + "'s Editors");
 		refreshEditingUserLists(docName);
 	    }
 	    list = null;

@@ -21,6 +21,10 @@ public class RevisionHistory implements Serializable {
 	revisionDeque = new ArrayDeque<Revision>();
 	tenRevisions = new ArrayList<String>();
     }
+    
+    public boolean isEmpty() {
+	return revisionDeque.isEmpty();
+    }
 
     public void add(Revision revision) {
 	// replace 3 with 100 after testing
@@ -40,6 +44,14 @@ public class RevisionHistory implements Serializable {
     public String peekLastRevisionText() {
 	if (revisionDeque.size() != 0) {
 	    return revisionDeque.peekFirst().getFullText();
+	} else {
+	    return "";
+	}
+    }
+    
+    public String peekLastRevisionKey() {
+	if (revisionDeque.size() != 0) {
+	    return revisionDeque.peekFirst().toString();
 	} else {
 	    return "";
 	}
