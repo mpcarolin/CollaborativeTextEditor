@@ -16,17 +16,17 @@ public class RevisionHistory implements Serializable {
     private Deque<Revision> revisionDeque;
     private List<String> tenRevisions;
 
-    public RevisionHistory() {
+    RevisionHistory() {
 	revisionMap = new HashMap<String, String>();
 	revisionDeque = new ArrayDeque<Revision>();
 	tenRevisions = new ArrayList<String>();
     }
     
-    public boolean isEmpty() {
+    boolean isEmpty() {
 	return revisionDeque.isEmpty();
     }
 
-    public void add(Revision revision) {
+    void add(Revision revision) {
 	// replace 3 with 100 after testing
 	if (revisionDeque.size() % 3 == 0) {
 	    if (tenRevisions.size() == 10) {
@@ -41,7 +41,7 @@ public class RevisionHistory implements Serializable {
 	revisionMap.put(revision.toString(), revision.getFullText());
     }
 
-    public String peekLastRevisionText() {
+    String peekLastRevisionText() {
 	if (revisionDeque.size() != 0) {
 	    return revisionDeque.peekFirst().getFullText();
 	} else {
@@ -49,7 +49,7 @@ public class RevisionHistory implements Serializable {
 	}
     }
     
-    public String peekLastRevisionKey() {
+    String peekLastRevisionKey() {
 	if (revisionDeque.size() != 0) {
 	    return revisionDeque.peekFirst().toString();
 	} else {
@@ -57,7 +57,7 @@ public class RevisionHistory implements Serializable {
 	}
     }
 
-    public String getLastRevisionText() {
+    String getLastRevisionText() {
 	if (revisionDeque.size() != 0) {
 	    revisionMap.remove(revisionDeque.peekFirst().toString());
 	    return revisionDeque.removeFirst().getFullText();
@@ -66,12 +66,12 @@ public class RevisionHistory implements Serializable {
 	}
     }
 
-    public String getRevisionText(String revisionKey) {
+    String getRevisionText(String revisionKey) {
 	String documentText = revisionMap.get(revisionKey);
 	return documentText;
     }
 
-    public List<String> getTenRevisionKeys() {
+    List<String> getTenRevisionKeys() {
 	return tenRevisions;
     }
 }

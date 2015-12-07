@@ -171,7 +171,7 @@ public class EditorGUI extends JFrame {
 
 		// add users
 		currentEditors.add(documentGUI.getUserName());
-		refreshEditingUsersList(currentEditors);
+		refreshEditingUsersList();
 
 		// sets the text to the starting text
 		textArea.setText(startingText);
@@ -848,10 +848,10 @@ public class EditorGUI extends JFrame {
 	}
 
 	// A panel to show the users currently editing
-	private void refreshEditingUsersList(Set<String> editingUsersList) {
+	private void refreshEditingUsersList() {
 		editorListModel.clear();
-		for (String username : editingUsersList) {
-			currentEditors.add(username);
+		for (String username : currentEditors) {
+			//currentEditors.add(username);
 			if (!editorListModel.contains(username)) {
 				editorListModel.addElement(username);
 			}
@@ -866,6 +866,7 @@ public class EditorGUI extends JFrame {
 		private volatile boolean isRunning = true;
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void run() {
 			while (isRunning) {
 				// obtain updated doc text from server in a try-catch
@@ -901,13 +902,8 @@ public class EditorGUI extends JFrame {
 						EditorGUI.this.updatedoc(revertedText);
 						break;
 					case CURRENT_EDITORS:
-						@SuppressWarnings("unchecked")
-						Set<String> editingUsersList = (Set<String>) fromServer.readObject();
-						refreshEditingUsersList(editingUsersList);
-						break;
-					case CURRENT_TYPER:
-						String currentEditor = (String) fromServer.readObject();
-						setCurrentTyper(currentEditor);
+						EditorGUI.this.currentEditors = (Set<String>) fromServer.readObject();
+						refreshEditingUsersList();
 						break;
 					case DOCUMENT_UNEDITABLE:
 						@SuppressWarnings("unused")
@@ -961,6 +957,7 @@ public class EditorGUI extends JFrame {
 		}
 
 		private void clearLastTyper() {
+			editorListModel.clear();
 			for (String editor : currentEditors) {
 				CharSequence sequence = "\t-\t(Currently Editing)";
 				if (editor.contains(sequence)) {
@@ -973,34 +970,26 @@ public class EditorGUI extends JFrame {
 		}
 
 		private void setCurrentTyper(String username) {
+			Set<String> newEditorList = new HashSet<String>();
 			int indexToSelect = 0;
-			/*
-			Object[] editors = currentEditors.toArray();
-			//for (String editor : currentEditors) {
-			for (int i = 0; i < editors.length; i++) {
-				String editor = editors[i];
-				CharSequence sequence = "\t-\t(Currently Editing)";
-				if (editor.equals(username)) {
-					editor = editor + sequence;
-					indexToSelect = i;
-				}
-			}
-			*/
-		
 			int i = 0;
 			for (String editor : currentEditors) {
 				CharSequence sequence = "   -   (Currently Editing)";
 				if (editor.equals(username)) {
+					System.out.println("Add:" + editor);
 					indexToSelect = i;
 					editor = editor + sequence;
-				} else if (editor.contains(sequence)) {
-					editor = editor.substring(0, editor.indexOf(" "));
+//				} else if (editor.contains(sequence)) {
+//					System.out.println(editor);
+//					editor = editor.substring(0, editor.indexOf(" "));
 				}
+				newEditorList.add(editor);
 				i++;
 			}
 			
+			currentEditors = newEditorList;
+			refreshEditingUsersList();
 			editingUsersJList.setSelectedIndex(indexToSelect);
-			refreshEditingUsersList(currentEditors);
 		}
 
 		private void stopRunning() throws IOException {
