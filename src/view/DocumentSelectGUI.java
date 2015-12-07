@@ -588,6 +588,7 @@ public class DocumentSelectGUI extends JFrame {
 		case DOCUMENT_OPENED:
 		    toServer.flush();
 		    String text = (String) fromServer.readObject();
+		    //Set<String> = (String) fromServ
 		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text, docName);
 		    return;
 		default:

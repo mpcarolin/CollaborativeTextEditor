@@ -172,7 +172,7 @@ public class EditorGUI extends JFrame {
 		layoutGUI();
 		
 		// add 
-		currentEditors.add(documentGUI.getUserName());
+		//currentEditors.add(documentGUI.getUserName());
 		refreshEditingUsersList(currentEditors);
 
 		textArea.setText(startingText);
@@ -644,33 +644,6 @@ public class EditorGUI extends JFrame {
 		}
 	}
 
-	//
-	// private class DocCharacterListener implements KeyListener {
-	// // ascii-48-126
-	// @Override
-	// public void keyTyped(KeyEvent e) {
-	// }
-	//
-	// @Override
-	// public void keyPressed(KeyEvent e) {
-	// // starts a timer waiting for a pause to send the revision command
-	// startTimer();
-	// }
-	//
-	// @Override
-	// public void keyReleased(KeyEvent e) {
-	// try {
-	// // System.out.print("I got to the KeyListener :" +
-	// // textArea.getText());
-	// toServer.writeObject(ClientRequest.DOC_TEXT);
-	// toServer.writeObject(textArea.getText());
-	// } catch (IOException e1) {
-	// e1.printStackTrace();
-	// }
-	//
-	// }
-	// }
-
 	private class docListener implements DocumentListener {
 		@Override
 		public void insertUpdate(DocumentEvent e) {
@@ -986,7 +959,6 @@ public class EditorGUI extends JFrame {
 						fontStyle.setEnabled(true);
 						linkButton.setEnabled(true);
 						bulletItem.setEnabled(true);
-
 						break;
 					default:
 						System.out.println("stopped the server listener");
