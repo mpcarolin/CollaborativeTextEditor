@@ -193,6 +193,15 @@ public class EditorGUI extends JFrame {
 		chatConstraints.gridheight = 1;
 		chatConstraints.weightx = 1;
 
+		/*
+		 * Editor JList and related components
+		 */
+		//editingUsersList = new ArrayList<String>(4);
+		editorListModel = new DefaultListModel<String>();
+		editingUsersJList = new JList<String>();
+//		JPanel topRightPanel = new JPanel(); 
+//		rightPanel.add(toprightPanel,  chatConstraints.ABOVE_BASELINE);
+//		toprightPanel.setBackground(Color.BLACK);
 		JPanel toprightPanel = new JPanel();
 		toprightPanel.setBackground(Color.BLACK);
 		toprightPanel.setPreferredSize(new Dimension(400, 300));
@@ -203,6 +212,8 @@ public class EditorGUI extends JFrame {
 		toprightConstraints.gridy = 3;
 		toprightConstraints.gridheight = 1;
 		toprightConstraints.weightx = 1;
+		editingUsersJList.setBackground(Color.BLUE);
+		toprightPanel.add(editingUsersJList, BorderLayout.CENTER);
 		this.add(toprightPanel, toprightConstraints);
 
 		
@@ -348,17 +359,8 @@ public class EditorGUI extends JFrame {
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
 		
-		/*
-		 * Editor JList and related components
-		 */
-		//editingUsersList = new ArrayList<String>(4);
-		editorListModel = new DefaultListModel<String>();
-		editingUsersJList = new JList<String>();
-		JPanel topRightPanel = new JPanel(); 
-		rightPanel.add(topRightPanel,  chatConstraints.ABOVE_BASELINE);
-		topRightPanel.setBackground(Color.BLACK);
-		topRightPanel.add(editingUsersJList, BorderLayout.NORTH);
-		editingUsersJList.setBackground(Color.BLUE);
+		
+		
 		
 		
 		file.add(fileButton);
