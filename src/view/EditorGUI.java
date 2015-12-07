@@ -905,6 +905,8 @@ public class EditorGUI extends JFrame {
 						textArea.getDocument().removeDocumentListener(doclistener);
 						textArea.setText(updatedText);
 						textArea.getDocument().addDocumentListener(doclistener);
+//						textArea.setEditable(false);
+//						editButton.setEnabled(false);
 						break;
 					case CHAT_UPDATE:
 						String updatedChatText = (String) fromServer.readObject();
