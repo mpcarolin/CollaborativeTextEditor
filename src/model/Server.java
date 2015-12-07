@@ -585,7 +585,6 @@ class ClientHandler extends Thread {
      * Logs out the current User and closes the connection.
      */
     private void logoutAndCloseConnection() {
-	// currentOpenDoc.removeEditor(clientOut);
 	Server.clientOutStreams.remove(clientOut);
 	currentUser.setLogin(false);
 	isRunning = false;
