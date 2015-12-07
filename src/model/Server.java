@@ -448,7 +448,7 @@ class ClientHandler extends Thread {
     */
    private void updateChat() throws ClassNotFoundException, IOException {
       String chatMessage = currentUser.getName() + ": " + (String) clientIn.readObject();
-      sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage, false);
+      sendUpdateToClients(ServerResponse.CHAT_UPDATE, chatMessage, true);
    }
 
    /*
@@ -468,7 +468,7 @@ class ClientHandler extends Thread {
    private void saveRevision() {
       currentOpenDoc.saveRevision(currentUser.getName());
       currentOpenDoc.setCurrentEditor(null);
-      sendUpdateToClients(ServerResponse.DOCUMENT_EDITABLE, "", false);
+      sendUpdateToClients(ServerResponse.DOCUMENT_EDITABLE, "", true);
    }
    
    /*
@@ -508,7 +508,7 @@ class ClientHandler extends Thread {
       removeStreams = false;
       Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
       for (ObjectOutputStream editorOutStream : currentOpenDoc.getOutStreams()) {
-         if (!revertingDoc && response == ServerResponse.DOCUMENT_UPDATE && editorOutStream == clientOut) {
+         if (!revertingDoc && editorOutStream == clientOut) {
             continue;
          }
          try {
