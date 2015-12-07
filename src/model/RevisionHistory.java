@@ -21,6 +21,10 @@ public class RevisionHistory implements Serializable {
 	revisionDeque = new ArrayDeque<Revision>();
 	tenRevisions = new ArrayList<String>();
     }
+    
+    public boolean isEmpty() {
+	return revisionDeque.isEmpty();
+    }
 
     public void add(Revision revision) {
 	// replace 3 with 100 after testing

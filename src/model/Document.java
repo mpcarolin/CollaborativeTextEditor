@@ -47,6 +47,10 @@ public class Document implements Serializable {
 	return currentText;
     }
     
+    public boolean hasNoRevisions() {
+	return history.isEmpty();
+    }
+    
     public String getLastRevisionText() {
 	return history.getLastRevisionText();
     }

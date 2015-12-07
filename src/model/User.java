@@ -72,14 +72,10 @@ public class User implements Serializable {
    }
    
    public List<String> getOwnedDocuments() {
-      List<String> copy = new ArrayList<String>();
-      copy.addAll(ownedDocuments);
-      return copy;
+      return ownedDocuments;
    }
    
    public List<String> getEditableDocuments() {
-      List<String> copy = new ArrayList<String>();
-      copy.addAll(editableDocuments);
-      return copy;
+      return editableDocuments;
    }
 }
