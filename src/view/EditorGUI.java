@@ -886,10 +886,15 @@ public class EditorGUI extends JFrame {
 						Set<String> editingUsersList = (Set<String>) fromServer.readObject();
 						refreshEditingUsersList(editingUsersList);
 						break;
+					case CURRENT_TYPER:
+						String currentEditor = (String) fromServer.readObject();
+						setCurrentTyper(currentEditor);
+						break;
 					case DOCUMENT_UNEDITABLE:
-						//eventually make it so the server doesn't send anything
 						@SuppressWarnings("unused")
-						String emptyString = (String) fromServer.readObject();
+						String username = (String) fromServer.readObject();
+						setCurrentTyper(username);
+
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
 						System.out.print("made uneditable");
@@ -908,7 +913,8 @@ public class EditorGUI extends JFrame {
 					case DOCUMENT_EDITABLE:
 						//eventually make it so the server doesn't send anything
 						@SuppressWarnings("unused")
-						String emptyStringTwo = (String) fromServer.readObject();
+						String empty = (String) fromServer.readObject();
+						clearLastTyper();
 						rightAlign.setEnabled(true);
 						leftAlign.setEnabled(true);
 						centerAlign.setEnabled(true);
@@ -934,6 +940,35 @@ public class EditorGUI extends JFrame {
 				}
 			}
 		}
+
+		private void clearLastTyper() {
+			for (String editor : currentEditors) {
+				CharSequence sequence = "\t-\t(Currently Editing)";
+				if (editor.contains(sequence)) {
+					editor = editor.substring(0, editor.indexOf("\t"));
+				}
+				editorListModel.addElement(editor);
+			}
+			editingUsersJList.setModel(editorListModel);
+			
+		}
+
+		private void setCurrentTyper(String username) {
+			int indexToSelect = 0;
+			String[] editors = (String[]) currentEditors.toArray();
+			//for (String editor : currentEditors) {
+			for (int i = 0; i < editors.length; i++) {
+				String editor = editors[i];
+				CharSequence sequence = "\t-\t(Currently Editing)";
+				if (editor.equals(username)) {
+					editor = editor + sequence;
+					indexToSelect = i;
+				}
+			}
+			editingUsersJList.setSelectedIndex(indexToSelect);
+			refreshEditingUsersList((Set<String>)currentEditors);
+		}
+
 		private void stopRunning() throws IOException {
 			isRunning = false;
 			toServer.reset();
