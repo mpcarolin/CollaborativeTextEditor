@@ -928,6 +928,8 @@ public class EditorGUI extends JFrame {
 						String emptyString = (String) fromServer.readObject();
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
+						System.out.print("made uneditable");
+						break;
 					case DOCUMENT_EDITABLE:
 						String emptyStringTwo = (String) fromServer.readObject();
 						textArea.setEditable(true);
