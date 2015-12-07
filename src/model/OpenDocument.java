@@ -8,14 +8,15 @@ import java.util.Set;
 public class OpenDocument {
    
    private Document document;
-   private Set<ObjectOutputStream> editingUsers;
-   private List<String> editingUserNames;
+   private Set<ObjectOutputStream> editorStreams;
+   private Set<String> editorNames;
    private String currentEditorName;
    
-   public OpenDocument(Document document, ObjectOutputStream openingUser) {
+   public OpenDocument(Document document, ObjectOutputStream editorStream, String editorName) {
       this.document = document;
-      editingUsers = new HashSet<ObjectOutputStream>();
-      addEditor(openingUser);
+      editorStreams = new HashSet<ObjectOutputStream>();
+      editorNames = new HashSet<String>();
+      addEditor(editorStream, editorName);
    }
    
    public void setCurrentEditor(String editorName) {
@@ -26,8 +27,9 @@ public class OpenDocument {
        return currentEditorName;
    }
    
-   public void addEditor(ObjectOutputStream newEditor) {
-      editingUsers.add(newEditor);
+   public void addEditor(ObjectOutputStream editorStream, String editorName) {
+      editorStreams.add(editorStream);
+      editorNames.add(editorName);
    }
    
    public void saveRevision(String username) {
@@ -42,16 +44,17 @@ public class OpenDocument {
        document.setRevisionText(documentKey);
    }
    
-   public void removeEditor(ObjectOutputStream oldEditor) {
-      editingUsers.remove(oldEditor);
+   public void removeEditor(ObjectOutputStream editorStream, String editorName) {
+      editorStreams.remove(editorStream);
+      editorNames.remove(editorName);
    }
    
-   public void removeClosedEditorStreams(Set<ObjectOutputStream> oldEditors) {
-      editingUsers.removeAll(oldEditors);
+   public void removeClosedEditorStreams(Set<ObjectOutputStream> droppedEditors) {
+      editorStreams.removeAll(droppedEditors);
    }
    
    public boolean hasNoEditors() {
-      return editingUsers.isEmpty();
+      return editorStreams.isEmpty();
    }
    
    public String getText() {
@@ -62,8 +65,12 @@ public class OpenDocument {
       document.replaceText(text);
    }
    
-   public Set<ObjectOutputStream> getOutStreams() { 
-      return editingUsers;
+   public Set<ObjectOutputStream> getEditorOutStreams() { 
+      return editorStreams;
+   }
+   
+   public Set<String> getEditorNames() {
+       return editorNames;
    }
    
    public Document getDocument() {
