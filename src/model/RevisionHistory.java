@@ -44,6 +44,14 @@ public class RevisionHistory implements Serializable {
 	    return "";
 	}
     }
+    
+    public String peekLastRevisionKey() {
+	if (revisionDeque.size() != 0) {
+	    return revisionDeque.peekFirst().toString();
+	} else {
+	    return "";
+	}
+    }
 
     public String getLastRevisionText() {
 	if (revisionDeque.size() != 0) {
