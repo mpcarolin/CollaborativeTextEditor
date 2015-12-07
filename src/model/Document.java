@@ -50,6 +50,10 @@ public class Document implements Serializable {
     public String getLastRevisionText() {
 	return history.getLastRevisionText();
     }
+    
+    public String getLastRevisionKey() {
+	return history.peekLastRevisionKey();
+    }
 
     public List<String> getTenRevisionKeys() {
 	return history.getTenRevisionKeys();

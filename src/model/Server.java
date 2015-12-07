@@ -319,8 +319,18 @@ class ClientHandler extends Thread {
      * the User has permission to edit.
      */
     private void sendDocumentList() throws IOException {
-	clientOut.writeObject(currentUser.getOwnedDocuments());
-	clientOut.writeObject(currentUser.getEditableDocuments());
+	
+	List<String> usersOwnedDocuments = new ArrayList<String>();
+	for (String s : currentUser.getOwnedDocuments()) {
+	    usersOwnedDocuments.add(s + Server.allDocuments.get(s).getLastRevisionKey());
+	}
+	
+	List<String> usersEditableDocuments = new ArrayList<String>();
+	for (String s : currentUser.getEditableDocuments()) {
+	    usersOwnedDocuments.add(s + Server.allDocuments.get(s).getLastRevisionKey());
+	}
+	clientOut.writeObject(usersEditableDocuments);
+	clientOut.writeObject(usersOwnedDocuments);
     }
 
     /*
