@@ -928,6 +928,15 @@ public class EditorGUI extends JFrame {
 						String revertedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(revertedText);
 						break;
+					case DOCUMENT_UNEDITABLE:
+						String emptyString = (String) fromServer.readObject();
+						textArea.setEditable(false);
+						editButton.setEnabled(false);
+					case DOCUMENT_EDITABLE:
+						String emptyStringTwo = (String) fromServer.readObject();
+						textArea.setEditable(true);
+						editButton.setEnabled(true);
+						break;
 					default:
 						System.out.println("stopped the server listener");
 						stopRunning();
