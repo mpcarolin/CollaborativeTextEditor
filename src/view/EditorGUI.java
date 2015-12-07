@@ -72,7 +72,6 @@ import model.ServerResponse;
 
 @SuppressWarnings("serial")
 public class EditorGUI extends JFrame {
-
 	private double screenWidth;
 	private double screenHeight;
 	private int carrotPosition;
@@ -88,7 +87,7 @@ public class EditorGUI extends JFrame {
 	private JTextArea chatTextArea;
 	private JScrollPane scroll, chatScroll;
 	private JPanel screenPanel, rightPanel;
-	private JButton openChatButton;
+	private JButton openChatButton, bulletItem;
 	private JToggleButton centerAlign, rightAlign, leftAlign;
 	private JTextField chatText;
 	private JComboBox<Integer> font;
@@ -326,7 +325,7 @@ public class EditorGUI extends JFrame {
 		colorFont = new JButton();
 		colorFont.setIcon(colorIcon);
 
-		JButton bulletItem = new JButton(bulletAction);
+		bulletItem = new JButton(bulletAction);
 		bulletItem.setIcon(bulletIcon);
 
 		linkButton = new JButton();
@@ -942,11 +941,39 @@ public class EditorGUI extends JFrame {
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
 						System.out.print("made uneditable");
+						rightAlign.setEnabled(false);
+						leftAlign.setEnabled(false);
+						centerAlign.setEnabled(false);
+						boldButton.setEnabled(false);
+						italicsButton.setEnabled(false);
+						underlineButton.setEnabled(false);
+						font.setEditable(false);
+						colorFont.setEnabled(false);
+						fontStyle.setEditable(false);
+						font.setEnabled(false);
+						fontStyle.setEnabled(false);
+						linkButton.setEnabled(false);
+						bulletItem.setEnabled(false);
+						
 						break;
 					case DOCUMENT_EDITABLE:
 						String emptyStringTwo = (String) fromServer.readObject();
+						rightAlign.setEnabled(true);
+						leftAlign.setEnabled(true);
+						centerAlign.setEnabled(true);
 						textArea.setEditable(true);
 						editButton.setEnabled(true);
+						boldButton.setEnabled(true);
+						italicsButton.setEnabled(true);
+						underlineButton.setEnabled(true);
+						font.setEditable(true);
+						colorFont.setEnabled(true);
+						fontStyle.setEditable(true);
+						font.setEnabled(true);
+						fontStyle.setEnabled(true);
+						linkButton.setEnabled(true);
+						bulletItem.setEnabled(true);
+
 						break;
 					default:
 						System.out.println("stopped the server listener");
