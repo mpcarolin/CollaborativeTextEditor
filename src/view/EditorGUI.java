@@ -1,3 +1,4 @@
+
 package view;
 
 import java.awt.BorderLayout;
@@ -148,7 +149,7 @@ public class EditorGUI extends JFrame {
 	}
 
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer, DocumentSelectGUI documentgui,
-			String startingText) {
+			String startingText, String docname) {
 		this.documentGUI = documentgui;
 		documentGUI.setVisible(false);
 		this.fromServer = fromServer;
@@ -159,7 +160,7 @@ public class EditorGUI extends JFrame {
 		screenHeight = screensize.getHeight() * 0.8;
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
 		// set defaults and layoutGUI
-		this.setTitle("Collaborative Text Editor");
+		this.setTitle("Document: "+ docname+ " Logged in as: "+ documentgui.getUserName());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());
@@ -341,7 +342,7 @@ public class EditorGUI extends JFrame {
 		/*
 		 * Mouse listener to obtain ten revisions from server
 		 */
-		revisionListMenu.addMouseListener(new LoadRevisionListener());
+		//revisionListMenu.addMouseListener(new LoadRevisionListener());
 
 		file.add(fileButton);
 		file.add(revisionListMenu);
@@ -717,7 +718,8 @@ public class EditorGUI extends JFrame {
 						boldButton.setSelected(false);
 					}
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					boldButton.setSelected(false);
+					//e1.printStackTrace();
 				}
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -733,7 +735,8 @@ public class EditorGUI extends JFrame {
 						italicsButton.setSelected(false);
 					}
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					italicsButton.setSelected(false);
+					//e1.printStackTrace();
 				}
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -928,6 +931,7 @@ public class EditorGUI extends JFrame {
 			}
 		}
 
+
 		private void stopRunning() throws IOException {
 			isRunning = false;
 			toServer.reset();
@@ -981,15 +985,13 @@ public class EditorGUI extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					JMenuItem currentKey = (JMenuItem) e.getSource();
 					String revisionKey = currentKey.getText();
-
-					try {
-						System.out.println("about to send revert_doc");
-						toServer.writeObject(ClientRequest.REVERT_DOC);
-						toServer.writeObject(revisionKey);
-						System.out.println("sent revert_doc and key");
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+						System.out.println("about to sent revert_doc");
+						try {
+							toServer.writeObject(ClientRequest.REVERT_DOC);
+							toServer.writeObject(revisionKey);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 				}
 			});
 			revisionListMenu.add(revisionKeyItems[i-1]);
@@ -1060,6 +1062,7 @@ public class EditorGUI extends JFrame {
 			try {
 				toServer.writeObject(ClientRequest.SAVE_REVISION);
 				System.out.println("saved revision");
+				toServer.writeObject(ClientRequest.GET_REVISIONS);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				// stop timer regardless of server communication success

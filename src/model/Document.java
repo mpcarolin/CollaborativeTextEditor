@@ -12,7 +12,6 @@ public class Document implements Serializable {
     private String documentName;
     private String ownerName;
     private List<String> editorNames;
-    //private List<Revision> history; // maintained like a stack
     private RevisionHistory history;
 
     public Document(String documentName, String ownerName) {
@@ -20,12 +19,11 @@ public class Document implements Serializable {
 	this.ownerName = ownerName;
 	editorNames = Collections.synchronizedList(new LinkedList<String>());
 	editorNames.add(ownerName);
-	// history = new Stack<Revision>();
 	history = new RevisionHistory();
 	currentText = "";
     }
 
-    public void replaceText(String newText, String revisingUser) {
+    public void replaceText(String newText) {
 	currentText = newText;
     }
 
@@ -77,7 +75,7 @@ public class Document implements Serializable {
 	editorNames.remove(username);
     }
     
-    public String getRevisionText(String revisionKey) {
-	return history.getRevisionText(revisionKey);
+    public void setRevisionText(String revisionKey) {
+	replaceText(history.getRevisionText(revisionKey));
     }
 }
