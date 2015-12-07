@@ -195,6 +195,19 @@ public class EditorGUI extends JFrame {
 		chatConstraints.gridheight = 1;
 		chatConstraints.weightx = 1;
 
+		JPanel toprightPanel = new JPanel();
+		toprightPanel.setBackground(Color.BLACK);
+		toprightPanel.setPreferredSize(new Dimension(400, 300));
+		toprightPanel.setMinimumSize(new Dimension(400, 300));
+		GridBagConstraints toprightConstraints = new GridBagConstraints();
+		toprightConstraints.anchor = GridBagConstraints.NORTHEAST;
+		toprightConstraints.gridx = 1;
+		toprightConstraints.gridy = 3;
+		toprightConstraints.gridheight = 1;
+		toprightConstraints.weightx = 1;
+		this.add(toprightPanel, toprightConstraints);
+
+		
 		// Button to begin chat
 		openChatButton = new JButton("Open Chat!");
 		openChatButton.addActionListener(new chatButtonListener());
@@ -928,6 +941,8 @@ public class EditorGUI extends JFrame {
 						String emptyString = (String) fromServer.readObject();
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
+						System.out.print("made uneditable");
+						break;
 					case DOCUMENT_EDITABLE:
 						String emptyStringTwo = (String) fromServer.readObject();
 						textArea.setEditable(true);
@@ -1102,6 +1117,6 @@ public class EditorGUI extends JFrame {
 
 	// testing
 	public static void main(String[] args) {
-		// EditorGUI jake = new EditorGUI();
+		 EditorGUI jake = new EditorGUI();
 	}
 }
