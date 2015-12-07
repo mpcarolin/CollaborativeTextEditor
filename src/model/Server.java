@@ -227,11 +227,11 @@ class ClientHandler extends Thread {
                break;
             case GET_REVISIONS:
         	sendRevisionList();
-        	break;
+        		break;
             case REVERT_DOC:
         	System.out.println("In servers revert_doc case in switch");
         	revertDocument();
-        	break;
+        		break;
             case CLOSE_DOC:
                closeDocument();
                break;
