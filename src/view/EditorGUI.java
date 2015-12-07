@@ -159,7 +159,7 @@ public class EditorGUI extends JFrame {
 		screenHeight = screensize.getHeight() * 0.8;
 		this.setSize((int) screenWidth - 100, (int) screenHeight);
 		// set defaults and layoutGUI
-		this.setTitle("Document: "+ docname+ " Logged in as: "+ documentgui.getUserName());
+		this.setTitle("Document: " + docname + " Logged in as: " + documentgui.getUserName());
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.addWindowListener(new windowListener());
 		this.setLayout(new GridBagLayout());
@@ -727,7 +727,7 @@ public class EditorGUI extends JFrame {
 					}
 				} catch (Exception e1) {
 					boldButton.setSelected(false);
-					//e1.printStackTrace();
+					// e1.printStackTrace();
 				}
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -744,7 +744,7 @@ public class EditorGUI extends JFrame {
 					}
 				} catch (Exception e1) {
 					italicsButton.setSelected(false);
-					//e1.printStackTrace();
+					// e1.printStackTrace();
 				}
 				try {
 					AttributeSet attributeSet = textArea.getCharacterAttributes();
@@ -920,11 +920,11 @@ public class EditorGUI extends JFrame {
 					case REVISION_LIST:
 						List<String> revisionKeys = (List<String>) fromServer.readObject();
 						refreshRevisionPopUp(revisionKeys);
-						return;
+						break;
 					case DOCUMENT_REVERTED:
 						String revertedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(revertedText);
-						return;
+						break;
 					default:
 						System.out.println("stopped the server listener");
 						stopRunning();
@@ -936,7 +936,6 @@ public class EditorGUI extends JFrame {
 				}
 			}
 		}
-
 
 		private void stopRunning() throws IOException {
 			isRunning = false;
@@ -950,8 +949,8 @@ public class EditorGUI extends JFrame {
 	 * to send back a string that represents a earlier revision
 	 */
 	private void refreshRevisionPopUp(List<String> revisionKeys) {
-		//revisionListMenu.removeAll();
-		revisionListMenu.revalidate();
+		revisionListMenu.removeAll();
+		 revisionListMenu.revalidate();
 
 		for (String key : revisionKeys) {
 			JMenuItem newKey = new JMenuItem(key);
@@ -978,14 +977,14 @@ public class EditorGUI extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					JMenuItem currentKey = (JMenuItem) e.getSource();
 					String revisionKey = currentKey.getText();
-						System.out.println("about to sent revert_doc");
-						try {
-							toServer.writeObject(ClientRequest.REVERT_DOC);
-							toServer.writeObject(revisionKey);
+					System.out.println("about to sent revert_doc");
+					try {
+						toServer.writeObject(ClientRequest.REVERT_DOC);
+						toServer.writeObject(revisionKey);
 
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 			revisionListMenu.add(newKey);
@@ -1001,9 +1000,10 @@ public class EditorGUI extends JFrame {
 
 	public void updatedoc(String text) {
 		// iSentThis = true;
+		textArea.setText("");
 		textArea.getDocument().removeDocumentListener(doclistener);
 		textArea.setText(text);
-		textArea.getDocument().addDocumentListener(doclistener);
+		textArea.getDocument().addDocumentListener(doclistener = new docListener());
 	}
 
 	public void updatechat(String text) {

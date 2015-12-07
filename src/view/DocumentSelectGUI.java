@@ -533,7 +533,8 @@ public class DocumentSelectGUI extends JFrame {
 		    getDisplayList();
 		    return;
 		default:
-		    JOptionPane.showMessageDialog(null, "Incompatible server response.");
+		    JOptionPane.showMessageDialog(null, "Incompatible server response. " + response);
+		    System.out.println("LOOK " + response + " HERE");
 		    return;
 		}
 	    } catch (IOException e) {
@@ -585,7 +586,8 @@ public class DocumentSelectGUI extends JFrame {
 		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text, docName);
 		    return;
 		default:
-		    JOptionPane.showMessageDialog(null, "Incompatible server response.");
+		    JOptionPane.showMessageDialog(null, "Incompatible server response." + response);
+		    System.out.println("@LOOK " + response + " HERE 2");
 		    return;
 		}
 	    } catch (IOException e1) {
