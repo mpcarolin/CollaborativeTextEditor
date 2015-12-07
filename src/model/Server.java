@@ -319,18 +319,26 @@ class ClientHandler extends Thread {
      * the User has permission to edit.
      */
     private void sendDocumentList() throws IOException {
-	
 	List<String> usersOwnedDocuments = new ArrayList<String>();
-	for (String s : currentUser.getOwnedDocuments()) {
-	    usersOwnedDocuments.add(s + Server.allDocuments.get(s).getLastRevisionKey());
+	for (String docName : currentUser.getOwnedDocuments()) {
+	    if (Server.allDocuments.get(docName).hasNoRevisions()) {
+		usersOwnedDocuments.add(docName + "    Last Revision: None");
+	    } else {
+		usersOwnedDocuments.add(docName + "    Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
+	    }
 	}
-	
+
 	List<String> usersEditableDocuments = new ArrayList<String>();
-	for (String s : currentUser.getEditableDocuments()) {
-	    usersOwnedDocuments.add(s + Server.allDocuments.get(s).getLastRevisionKey());
+	for (String docName : currentUser.getEditableDocuments()) {
+	    if (Server.allDocuments.get(docName).hasNoRevisions()) {
+		usersEditableDocuments.add(docName + "    Last Revision: None");
+	    } else {
+		usersEditableDocuments.add(docName + "    Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
+	    }
 	}
-	clientOut.writeObject(usersEditableDocuments);
+
 	clientOut.writeObject(usersOwnedDocuments);
+	clientOut.writeObject(usersEditableDocuments);
     }
 
     /*
@@ -338,7 +346,11 @@ class ClientHandler extends Thread {
      * document.
      */
     private void sendEditorList() throws ClassNotFoundException, IOException {
-	String docName = (String) clientIn.readObject();
+	String fullDocName = (String) clientIn.readObject();
+	
+	String docName = fullDocName.substring(0, fullDocName.indexOf("    "));
+	System.out.println(docName);
+	
 	Document document = Server.allDocuments.get(docName);
 	if (document == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);
@@ -434,7 +446,11 @@ class ClientHandler extends Thread {
      * OpenDocument for the Document to be opened.
      */
     private void openDocument() throws ClassNotFoundException, IOException {
-	String docName = (String) clientIn.readObject();
+	String fullDocName = (String) clientIn.readObject();
+	
+	String docName = fullDocName.substring(0, fullDocName.indexOf("    "));
+	System.out.println(docName);
+	
 	Document openingDoc = Server.allDocuments.get(docName);
 	if (openingDoc == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);
