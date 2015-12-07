@@ -77,7 +77,6 @@ public class Server {
 	}
 	openDocuments = Collections.synchronizedMap(new HashMap<>());
 	clientOutStreams = Collections.synchronizedList(new ArrayList<>());
-
     }
 
     /*
@@ -178,11 +177,11 @@ class ClientHandler extends Thread {
      */
     @Override
     public void run() {
-	ClientRequest command;
+	ClientRequest request;
 	while (isRunning) {
 	    try {
-		command = (ClientRequest) clientIn.readObject();
-		switch (command) {
+		request = (ClientRequest) clientIn.readObject();
+		switch (request) {
 		case LOGIN:
 		    authenticateUser();
 		    break;
@@ -238,7 +237,7 @@ class ClientHandler extends Thread {
 		    deleteDocument();
 		    break;
 		case LOGOUT:
-		    logout();
+		    logoutAndCloseConnection();
 		    break;
 		default:
 		    System.out.println("Catastrophic Failure.");
@@ -254,7 +253,7 @@ class ClientHandler extends Thread {
 		isRunning = false;
 	    }
 	}
-	logout();
+	logoutAndCloseConnection();
     }
 
     /*
@@ -327,7 +326,6 @@ class ClientHandler extends Thread {
 		usersOwnedDocuments.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
 	    }
 	}
-
 	List<String> usersEditableDocuments = new ArrayList<String>();
 	for (String docName : currentUser.getEditableDocuments()) {
 	    if (Server.allDocuments.get(docName).hasNoRevisions()) {
@@ -336,7 +334,6 @@ class ClientHandler extends Thread {
 		usersEditableDocuments.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
 	    }
 	}
-
 	clientOut.writeObject(usersOwnedDocuments);
 	clientOut.writeObject(usersEditableDocuments);
     }
@@ -447,10 +444,7 @@ class ClientHandler extends Thread {
      */
     private void openDocument() throws ClassNotFoundException, IOException {
 	String fullDocName = (String) clientIn.readObject();
-	
 	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
-	System.out.println(docName);
-	
 	Document openingDoc = Server.allDocuments.get(docName);
 	if (openingDoc == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);
@@ -483,9 +477,7 @@ class ClientHandler extends Thread {
      */
     private void updateDocument() throws ClassNotFoundException, IOException {
 	currentOpenDoc.updateText((String) clientIn.readObject());
-
-	sendUpdateToClients(ServerResponse.DOCUMENT_UNEDITABLE, "", false);
-
+	sendUpdateToClients(ServerResponse.DOCUMENT_UNEDITABLE, currentUser.getName(), false);
 	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.getText(), false);
     }
 
@@ -495,7 +487,6 @@ class ClientHandler extends Thread {
      */
     private void saveRevision() {
 	currentOpenDoc.saveRevision(currentUser.getName());
-	currentOpenDoc.setCurrentEditor(null);
 	sendUpdateToClients(ServerResponse.DOCUMENT_EDITABLE, "", true);
     }
 
@@ -563,9 +554,7 @@ class ClientHandler extends Thread {
      */
     private void closeDocument() throws IOException {
 	currentOpenDoc.removeEditor(clientOut, currentUser.getName());
-
 	clientOut.writeObject(ServerResponse.DOCUMENT_CLOSED);
-
 	if (currentOpenDoc.hasNoEditors()) {
 	    Server.openDocuments.remove(currentOpenDoc.getDocumentName());
 	} else {
@@ -595,8 +584,7 @@ class ClientHandler extends Thread {
     /*
      * Logs out the current User and closes the connection.
      */
-    private void logout() {
-	// currentOpenDoc.removeEditor(clientOut);
+    private void logoutAndCloseConnection() {
 	Server.clientOutStreams.remove(clientOut);
 	currentUser.setLogin(false);
 	isRunning = false;

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class RevisionHistory implements Serializable {
 
-    private static final long serialVersionUID = -850895045810920159L;
+    private static final long serialVersionUID = 151000323660152929L;
     private static final int NUM_REVISIONS_STORED = 1000;
     private Map<String, String> revisionMap;
     private Deque<Revision> revisionDeque;
@@ -67,11 +67,8 @@ public class RevisionHistory implements Serializable {
     }
 
     public String getRevisionText(String revisionKey) {
-	String str = revisionMap.get(revisionKey);
-
-	System.out.println("In revisionHistory: " + str); // debugging
-
-	return str;
+	String documentText = revisionMap.get(revisionKey);
+	return documentText;
     }
 
     public List<String> getTenRevisionKeys() {

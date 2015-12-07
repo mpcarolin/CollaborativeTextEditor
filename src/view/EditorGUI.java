@@ -85,7 +85,7 @@ public class EditorGUI extends JFrame {
 	private JScrollPane scroll, chatScroll;
 	private JPanel screenPanel, rightPanel;
 	private JButton openChatButton, bulletItem;
-	private JToggleButton centerAlign, rightAlign, leftAlign;
+	private JButton centerAlign, rightAlign, leftAlign;
 	private JTextField chatText;
 	private JComboBox<Integer> font;
 	private JComboBox<String> fontStyle;
@@ -203,6 +203,7 @@ public class EditorGUI extends JFrame {
 		toprightPanel.setPreferredSize(new Dimension(400, 300));
 		toprightPanel.setMinimumSize(new Dimension(400, 300));
 		
+
 		// Constrants for top right panel
 		GridBagConstraints toprightConstraints = new GridBagConstraints();
 		toprightConstraints.anchor = GridBagConstraints.NORTHEAST;
@@ -261,6 +262,7 @@ public class EditorGUI extends JFrame {
 		c.anchor = GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.VERTICAL;
 
+
 		// Center Panel to put Text Area and JScrollPane one
 		screenPanel = new JPanel();
 		screenPanel.setPreferredSize(new Dimension((int) (screenWidth * .6), 1500));
@@ -282,6 +284,7 @@ public class EditorGUI extends JFrame {
 
 		// button group toolbar
 		toolBar = new JMenuBar();
+		toolBar.setBackground(Color.DARK_GRAY);
 		toolBar.setPreferredSize(new Dimension(windowWidth - 300, 20));
 
 		// declare and load all gui images and icons
@@ -322,11 +325,11 @@ public class EditorGUI extends JFrame {
 			e.printStackTrace();
 		}
 		// Toggle buttons on Menus
-		leftAlign = new JToggleButton();
+		leftAlign = new JButton();
 		leftAlign.setIcon(leftAlignIcon);
-		rightAlign = new JToggleButton();
+		rightAlign = new JButton();
 		rightAlign.setIcon(rightAlignIcon);
-		centerAlign = new JToggleButton();
+		centerAlign = new JButton();
 		centerAlign.setIcon(centerAlignIcon);
 		boldButton = new JToggleButton();
 		boldButton.setIcon(boldImageIcon);
@@ -350,11 +353,13 @@ public class EditorGUI extends JFrame {
 		 * File Menu Bar elements
 		 */
 		file = new JMenu("File");
+		file.setBackground(Color.DARK_GRAY);
 		JMenuItem fileButton = new JMenuItem("File");
 		revisionListMenu = new JMenu("Load Revision");
 		file.add(fileButton);
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
+		edit.setBackground(Color.DARK_GRAY);
 		JMenuItem undo = new JMenuItem("Undo");
 		edit.add(undo);
 		toolBar.add(file);
@@ -367,6 +372,9 @@ public class EditorGUI extends JFrame {
 		font.setSelectedIndex(5);
 		font.setMinimumSize(new Dimension(50, 30));
 		JToolBar toolBar2 = new JToolBar();
+		toolBar2.setPreferredSize(new Dimension(textWidth-30, 20));
+		toolBar2.setBorder(BorderFactory.createLineBorder(Color.black));
+		toolBar2.setBackground(Color.WHITE);
 		toolBar2.setMinimumSize(new Dimension((int) screenWidth, 15));
 		toolBar2.add(fontStyle);
 		toolBar2.add(font);
@@ -421,6 +429,13 @@ public class EditorGUI extends JFrame {
 		font.setEnabled(false);
 		fontStyle.setEnabled(false);
 		fontSizeAction.setEnabled(true);
+//		Sets background color of components
+//		Color mycolor= Color.decode("#f0f5f5");
+//		rightPanel.setBackground(mycolor);
+//		toprightPanel.setBackground(mycolor);
+//		screenPanel.setBackground(mycolor);
+//		this.setBackground(mycolor);
+
 	}
 	// Set the DocumentGUI to false when EditorGUI is closed
 	private class windowListener implements WindowListener {

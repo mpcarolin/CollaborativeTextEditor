@@ -1,13 +1,12 @@
 package model;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Document implements Serializable {
 
-    private static final long serialVersionUID = -8233181825529016137L;
+    private static final long serialVersionUID = 3604807916771705330L;
     private String currentText;
     private String documentName;
     private String ownerName;
@@ -17,7 +16,7 @@ public class Document implements Serializable {
     public Document(String documentName, String ownerName) {
 	this.documentName = documentName;
 	this.ownerName = ownerName;
-	editorNames = Collections.synchronizedList(new LinkedList<String>());
+	editorNames = new ArrayList<String>();
 	editorNames.add(ownerName);
 	history = new RevisionHistory();
 	currentText = "";
