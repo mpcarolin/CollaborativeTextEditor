@@ -624,7 +624,7 @@ public class DocumentSelectGUI extends JFrame {
 
 	@Override
 	public void windowClosing(WindowEvent e) {
-	    int decision = JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?");
+	    int decision = JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION);
 	    if (decision == JOptionPane.YES_OPTION) {
 		try {
 		    toServer.writeObject(ClientRequest.OPEN_DOC);
