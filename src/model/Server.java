@@ -80,7 +80,7 @@ public class Server {
     }
 
     /*
-     * Hard code some Users for testing purposes
+     * Hard code some Users for testing purposes.
      */
     private static void hardCodeUsers() {
 	allUsers.put("Daniel", new User("Daniel", "Avetian"));
@@ -91,7 +91,7 @@ public class Server {
     }
 
     /*
-     * Hard code some Documents for testing purposes
+     * Hard code some Documents for testing purposes.
      */
     private static void hardCodeDocs() {
 	allDocuments.put("DanielsDoc", new Document("DanielsDoc", "Daniel"));
@@ -350,10 +350,7 @@ class ClientHandler extends Thread {
      */
     private void sendEditorList() throws ClassNotFoundException, IOException {
 	String fullDocName = (String) clientIn.readObject();
-	
-	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
-	System.out.println(docName);
-	
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));	
 	Document document = Server.allDocuments.get(docName);
 	if (document == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);
@@ -405,7 +402,8 @@ class ClientHandler extends Thread {
      */
     private void addPermission() throws ClassNotFoundException, IOException {
 	String username = (String) clientIn.readObject();
-	String docName = (String) clientIn.readObject();
+	String fullDocName = (String) clientIn.readObject();
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));	
 	User user = Server.allUsers.get(username);
 	Document document = Server.allDocuments.get(docName);
 	if (document == null) {
@@ -428,7 +426,8 @@ class ClientHandler extends Thread {
      */
     private void removePermission() throws ClassNotFoundException, IOException {
 	String username = (String) clientIn.readObject();
-	String docName = (String) clientIn.readObject();
+	String fullDocName = (String) clientIn.readObject();
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));	
 	Document document = Server.allDocuments.get(docName);
 	if (document == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);

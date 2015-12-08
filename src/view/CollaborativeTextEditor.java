@@ -7,6 +7,7 @@ import java.net.Socket;
 
 public class CollaborativeTextEditor {
 
+
    private static final String ADDRESS = "localhost";
    //private static final String ADDRESS = "helen.twilightparadox.com";
    private static final int SERVER_PORT = 9001;
