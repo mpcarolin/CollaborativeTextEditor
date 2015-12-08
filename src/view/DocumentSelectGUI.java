@@ -133,10 +133,10 @@ public class DocumentSelectGUI extends JFrame {
 	    ownedModel = (List<String>) fromServer.readObject();
 	    ownedEditable = (List<String>) fromServer.readObject();
 	    for (String s : ownedModel) {
-		ownedDocList.addElement(s);
+			ownedDocList.addElement(s);
 	    }
 	    for (String s : ownedEditable) {
-		editDocList.addElement(s);
+			editDocList.addElement(s);
 	    }
 	    ownDisplayList.setModel(ownedDocList);
 	    editDisplayList.setModel(editDocList);
