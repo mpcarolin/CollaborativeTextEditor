@@ -515,7 +515,6 @@ public class EditorGUI extends JFrame {
 						URI uri = new URI(uriString);
 						desktop.browse(uri);
 					} catch (Exception ex) {
-						System.out.println("error");
 						ex.printStackTrace();
 					}
 				}
@@ -666,7 +665,8 @@ public class EditorGUI extends JFrame {
 		}
 	}
 	/*
-	 * At the begining, buttons are set to false, so when clicking the textArea
+
+	 * At the beggining, buttons are set to false, so when clicking the textArea
 	 * options become clickable Also when clicking in the Document, changes
 	 * buttons to be selected based on the current attributes in the carrot
 	 * position
@@ -929,9 +929,7 @@ public class EditorGUI extends JFrame {
 			while (isRunning) {
 				// obtain updated doc text from server in a try-catch
 				try {
-					System.out.println("About to read from server");
 					ServerResponse response = (ServerResponse) fromServer.readObject();
-					System.out.println(response);
 					switch (response) {
 					case NO_DOCUMENT:
 						JOptionPane.showMessageDialog(null, "That revision is no longer stored.");
@@ -963,15 +961,14 @@ public class EditorGUI extends JFrame {
 						break;
 					case CURRENT_TYPER:
 						currentlyEditing = true;
-						setCurrentTyper(documentGUI.getUserName());
+						//setCurrentTyper(documentGUI.getUserName());
 						break;
 					case DOCUMENT_UNEDITABLE:
 						currentlyEditing = false;
-						String username = (String) fromServer.readObject();
-						setCurrentTyper(username);
+						//String username = (String) fromServer.readObject();
+						//setCurrentTyper(username);
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
-						System.out.print("made uneditable");
 						rightAlign.setEnabled(false);
 						leftAlign.setEnabled(false);
 						centerAlign.setEnabled(false);
@@ -1003,7 +1000,7 @@ public class EditorGUI extends JFrame {
 						bulletItem.setEnabled(true);
 						break;
 					default:
-						System.out.println("stopped the server listener");
+						System.out.println("Server listener stopped.");
 						stopRunning();
 						return;
 					}
@@ -1020,7 +1017,6 @@ public class EditorGUI extends JFrame {
 				CharSequence sequence = "\t-\t(Currently Editing)";
 				if (editor.contains(sequence)) {
 					editor = editor.substring(0, editor.indexOf("\t"));
-					System.out.println("removed edit string with: " + editor);
 				}
 				editorListModel.addElement(editor);
 			}
