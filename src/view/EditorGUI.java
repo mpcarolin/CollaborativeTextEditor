@@ -981,6 +981,7 @@ public class EditorGUI extends JFrame {
 				CharSequence sequence = "\t-\t(Currently Editing)";
 				if (editor.contains(sequence)) {
 					editor = editor.substring(0, editor.indexOf("\t"));
+					System.out.println("removed edit string with: " + editor);
 				}
 				editorListModel.addElement(editor);
 			}
