@@ -213,6 +213,9 @@ public class DocumentSelectGUI extends JFrame {
 	deleteDoc = new JButton("Delete Document");
 	openDoc = new JButton("Open Document");
 	refreshList = new JButton("Refresh List");
+	
+	// set default button for pressing enter
+	this.getRootPane().setDefaultButton(openDoc);
 
 	// Create the JButtons and JTextField on the Options panel, placed in
 	// top or bottom
