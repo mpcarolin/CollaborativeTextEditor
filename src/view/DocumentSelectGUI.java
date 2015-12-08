@@ -267,7 +267,7 @@ public class DocumentSelectGUI extends JFrame {
 	docButtons.add(refreshList);
 	tabbedDocs.add("Owned Documents", ownedDocPanel);// scrollPane
 	tabbedDocs.add("Editable Documents", editDocPanel);// scrollPaneEdit
-	tabbedDocs.setBackground(Color.DARK_GRAY);
+	tabbedDocs.setBackground(Color.LIGHT_GRAY);
 	holder.add(tabbedDocs, BorderLayout.CENTER);
 	docPanel.add(holder);
 
