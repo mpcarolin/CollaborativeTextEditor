@@ -49,13 +49,14 @@ public class LoginGUI extends JFrame {
 		private void layoutGUI() {
 			// set program's dimensions
 			int windowWidth = (int) (screenSize.getWidth() * 0.30);
-			int windowHeight = (int) (screenSize.getHeight() * 0.17);
+			int windowHeight = (int) (screenSize.getHeight() * 0.2);
 
 			// set defaults
 			this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			this.setSize(windowWidth, windowHeight);
 			this.setTitle("Login Menu");
-			this.setLayout(new BorderLayout());
+			this.setLayout(null);
+		//	this.setLayout(new BorderLayout());
 
 			// username and password fields
 			usernameLabel = new JLabel("Username: ");
@@ -76,6 +77,12 @@ public class LoginGUI extends JFrame {
 			passwordPanel.add(passwordLabel);
 			passwordPanel.add(passwordField);
 
+			//possible fixes
+			usernamePanel.setLocation(0, 0);
+			usernamePanel.setSize(windowWidth, (int)(windowHeight *.25));
+			passwordPanel.setLocation(0, (int)(windowHeight *.25));
+			passwordPanel.setSize(windowWidth, (int)(windowHeight *.25));
+			
 			// buttons
 			loginButton = new JButton("Login");
 			createAccountButton = new JButton("Create New Account");
@@ -93,16 +100,23 @@ public class LoginGUI extends JFrame {
 			buttonPanel.add(loginButton);
 			buttonPanel.add(createAccountButton);
 			buttonPanel.add(resetPassButton);
+
 			
 			// bottom panel: contains buttons and the instruction message label
 			bottomPanel = new JPanel(new BorderLayout());
 			bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 			bottomPanel.add(instructionLabel, BorderLayout.CENTER);
+			
 
+			bottomPanel.setSize(windowWidth, (int)(windowHeight*.4));
+			bottomPanel.setLocation(0, (int)(windowHeight*.5));
 			// add everything to the parent JFrame
-			this.add(usernamePanel, BorderLayout.NORTH);
-			this.add(passwordPanel, BorderLayout.CENTER);
-			this.add(bottomPanel, BorderLayout.SOUTH);
+//			this.add(usernamePanel, BorderLayout.NORTH);
+//			this.add(passwordPanel, BorderLayout.CENTER);
+//			this.add(bottomPanel, BorderLayout.SOUTH);
+			this.add(usernamePanel);
+			this.add(passwordPanel);
+			this.add(bottomPanel);
 			
 			// parent JFrame defaults
 			this.setLocation((int)(screenSize.getWidth()/4), (int)(screenSize.getHeight()/4));
