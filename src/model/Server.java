@@ -574,7 +574,8 @@ class ClientHandler extends Thread {
      * Deletes a Document.
      */
     private void deleteDocument() throws ClassNotFoundException, IOException {
-	String docName = (String) clientIn.readObject();
+	String fullDocName = (String) clientIn.readObject();
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
 	Document toDelete = Server.allDocuments.get(docName);
 	if (toDelete == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);
