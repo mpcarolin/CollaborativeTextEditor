@@ -954,7 +954,6 @@ public class EditorGUI extends JFrame {
 						refreshRevisionPopUp(revisionKeys);
 						break;
 					case DOCUMENT_REVERTED:
-						System.out.println("document about to be reverted");
 						String revertedText = (String) fromServer.readObject();
 						EditorGUI.this.updatedoc(revertedText);
 						break;
