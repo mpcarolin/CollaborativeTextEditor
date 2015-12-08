@@ -20,7 +20,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -43,6 +42,7 @@ import javax.swing.event.ListSelectionListener;
 import model.ClientRequest;
 import model.ServerResponse;
 
+@SuppressWarnings("serial")
 public class DocumentSelectGUI extends JFrame {
 
     private JPanel optionPanel, docPanel, bottomHolder, thePanel, topHolder;
@@ -125,6 +125,7 @@ public class DocumentSelectGUI extends JFrame {
 
     }
 
+    @SuppressWarnings("unchecked")
     private void getDisplayList() {
 	ownedDocList.clear();
 	editDocList.clear();
@@ -339,6 +340,7 @@ public class DocumentSelectGUI extends JFrame {
 	    }
 	}
 
+	@SuppressWarnings("unchecked")
 	private void updateUsers(String text) {
 	    try {
 		toServer.writeObject(ClientRequest.GET_USERS);
@@ -672,6 +674,7 @@ public class DocumentSelectGUI extends JFrame {
 
     private class ListSelectionHandler implements ListSelectionListener {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 	    JList<String> list = (JList<String>) e.getSource();
