@@ -521,8 +521,16 @@ public class DocumentSelectGUI extends JFrame {
 	    if (ownDisplayList.isShowing()) {
 		int index = ownDisplayList.getSelectedIndex();
 		docName = ownedDocList.getElementAt(index);
+		if (index < 0) {
+		    JOptionPane.showMessageDialog(null, "Please select a document.");
+		    return;
+		}
 	    } else {
 		int index = editDisplayList.getSelectedIndex();
+		if (index < 0) {
+		    JOptionPane.showMessageDialog(null, "Please select a document.");
+		    return;
+		}
 		docName = editDocList.getElementAt(index);
 	    }
 	    connectAndDelete(docName);
