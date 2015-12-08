@@ -118,9 +118,10 @@ public class Server {
 	allDocuments.put("OrzysDoc", new Document("OrzysDoc", "Orzy"));
 	allUsers.get("Orzy").addOwnedDocument("OrzysDoc");
     }
-    
+
     /*
-     * Creates and starts a timer that calls the saveData method every 30 seconds.
+     * Creates and starts a timer that calls the saveData method every 30
+     * seconds.
      */
     private static void setUpSaveTimer() {
 	Timer saveTimer = new Timer(30000, new ActionListener() {
@@ -131,7 +132,7 @@ public class Server {
 	});
 	saveTimer.start();
     }
-    
+
     /*
      * Writes the HashMaps that contain the User and Document data to a file.
      */
@@ -329,7 +330,8 @@ class ClientHandler extends Thread {
 	    if (Server.allDocuments.get(docName).hasNoRevisions()) {
 		usersOwnedDocuments.add(docName + "  -  Last Revision: None");
 	    } else {
-		usersOwnedDocuments.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
+		usersOwnedDocuments
+			.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
 	    }
 	}
 	List<String> usersEditableDocuments = new ArrayList<String>();
@@ -337,7 +339,8 @@ class ClientHandler extends Thread {
 	    if (Server.allDocuments.get(docName).hasNoRevisions()) {
 		usersEditableDocuments.add(docName + "  -  Last Revision: None");
 	    } else {
-		usersEditableDocuments.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
+		usersEditableDocuments
+			.add(docName + "  -  Last Revision: " + Server.allDocuments.get(docName).getLastRevisionKey());
 	    }
 	}
 	clientOut.writeObject(usersOwnedDocuments);
@@ -350,7 +353,7 @@ class ClientHandler extends Thread {
      */
     private void sendEditorList() throws ClassNotFoundException, IOException {
 	String fullDocName = (String) clientIn.readObject();
-	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));	
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
 	Document document = Server.allDocuments.get(docName);
 	if (document == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);
@@ -387,14 +390,15 @@ class ClientHandler extends Thread {
 	String docName = (String) clientIn.readObject();
 	if (Server.allDocuments.get(docName) != null) {
 	    clientOut.writeObject(ServerResponse.DOCUMENT_EXISTS);
+	} else {
+	    Document newDocument = new Document(docName, currentUser.getName());
+	    Server.allDocuments.put(docName, newDocument);
+	    currentUser.addOwnedDocument(docName);
+	    currentOpenDoc = new OpenDocument(newDocument, clientOut, currentUser.getName());
+	    Server.openDocuments.put(docName, currentOpenDoc);
+	    clientOut.writeObject(ServerResponse.DOCUMENT_CREATED);
+	    clientOut.writeObject(currentOpenDoc.getText());
 	}
-	Document newDocument = new Document(docName, currentUser.getName());
-	Server.allDocuments.put(docName, newDocument);
-	currentUser.addOwnedDocument(docName);
-	currentOpenDoc = new OpenDocument(newDocument, clientOut, currentUser.getName());
-	Server.openDocuments.put(docName, currentOpenDoc);
-	clientOut.writeObject(ServerResponse.DOCUMENT_CREATED);
-	clientOut.writeObject(currentOpenDoc.getText());
     }
 
     /*
@@ -403,7 +407,7 @@ class ClientHandler extends Thread {
     private void addPermission() throws ClassNotFoundException, IOException {
 	String username = (String) clientIn.readObject();
 	String fullDocName = (String) clientIn.readObject();
-	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));	
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
 	User user = Server.allUsers.get(username);
 	Document document = Server.allDocuments.get(docName);
 	if (document == null) {
@@ -427,7 +431,7 @@ class ClientHandler extends Thread {
     private void removePermission() throws ClassNotFoundException, IOException {
 	String username = (String) clientIn.readObject();
 	String fullDocName = (String) clientIn.readObject();
-	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));	
+	String docName = fullDocName.substring(0, fullDocName.indexOf("  -  "));
 	Document document = Server.allDocuments.get(docName);
 	if (document == null) {
 	    clientOut.writeObject(ServerResponse.NO_DOCUMENT);
@@ -528,7 +532,8 @@ class ClientHandler extends Thread {
      * clients that have disconnected and removes them from the list of
      * OuputStreams in the current OpenDocument.
      */
-    private void sendUpdateToClients(ServerResponse response, Object update, boolean skipThisClient) throws IOException {
+    private void sendUpdateToClients(ServerResponse response, Object update, boolean skipThisClient)
+	    throws IOException {
 	removeStreams = false;
 	Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
 	for (ObjectOutputStream editorOutStream : currentOpenDoc.getEditorOutStreams()) {
