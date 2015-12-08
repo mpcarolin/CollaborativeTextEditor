@@ -51,7 +51,6 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.Timer;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
@@ -915,7 +914,6 @@ public class EditorGUI extends JFrame {
 						stopRunning();
 						return;
 					case REVISION_LIST:
-						@SuppressWarnings("unchecked")
 						List<String> revisionKeys = (List<String>) fromServer.readObject();
 						refreshRevisionPopUp(revisionKeys);
 						break;
@@ -929,7 +927,6 @@ public class EditorGUI extends JFrame {
 						refreshEditingUsersList();
 						break;
 					case DOCUMENT_UNEDITABLE:
-						@SuppressWarnings("unused")
 						String username = (String) fromServer.readObject();
 						setCurrentTyper(username);
 						textArea.setEditable(false);
