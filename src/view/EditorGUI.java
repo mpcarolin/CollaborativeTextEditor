@@ -267,7 +267,7 @@ public class EditorGUI extends JFrame {
 
 		// button group toolbar
 		toolBar = new JMenuBar();
-		toolBar.setBackground(Color.DARK_GRAY);
+		toolBar.setBackground(Color.LIGHT_GRAY);
 		toolBar.setPreferredSize(new Dimension(windowWidth - 300, 20));
 
 		// declare and load all gui images and icons
