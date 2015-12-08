@@ -133,24 +133,6 @@ public class EditorGUI extends JFrame {
 	private StringBuilder chatString = new StringBuilder();
 	private volatile boolean currentlyEditing = true;
 
-	public EditorGUI() {
-		// get screen size for proportional gui elements
-		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-		screenWidth = screensize.getWidth() * 0.8;
-		screenHeight = screensize.getHeight() * 0.8;
-		this.setSize((int) screenWidth, (int) screenHeight);
-
-		// set defaults and layoutGUI
-		this.setTitle("Collaborative Text Editor");
-		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
-		this.setLayout(new GridBagLayout());
-		this.setVisible(true);
-		layoutGUI();
-
-		// instantiate timer with 2000 ms == 2 seconds.
-		timer = new Timer(2000, new TimerListener());
-	}
-
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer,
 			DocumentSelectGUI documentgui, String startingText, String docname) {
 		this.documentGUI = documentgui;
@@ -286,7 +268,7 @@ public class EditorGUI extends JFrame {
 
 		// button group toolbar
 		toolBar = new JMenuBar();
-		toolBar.setBackground(Color.DARK_GRAY);
+		toolBar.setBackground(Color.LIGHT_GRAY);
 		toolBar.setPreferredSize(new Dimension(windowWidth - 300, 20));
 
 		// declare and load all gui images and icons
@@ -689,7 +671,6 @@ public class EditorGUI extends JFrame {
 					checkTextAttributes();
 				}
 			}
-			// TODO Auto-generated method stub
 			if(e.isMetaDown() && e.getKeyCode()==KeyEvent.VK_B){	
 				EditorGUI.this.boldButton.doClick();
 			}
@@ -1129,9 +1110,5 @@ public class EditorGUI extends JFrame {
 		} catch (IOException io) {
 			io.printStackTrace();
 		}
-	}
-	// testing
-	public static void main(String[] args) {
-		EditorGUI jake = new EditorGUI();
 	}
 }
