@@ -104,7 +104,7 @@ public class DocumentSelectGUI extends JFrame {
 	    ServerResponse response = (ServerResponse) fromServer.readObject();
 	    switch (response) {
 	    case NO_DOCUMENT:
-		JOptionPane.showMessageDialog(null, "That document no longer exists.");
+		JOptionPane.showMessageDialog(null, "Document not found. It may have been deleted.");
 		break;
 	    case DOCUMENT_EXISTS:
 		// obtain editors from server
@@ -158,7 +158,6 @@ public class DocumentSelectGUI extends JFrame {
 	double screenWidth = screensize.getWidth() * 0.8;
 	double screenHeight = screensize.getHeight() * 0.7;
 	this.setSize((int) screenWidth, (int) screenHeight);
-	System.out.println(screenWidth + " height: " + screenHeight);
 
 	// Create the document GUI
 	this.setTitle(userName + "'s Document Selector Hub");
@@ -365,9 +364,9 @@ public class DocumentSelectGUI extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // Open Pane to get the new document's name
-	    String newDocName = JOptionPane.showInputDialog("Please enter the new document's name:");
+	    String newDocName = JOptionPane.showInputDialog("Please enter the document name:");
 	    if (newDocName == null || newDocName.equals("")) {
-		JOptionPane.showMessageDialog(null, "Please enter a name for the document.");
+		JOptionPane.showMessageDialog(null, "Please enter the document name.");
 		return;
 	    }
 	    try {
@@ -377,7 +376,7 @@ public class DocumentSelectGUI extends JFrame {
 
 		switch (response) {
 		case DOCUMENT_EXISTS:
-		    JOptionPane.showMessageDialog(null, "Sorry, this document already exists.");
+		    JOptionPane.showMessageDialog(null, "Sorry, that document name is already taken.");
 		    return;
 		case DOCUMENT_CREATED:
 		    // obtain text from server to send to editor gui first --
@@ -388,7 +387,7 @@ public class DocumentSelectGUI extends JFrame {
 		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, startingText, newDocName);
 		    return;
 		default:
-		    JOptionPane.showMessageDialog(null, "Incompatible server response.");
+		    JOptionPane.showMessageDialog(null, "Incompatible server response." + response);
 		    return;
 		}
 
@@ -420,7 +419,6 @@ public class DocumentSelectGUI extends JFrame {
 
 	    // get selected user name
 	    String username = userListJL.getSelectedValue();
-	    System.out.println("");
 
 	    // send client request to server to add user, then send username
 	    if (username != null) {
@@ -432,8 +430,6 @@ public class DocumentSelectGUI extends JFrame {
 		}
 
 		String docName = ownedDocList.getElementAt(index);
-
-		System.out.println(docName);
 
 		try {
 		    toServer.writeObject(ClientRequest.ADD_PERMISSION);
@@ -447,10 +443,10 @@ public class DocumentSelectGUI extends JFrame {
 			refreshEditingUserLists(docName);
 			break;
 		    case NO_DOCUMENT:
-			JOptionPane.showMessageDialog(null, "Cannot add user to a document that does not exist.");
+			JOptionPane.showMessageDialog(null, "Document not found. Add user failed.");
 			break;
 		    default:
-			System.out.println("Incompatible server response");
+			System.out.println("Unknown server response: " + response);
 		    }
 
 		} catch (IOException e1) {
@@ -485,7 +481,6 @@ public class DocumentSelectGUI extends JFrame {
 		    toServer.writeObject(docName);
 
 		    ServerResponse response = (ServerResponse) fromServer.readObject();
-		    System.out.println(response);
 
 		    switch (response) {
 		    case PERMISSION_REMOVED:
@@ -493,14 +488,14 @@ public class DocumentSelectGUI extends JFrame {
 			refreshEditingUserLists(docName);
 			break;
 		    case NO_DOCUMENT:
-			JOptionPane.showMessageDialog(null, "Cannot remove user from a document that does not exist.");
+			JOptionPane.showMessageDialog(null, "Document not found. Remove user failed.");
 			break;
 		    case PERMISSION_DENIED:
 			JOptionPane.showMessageDialog(null,
-				"You cannot remove the owner from the document's editor list.");
+				"Permission Denied: You cannot remove the owner from the document's editors.");
 			break;
 		    default:
-			System.out.println("Incompatible server response");
+			System.out.println("Unknown server response: " + response);
 			break;
 		    }
 
@@ -543,23 +538,22 @@ public class DocumentSelectGUI extends JFrame {
 		ServerResponse response = (ServerResponse) fromServer.readObject();
 		switch (response) {
 		case NO_DOCUMENT:
-		    JOptionPane.showMessageDialog(null, "That document does not exist.");
+		    JOptionPane.showMessageDialog(null, "Document not found. It may have been deleted.");
 		    return;
 		case PERMISSION_DENIED:
 		    JOptionPane.showMessageDialog(null,
-			    "You are not the owner of this document, and do not have permission to delete.");
+			    "Permission denied: You can not delete a document that you do not own.");
 		    return;
 		case DOCUMENT_OPENED:
 		    JOptionPane.showMessageDialog(null,
-			    "The document is currently being edited. You cannot delete now, try again later.");
+			    "The document is currently being edited by another user. Please try again later.");
 		    return;
 		case DOCUMENT_DELETED:
-		    JOptionPane.showMessageDialog(null, "Document was successfuly deleted.");
+		    JOptionPane.showMessageDialog(null, "The document was successfuly deleted.");
 		    getDisplayList();
 		    return;
 		default:
 		    JOptionPane.showMessageDialog(null, "Incompatible server response. " + response);
-		    System.out.println("LOOK " + response + " HERE");
 		    return;
 		}
 	    } catch (IOException e) {
@@ -580,7 +574,7 @@ public class DocumentSelectGUI extends JFrame {
 	    if (ownDisplayList.isShowing()) {
 		int index = ownDisplayList.getSelectedIndex();
 		if (index < 0) {
-		    JOptionPane.showMessageDialog(null, "Please Select A Document.");
+		    JOptionPane.showMessageDialog(null, "Please select a document.");
 		    return;
 		} else {
 		    docName = ownedDocList.getElementAt(index);
@@ -588,7 +582,7 @@ public class DocumentSelectGUI extends JFrame {
 	    } else {
 		int index = editDisplayList.getSelectedIndex();
 		if (index < 0) {
-		    JOptionPane.showMessageDialog(null, "Please Select A Document.");
+		    JOptionPane.showMessageDialog(null, "Please select a document.");
 		    return;
 		} else {
 		    docName = editDocList.getElementAt(index);
@@ -610,10 +604,10 @@ public class DocumentSelectGUI extends JFrame {
 		switch (response) {
 		case PERMISSION_DENIED:
 		    JOptionPane.showMessageDialog(null,
-			    "Permission Denied: You are not a member of the Document's Editors.");
+			    "Permission Denied: You do not have permission to edit this document.");
 		    return;
 		case NO_DOCUMENT:
-		    JOptionPane.showMessageDialog(null, "Document does not exist.");
+		    JOptionPane.showMessageDialog(null, "Document not found. It may have been deleted.");
 		    return;
 		case DOCUMENT_OPENED:
 		    toServer.flush();
@@ -623,7 +617,6 @@ public class DocumentSelectGUI extends JFrame {
 		    return;
 		default:
 		    JOptionPane.showMessageDialog(null, "Incompatible server response." + response);
-		    System.out.println("@LOOK " + response + " HERE 2");
 		    return;
 		}
 	    } catch (IOException e1) {
@@ -698,7 +691,6 @@ public class DocumentSelectGUI extends JFrame {
 	public void valueChanged(ListSelectionEvent e) {
 	    JList<String> list = (JList<String>) e.getSource();
 	    String docName = (String) list.getSelectedValue();
-	    System.out.println(docName);
 
 	    if (list.isSelectionEmpty()) {
 	    } else {
