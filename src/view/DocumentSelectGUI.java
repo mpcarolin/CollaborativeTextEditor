@@ -155,8 +155,8 @@ public class DocumentSelectGUI extends JFrame {
     private void layoutGUI() {
 
 	Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-	double screenWidth = screensize.getWidth() * 0.65;
-	double screenHeight = screensize.getHeight() * 0.6;
+	double screenWidth = screensize.getWidth() * 0.8;
+	double screenHeight = screensize.getHeight() * 0.7;
 	this.setSize((int) screenWidth, (int) screenHeight);
 	System.out.println(screenWidth + " height: " + screenHeight);
 
@@ -274,26 +274,26 @@ public class DocumentSelectGUI extends JFrame {
     }
 
     private void registerListeners() {
-	searchBar.addKeyListener(new searchBarListener());
-	searchBar.addMouseListener(new SearchMouseListener());
-	this.createDoc.addActionListener(new CreateDocumentListener());
-	this.refreshList.addActionListener(new RefreshListListener());
-	this.deleteDoc.addActionListener(new DeleteDocumentListener());
-	this.addWindowListener(new MyWindowListener());
-	ownDisplayList.addListSelectionListener(new ListSelectionHandler());
-	editDisplayList.addListSelectionListener(new ListSelectionHandler());
-	tabbedDocs.addChangeListener(new tabbedChangedListener());
-	openDoc.addActionListener(new OpenDocumentListener());
-	addUser.addActionListener(new AddUserButtonListener());
-	removeUser.addActionListener(new RemoveButtonListener());
+		searchBar.addKeyListener(new searchBarListener());
+		searchBar.addMouseListener(new SearchMouseListener());
+		this.createDoc.addActionListener(new CreateDocumentListener());
+		this.refreshList.addActionListener(new RefreshListListener());
+		this.deleteDoc.addActionListener(new DeleteDocumentListener());
+		this.addWindowListener(new MyWindowListener());
+		ownDisplayList.addListSelectionListener(new ListSelectionHandler());
+		editDisplayList.addListSelectionListener(new ListSelectionHandler());
+		tabbedDocs.addChangeListener(new tabbedChangedListener());
+		openDoc.addActionListener(new OpenDocumentListener());
+		addUser.addActionListener(new AddUserButtonListener());
+		removeUser.addActionListener(new RemoveButtonListener());
     }
 
     public String getUserName() {
-	return userName;
+		return userName;
     }
 
     public ObjectOutputStream sendToServer() {
-	return toServer;
+		return toServer;
     }
 
     private class SearchMouseListener implements MouseListener {

@@ -932,10 +932,9 @@ public class EditorGUI extends JFrame {
 						bulletItem.setEnabled(false);
 						break;
 					case DOCUMENT_EDITABLE:
-						//eventually make it so the server doesn't send anything
 						@SuppressWarnings("unused")
 						String empty = (String) fromServer.readObject();
-						clearLastTyper();
+						//clearLastTyper();
 						rightAlign.setEnabled(true);
 						leftAlign.setEnabled(true);
 						centerAlign.setEnabled(true);
