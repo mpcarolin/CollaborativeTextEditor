@@ -131,7 +131,15 @@ public class DocumentSelectGUI extends JFrame {
 		editDocList.clear();
 		try {
 			toServer.writeObject(ClientRequest.GET_DOCS);
-			ownedModel = (List<String>) fromServer.readObject();
+			Object response = fromServer.readObject();
+			/*
+			if (!(response instanceof List)) {
+				if (response instanceof ServerResponse) {
+					fromServer.readObject();
+				}
+			}
+			*/
+			ownedModel = (List<String>) response;
 			ownedEditable = (List<String>) fromServer.readObject();
 			for (String s : ownedModel) {
 				ownedDocList.addElement(s);
@@ -145,6 +153,8 @@ public class DocumentSelectGUI extends JFrame {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+		} catch (ClassCastException cce) {
+			cce.printStackTrace();
 		}
 	}
 

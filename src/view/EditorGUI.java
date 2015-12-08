@@ -1138,8 +1138,10 @@ public class EditorGUI extends JFrame {
 		// then stop the timer so it doesn't repeat revision requests
 		public void actionPerformed(ActionEvent e) {
 			try {
-				toServer.writeObject(ClientRequest.SAVE_REVISION);
-				toServer.writeObject(ClientRequest.GET_REVISIONS);
+				if (!documentGUI.isVisible()) {
+					toServer.writeObject(ClientRequest.SAVE_REVISION);
+					toServer.writeObject(ClientRequest.GET_REVISIONS);
+				}
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				// stop timer regardless of server communication success
