@@ -665,7 +665,7 @@ public class EditorGUI extends JFrame {
 		}
 	}
 	/*
-	 * At the begining, buttons are set to false, so when clicking the textArea
+	 * At the beggining, buttons are set to false, so when clicking the textArea
 	 * options become clickable Also when clicking in the Document, changes
 	 * buttons to be selected based on the current attributes in the carrot
 	 * position
@@ -960,12 +960,12 @@ public class EditorGUI extends JFrame {
 						break;
 					case CURRENT_TYPER:
 						currentlyEditing = true;
-						setCurrentTyper(documentGUI.getUserName());
+						//setCurrentTyper(documentGUI.getUserName());
 						break;
 					case DOCUMENT_UNEDITABLE:
 						currentlyEditing = false;
-						String username = (String) fromServer.readObject();
-						setCurrentTyper(username);
+						//String username = (String) fromServer.readObject();
+						//setCurrentTyper(username);
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
 						rightAlign.setEnabled(false);
