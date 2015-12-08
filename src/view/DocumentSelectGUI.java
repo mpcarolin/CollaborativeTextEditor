@@ -173,20 +173,17 @@ public class DocumentSelectGUI extends JFrame {
 	// Create and add the Options panel to the right side of the view
 	optionPanel = new JPanel();
 	optionPanel.setLayout(new BorderLayout());
-	//optionPanel.setSize(300, 500);
-	//optionPanel.setLocation(600, 0);
 	optionPanel.setSize((int)(screenWidth*.3205), (int) (screenHeight*.926));
-	optionPanel.setLocation((int)(screenWidth*.641) , 0);
+	optionPanel.setLocation((int)(screenWidth*.647) , 0);
+
 	
 	thePanel.add(optionPanel);
 
 	// Create and add the Documents panel to the left side of the view
 	docPanel = new JPanel();
 	docPanel.setLayout(new GridLayout(1, 1, 2, 2));
-	//docPanel.setSize(600, 480);
 	docPanel.setSize((int)(screenWidth*.61), (int)(screenHeight*.889));
-	//.641
-	//docPanel.setLocation(0, 20);
+
 
 	docPanel.setLocation((int)(screenWidth*.01), (int)(screenWidth*.027));
 	thePanel.add(docPanel);
@@ -230,7 +227,6 @@ public class DocumentSelectGUI extends JFrame {
 	tabbedDocs = new JTabbedPane();
 
 	documentLabel.setFont(new Font("Arial", Font.BOLD, 14));
-	//documentLabel.setSize(600, 20);
 	documentLabel.setSize((int)(screenWidth*.64), (int)(screenHeight*.037));
 
 	documentLabel.setLocation(0, 0);
