@@ -56,7 +56,7 @@ public class LoginGUI extends JFrame {
 			this.setSize(windowWidth, windowHeight);
 			this.setTitle("Login Menu");
 			this.setLayout(null);
-		//	this.setLayout(new BorderLayout());
+			//	this.setLayout(new BorderLayout());
 
 			// username and password fields
 			usernameLabel = new JLabel("Username: ");

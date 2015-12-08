@@ -131,6 +131,7 @@ public class EditorGUI extends JFrame {
 	private Action fontStyleAction = new StyledEditorKit.FontFamilyAction("fontStyleAction", style);
 	private Action alignmentAction = new StyledEditorKit.AlignmentAction("alignmentAction", align);
 	private StringBuilder chatString = new StringBuilder();
+	private volatile boolean currentlyEditing = true;
 
 	public EditorGUI(ObjectInputStream fromServer, ObjectOutputStream toServer,
 			DocumentSelectGUI documentgui, String startingText, String docname) {
@@ -907,7 +908,12 @@ public class EditorGUI extends JFrame {
 						EditorGUI.this.currentEditors = (Set<String>) fromServer.readObject();
 						refreshEditingUsersList();
 						break;
+					case CURRENT_TYPER:
+						currentlyEditing = true;
+						setCurrentTyper(documentGUI.getUserName());
+						break;
 					case DOCUMENT_UNEDITABLE:
+						currentlyEditing = false;
 						String username = (String) fromServer.readObject();
 						setCurrentTyper(username);
 						textArea.setEditable(false);
@@ -979,9 +985,15 @@ public class EditorGUI extends JFrame {
 					System.out.println("Add:" + editor);
 					indexToSelect = i;
 					editor = editor + sequence;
-//				} else if (editor.contains(sequence)) {
-//					System.out.println(editor);
-//					editor = editor.substring(0, editor.indexOf(" "));
+				} else if (editor.contains(sequence)) {
+					System.out.println(editor);
+					String parsedUsername = editor.substring(0, editor.indexOf(" "));
+
+					// do not remove the editing tag if this user is currently editing
+					if (currentlyEditing && editor.equals(parsedUsername)) {
+						continue;
+					}
+					editor =parsedUsername;
 				}
 				newEditorList.add(editor);
 				i++;
