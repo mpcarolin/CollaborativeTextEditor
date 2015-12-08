@@ -185,8 +185,9 @@ public class DocumentSelectGUI extends JFrame {
 	docPanel.setLayout(new GridLayout(1, 1, 2, 2));
 	//docPanel.setSize(600, 480);
 	docPanel.setSize((int)(screenWidth*.641), (int)(screenHeight*.889));
+	//docPanel.setLocation(0, 20);
 
-	docPanel.setLocation(0, 20);
+	docPanel.setLocation(0, (int)(screenWidth*.037));
 	thePanel.add(docPanel);
 
 	ownedDocPanel = new JScrollPane(ownDisplayList);
