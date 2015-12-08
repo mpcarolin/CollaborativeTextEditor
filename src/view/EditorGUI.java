@@ -965,7 +965,7 @@ public class EditorGUI extends JFrame {
 						break;
 					case DOCUMENT_UNEDITABLE:
 						currentlyEditing = false;
-						//String username = (String) fromServer.readObject();
+						String username = (String) fromServer.readObject();
 						//setCurrentTyper(username);
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
