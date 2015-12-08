@@ -665,6 +665,7 @@ public class EditorGUI extends JFrame {
 		}
 	}
 	/*
+
 	 * At the beggining, buttons are set to false, so when clicking the textArea
 	 * options become clickable Also when clicking in the Document, changes
 	 * buttons to be selected based on the current attributes in the carrot
