@@ -14,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
@@ -103,6 +105,7 @@ public class EditorGUI extends JFrame {
 	// menu items
 	private JMenuBar toolBar;
 	private JMenu file;
+	private JMenuItem undoButton;
 	private JToggleButton boldButton, italicsButton, underlineButton;
 	private JButton colorFont;
 	private Color color = Color.BLACK;
@@ -171,7 +174,7 @@ public class EditorGUI extends JFrame {
 
 		// add users
 		currentEditors.add(documentGUI.getUserName());
-		refreshEditingUsersList(currentEditors);
+		refreshEditingUsersList();
 
 		// sets the text to the starting text
 		textArea.setText(startingText);
@@ -196,7 +199,6 @@ public class EditorGUI extends JFrame {
 		/*
 		 * Editor JList and related components
 		 */
-
 		editorListModel = new DefaultListModel<String>();		
 		editingUsersJList = new JList<String>(editorListModel);
 		JPanel toprightPanel = new JPanel(new GridBagLayout());
@@ -360,8 +362,8 @@ public class EditorGUI extends JFrame {
 		file.add(revisionListMenu);
 		JMenu edit = new JMenu("Edit");
 		edit.setBackground(Color.DARK_GRAY);
-		JMenuItem undo = new JMenuItem("Undo");
-		edit.add(undo);
+		undoButton = new JMenuItem("Undo");
+		edit.add(undoButton);
 		toolBar.add(file);
 		toolBar.add(edit);
 		font = new JComboBox<Integer>();
@@ -399,12 +401,13 @@ public class EditorGUI extends JFrame {
 		this.setVisible(true);
 
 		// ActionListener
+		textArea.addKeyListener(new keyListener());
 		chatText.addActionListener(new newTextListener());
 		textArea.addHyperlinkListener(new hyperLinkListener());
 		editButton.addActionListener(new editableListener());
 		textArea.addMouseListener(new mouseListener());
 		linkButton.addActionListener(new linkListener());
-		undo.addActionListener(new undoListener());
+		undoButton.addActionListener(new undoListener());
 		leftAlign.addActionListener(new leftListener());
 		rightAlign.addActionListener(new rightListener());
 		centerAlign.addActionListener(new centerListener());
@@ -437,16 +440,9 @@ public class EditorGUI extends JFrame {
 //		this.setBackground(mycolor);
 
 	}
+
 	// Set the DocumentGUI to false when EditorGUI is closed
 	private class windowListener implements WindowListener {
-		@Override
-		public void windowOpened(WindowEvent e) {
-		}
-
-		@Override
-		public void windowClosing(WindowEvent e) {
-		}
-
 		@Override
 		public void windowClosed(WindowEvent e) {
 
@@ -458,24 +454,15 @@ public class EditorGUI extends JFrame {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-
 		}
-
-		@Override
-		public void windowIconified(WindowEvent e) {
-		}
-
-		@Override
-		public void windowDeiconified(WindowEvent e) {
-		}
-
-		@Override
-		public void windowActivated(WindowEvent e) {
-		}
-
-		@Override
-		public void windowDeactivated(WindowEvent e) {
-		}
+	@Override
+	public void windowOpened(WindowEvent e) {}
+	public void windowClosing(WindowEvent e) {}
+	public void windowIconified(WindowEvent e) {}
+	public void windowActivated(WindowEvent e) {}
+	public void windowDeactivated(WindowEvent e) {}
+	public void windowDeiconified(WindowEvent e) {}
+		
 	}
 
 	// makes the hyperlinks clickable if edit is on.
@@ -638,6 +625,7 @@ public class EditorGUI extends JFrame {
 				e1.printStackTrace();
 			}
 		}
+	
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			try {
@@ -681,116 +669,151 @@ public class EditorGUI extends JFrame {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()) {
-				try {
-					AttributeSet attributeSet = textArea.getCharacterAttributes();
-					Object bold;
-					if (attributeSet == null) {
-						bold = null;
-					} else {
-						bold = attributeSet.getAttribute(StyleConstants.Bold);
-					}
-					if (bold != null && bold.equals(true)) {
-						boldButton.setSelected(true);
-					} else {
-						boldButton.setSelected(false);
-					}
-				} catch (Exception e1) {
-					boldButton.setSelected(false);
-					// e1.printStackTrace();
-				}
-				try {
-					AttributeSet attributeSet = textArea.getCharacterAttributes();
-					Object italics;
-					if (attributeSet == null) {
-						italics = null;
-					} else {
-						italics = attributeSet.getAttribute(StyleConstants.Italic);
-					}
-					if (italics != null && italics.equals(true)) {
-						italicsButton.setSelected(true);
-					} else {
-						italicsButton.setSelected(false);
-					}
-				} catch (Exception e1) {
-					italicsButton.setSelected(false);
-					// e1.printStackTrace();
-				}
-				try {
-					AttributeSet attributeSet = textArea.getCharacterAttributes();
-					Object underlined;
-					if (attributeSet == null) {
-						underlined = null;
-					} else {
-						underlined = attributeSet.getAttribute(StyleConstants.Underline);
-					}
-					if (underlined.equals(true)) {
-						underlineButton.setSelected(true);
-					} else {
-						underlineButton.setSelected(false);
-					}
-				} catch (Exception e1) {
-					underlineButton.setSelected(false);
-				}
-
-				// Change the font to the correct value
-				AttributeSet attributeSet = textArea.getCharacterAttributes();
-				Object fontSize;
-				fontSize = attributeSet.getAttribute(StyleConstants.FontSize);
-
-				if (fontSize == null) {
-					font.setSelectedIndex(5);
-				} else {
-					switch ((int) fontSize) {
-					case 8:
-						font.setSelectedIndex(0);
-						return;
-					case 9:
-						font.setSelectedIndex(1);
-						return;
-					case 10:
-						font.setSelectedIndex(2);
-						return;
-					case 11:
-						font.setSelectedIndex(3);
-						return;
-					case 12:
-						font.setSelectedIndex(4);
-						return;
-					case 16:
-						font.setSelectedIndex(6);
-						return;
-					case 18:
-						font.setSelectedIndex(7);
-						return;
-					case 20:
-						font.setSelectedIndex(8);
-						return;
-					case 22:
-						font.setSelectedIndex(9);
-						return;
-					case 24:
-						font.setSelectedIndex(10);
-						return;
-					case 28:
-						font.setSelectedIndex(11);
-						return;
-					case 36:
-						font.setSelectedIndex(12);
-						return;
-					case 48:
-						font.setSelectedIndex(13);
-						return;
-					case 72:
-						font.setSelectedIndex(14);
-						return;
-					}
-				}
+				checkTextAttributes();
 			}
 		}
 		@Override
 		public void mouseReleased(MouseEvent e) {}
 		public void mouseEntered(MouseEvent e) {}
 		public void mouseExited(MouseEvent e) {}
+	}
+	
+	private class keyListener implements KeyListener{
+		@Override
+		public void keyPressed(KeyEvent e) {
+			int isArrowKey= e.getKeyCode();
+			if(isArrowKey==KeyEvent.VK_KP_LEFT || isArrowKey==KeyEvent.VK_LEFT || isArrowKey==KeyEvent.VK_KP_RIGHT 
+					|| isArrowKey==KeyEvent.VK_RIGHT ||isArrowKey==KeyEvent.VK_KP_UP || isArrowKey==KeyEvent.VK_UP 
+					||isArrowKey==KeyEvent.VK_KP_DOWN || isArrowKey==KeyEvent.VK_DOWN){
+				if (textArea.getCaretPosition() < Jsoup.clean(textArea.getText(), new Whitelist()).length()) {
+					checkTextAttributes();
+				}
+			}
+			// TODO Auto-generated method stub
+			if(e.isMetaDown() && e.getKeyCode()==KeyEvent.VK_B){	
+				EditorGUI.this.boldButton.doClick();
+			}
+			if(e.isMetaDown() && e.getKeyCode()==KeyEvent.VK_U){
+				EditorGUI.this.underlineButton.doClick();
+			}
+			if(e.isMetaDown() && e.getKeyCode()==KeyEvent.VK_I){
+				EditorGUI.this.italicsButton.doClick();
+			}
+			if(e.isMetaDown() && e.getKeyCode()==KeyEvent.VK_Z){
+				EditorGUI.this.undoButton.doClick();
+			}
+		}
+		@Override
+		public void keyTyped(KeyEvent e) {}
+		public void keyReleased(KeyEvent e) {}
+		
+	}
+	// reused code for seting buttons when carrot is on it
+	public void checkTextAttributes(){
+		try {
+			AttributeSet attributeSet = textArea.getCharacterAttributes();
+			Object bold;
+			if (attributeSet == null) {
+				bold = null;
+			} else {
+				bold = attributeSet.getAttribute(StyleConstants.Bold);
+			}
+			if (bold != null && bold.equals(true)) {
+				boldButton.setSelected(true);
+			} else {
+				boldButton.setSelected(false);
+			}
+		} catch (Exception e1) {
+			boldButton.setSelected(false);
+			// e1.printStackTrace();
+		}
+		try {
+			AttributeSet attributeSet = textArea.getCharacterAttributes();
+			Object italics;
+			if (attributeSet == null) {
+				italics = null;
+			} else {
+				italics = attributeSet.getAttribute(StyleConstants.Italic);
+			}
+			if (italics != null && italics.equals(true)) {
+				italicsButton.setSelected(true);
+			} else {
+				italicsButton.setSelected(false);
+			}
+		} catch (Exception e1) {
+			italicsButton.setSelected(false);
+			// e1.printStackTrace();
+		}
+		try {
+			AttributeSet attributeSet = textArea.getCharacterAttributes();
+			Object underlined;
+			if (attributeSet == null) {
+				underlined = null;
+			} else {
+				underlined = attributeSet.getAttribute(StyleConstants.Underline);
+			}
+			if (underlined.equals(true)) {
+				underlineButton.setSelected(true);
+			} else {
+				underlineButton.setSelected(false);
+			}
+		} catch (Exception e1) {
+			underlineButton.setSelected(false);
+		}
+
+		// Change the font to the correct value
+		AttributeSet attributeSet = textArea.getCharacterAttributes();
+		Object fontSize;
+		fontSize = attributeSet.getAttribute(StyleConstants.FontSize);
+
+		if (fontSize == null) {
+			font.setSelectedIndex(5);
+		} else {
+			switch ((int) fontSize) {
+			case 8:
+				font.setSelectedIndex(0);
+				return;
+			case 9:
+				font.setSelectedIndex(1);
+				return;
+			case 10:
+				font.setSelectedIndex(2);
+				return;
+			case 11:
+				font.setSelectedIndex(3);
+				return;
+			case 12:
+				font.setSelectedIndex(4);
+				return;
+			case 16:
+				font.setSelectedIndex(6);
+				return;
+			case 18:
+				font.setSelectedIndex(7);
+				return;
+			case 20:
+				font.setSelectedIndex(8);
+				return;
+			case 22:
+				font.setSelectedIndex(9);
+				return;
+			case 24:
+				font.setSelectedIndex(10);
+				return;
+			case 28:
+				font.setSelectedIndex(11);
+				return;
+			case 36:
+				font.setSelectedIndex(12);
+				return;
+			case 48:
+				font.setSelectedIndex(13);
+				return;
+			case 72:
+				font.setSelectedIndex(14);
+				return;
+			}
+		}
 	}
 	// Sets the new text to be bold in document
 	private class boldButtonListener implements ActionListener {
@@ -846,11 +869,15 @@ public class EditorGUI extends JFrame {
 			timer.start();
 		}
 	}
+
 	// A panel to show the users currently editing
-	private void refreshEditingUsersList(Set<String> editingUsersList) {
+	private void refreshEditingUsersList() {
 		editorListModel.clear();
-		for (String username : editingUsersList) {
-			editorListModel.addElement(username);
+		for (String username : currentEditors) {
+			//currentEditors.add(username);
+			if (!editorListModel.contains(username)) {
+				editorListModel.addElement(username);
+			}
 		}
 		editingUsersJList.setModel(editorListModel);
 	}
@@ -862,6 +889,7 @@ public class EditorGUI extends JFrame {
 		private volatile boolean isRunning = true;
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void run() {
 			while (isRunning) {
 				// obtain updated doc text from server in a try-catch
@@ -897,19 +925,13 @@ public class EditorGUI extends JFrame {
 						EditorGUI.this.updatedoc(revertedText);
 						break;
 					case CURRENT_EDITORS:
-						@SuppressWarnings("unchecked")
-						Set<String> editingUsersList = (Set<String>) fromServer.readObject();
-						refreshEditingUsersList(editingUsersList);
-						break;
-					case CURRENT_TYPER:
-						String currentEditor = (String) fromServer.readObject();
-						setCurrentTyper(currentEditor);
+						EditorGUI.this.currentEditors = (Set<String>) fromServer.readObject();
+						refreshEditingUsersList();
 						break;
 					case DOCUMENT_UNEDITABLE:
 						@SuppressWarnings("unused")
 						String username = (String) fromServer.readObject();
 						setCurrentTyper(username);
-
 						textArea.setEditable(false);
 						editButton.setEnabled(false);
 						System.out.print("made uneditable");
@@ -957,6 +979,7 @@ public class EditorGUI extends JFrame {
 		}
 
 		private void clearLastTyper() {
+			editorListModel.clear();
 			for (String editor : currentEditors) {
 				CharSequence sequence = "\t-\t(Currently Editing)";
 				if (editor.contains(sequence)) {
@@ -965,23 +988,29 @@ public class EditorGUI extends JFrame {
 				editorListModel.addElement(editor);
 			}
 			editingUsersJList.setModel(editorListModel);
-			
 		}
 
 		private void setCurrentTyper(String username) {
+			Set<String> newEditorList = new HashSet<String>();
 			int indexToSelect = 0;
-			String[] editors = (String[]) currentEditors.toArray();
-			//for (String editor : currentEditors) {
-			for (int i = 0; i < editors.length; i++) {
-				String editor = editors[i];
-				CharSequence sequence = "\t-\t(Currently Editing)";
+			int i = 0;
+			for (String editor : currentEditors) {
+				CharSequence sequence = "   -   (Currently Editing)";
 				if (editor.equals(username)) {
-					editor = editor + sequence;
+					System.out.println("Add:" + editor);
 					indexToSelect = i;
+					editor = editor + sequence;
+//				} else if (editor.contains(sequence)) {
+//					System.out.println(editor);
+//					editor = editor.substring(0, editor.indexOf(" "));
 				}
+				newEditorList.add(editor);
+				i++;
 			}
+			
+			currentEditors = newEditorList;
+			refreshEditingUsersList();
 			editingUsersJList.setSelectedIndex(indexToSelect);
-			refreshEditingUsersList((Set<String>)currentEditors);
 		}
 
 		private void stopRunning() throws IOException {
