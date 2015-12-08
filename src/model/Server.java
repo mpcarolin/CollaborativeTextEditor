@@ -490,7 +490,7 @@ class ClientHandler extends Thread {
      * Saves a revision. Tells clients that the current openDocument is
      * editable.
      */
-    private void saveRevision() {
+    private void saveRevision() throws IOException {
 	currentOpenDoc.saveRevision(currentUser.getName());
 	sendUpdateToClients(ServerResponse.DOCUMENT_EDITABLE, "", false);
     }
@@ -516,7 +516,7 @@ class ClientHandler extends Thread {
     /*
      * Reverts the current OpenDocument to its most recent revision.
      */
-    private void undoDocument() {
+    private void undoDocument() throws IOException {
 	sendUpdateToClients(ServerResponse.DOCUMENT_UPDATE, currentOpenDoc.undo(), false);
     }
 
@@ -528,11 +528,14 @@ class ClientHandler extends Thread {
      * clients that have disconnected and removes them from the list of
      * OuputStreams in the current OpenDocument.
      */
-    private void sendUpdateToClients(ServerResponse response, Object update, boolean skipThisClient) {
+    private void sendUpdateToClients(ServerResponse response, Object update, boolean skipThisClient) throws IOException {
 	removeStreams = false;
 	Set<ObjectOutputStream> closedEditors = new HashSet<ObjectOutputStream>();
 	for (ObjectOutputStream editorOutStream : currentOpenDoc.getEditorOutStreams()) {
 	    if (skipThisClient && editorOutStream == clientOut) {
+		if (response == ServerResponse.DOCUMENT_UNEDITABLE) {
+		    clientOut.writeObject(ServerResponse.CURRENT_TYPER);
+		}
 		continue;
 	    }
 	    try {
