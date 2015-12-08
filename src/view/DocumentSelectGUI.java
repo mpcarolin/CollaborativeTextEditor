@@ -157,8 +157,8 @@ public class DocumentSelectGUI extends JFrame {
 	Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 	double screenWidth = screensize.getWidth() * 0.65;
 	double screenHeight = screensize.getHeight() * 0.6;
-	this.setSize((int) screenWidth , (int) screenHeight );
-	System.out.println(screenWidth + " height: "+ screenHeight);
+	this.setSize((int) screenWidth, (int) screenHeight);
+	System.out.println(screenWidth + " height: " + screenHeight);
 
 	// Create the document GUI
 	this.setTitle(userName + "'s Document Selector Hub");
@@ -174,19 +174,17 @@ public class DocumentSelectGUI extends JFrame {
 	// Create and add the Options panel to the right side of the view
 	optionPanel = new JPanel();
 	optionPanel.setLayout(new BorderLayout());
-	optionPanel.setSize((int)(screenWidth*.3205), (int) (screenHeight*.926));
-	optionPanel.setLocation((int)(screenWidth*.647) , 0);
+	optionPanel.setSize((int) (screenWidth * .3205), (int) (screenHeight * .926));
+	optionPanel.setLocation((int) (screenWidth * .647), 0);
 
-	
 	thePanel.add(optionPanel);
 
 	// Create and add the Documents panel to the left side of the view
 	docPanel = new JPanel();
 	docPanel.setLayout(new GridLayout(1, 1, 2, 2));
-	docPanel.setSize((int)(screenWidth*.61), (int)(screenHeight*.889));
+	docPanel.setSize((int) (screenWidth * .61), (int) (screenHeight * .889));
 
-
-	docPanel.setLocation((int)(screenWidth*.01), (int)(screenWidth*.027));
+	docPanel.setLocation((int) (screenWidth * .01), (int) (screenWidth * .027));
 	thePanel.add(docPanel);
 
 	ownedDocPanel = new JScrollPane(ownDisplayList);
@@ -214,7 +212,7 @@ public class DocumentSelectGUI extends JFrame {
 	deleteDoc = new JButton("Delete Document");
 	openDoc = new JButton("Open Document");
 	refreshList = new JButton("Refresh List");
-	
+
 	// set default button for pressing enter
 	this.getRootPane().setDefaultButton(openDoc);
 
@@ -231,7 +229,7 @@ public class DocumentSelectGUI extends JFrame {
 	tabbedDocs = new JTabbedPane();
 
 	documentLabel.setFont(new Font("Arial", Font.BOLD, 14));
-	documentLabel.setSize((int)(screenWidth*.64), (int)(screenHeight*.037));
+	documentLabel.setSize((int) (screenWidth * .64), (int) (screenHeight * .037));
 
 	documentLabel.setLocation(0, 0);
 	thePanel.add(documentLabel);
@@ -289,9 +287,11 @@ public class DocumentSelectGUI extends JFrame {
 	addUser.addActionListener(new AddUserButtonListener());
 	removeUser.addActionListener(new RemoveButtonListener());
     }
-    public String getUserName(){
-    	return userName;
+
+    public String getUserName() {
+	return userName;
     }
+
     public ObjectOutputStream sendToServer() {
 	return toServer;
     }
@@ -569,12 +569,22 @@ public class DocumentSelectGUI extends JFrame {
 
 	    // obtain the document name from the currently opened tab
 	    String docName = null;
-		if (ownDisplayList.isShowing()) {
-			int index = ownDisplayList.getSelectedIndex();
-			docName = ownedDocList.getElementAt(index);
+	    if (ownDisplayList.isShowing()) {
+		int index = ownDisplayList.getSelectedIndex();
+		if (index < 0) {
+		    JOptionPane.showMessageDialog(null, "Please Select A Document.");
+		    return;
+		} else {
+		    docName = ownedDocList.getElementAt(index);
+		}
 	    } else {
-			int index = editDisplayList.getSelectedIndex();
-			docName = editDocList.getElementAt(index);
+		int index = editDisplayList.getSelectedIndex();
+		if (index < 0) {
+		    JOptionPane.showMessageDialog(null, "Please Select A Document.");
+		    return;
+		} else {
+		    docName = editDocList.getElementAt(index);
+		}
 	    }
 	    connectAndOpen(docName);
 	}
@@ -600,7 +610,7 @@ public class DocumentSelectGUI extends JFrame {
 		case DOCUMENT_OPENED:
 		    toServer.flush();
 		    String text = (String) fromServer.readObject();
-		    //Set<String> = (String) fromServ
+		    // Set<String> = (String) fromServ
 		    new EditorGUI(fromServer, toServer, DocumentSelectGUI.this, text, docName);
 		    return;
 		default:
@@ -609,9 +619,9 @@ public class DocumentSelectGUI extends JFrame {
 		    return;
 		}
 	    } catch (IOException e1) {
-			e1.printStackTrace();
+		e1.printStackTrace();
 	    } catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
+		e1.printStackTrace();
 	    }
 	}
     }
@@ -624,7 +634,8 @@ public class DocumentSelectGUI extends JFrame {
 
 	@Override
 	public void windowClosing(WindowEvent e) {
-	    int decision = JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION);
+	    int decision = JOptionPane.showConfirmDialog(null, "Are you sure you want to logout?", "Confirm Logout",
+		    JOptionPane.YES_NO_OPTION);
 	    if (decision == JOptionPane.YES_OPTION) {
 		try {
 		    toServer.writeObject(ClientRequest.OPEN_DOC);
@@ -683,8 +694,8 @@ public class DocumentSelectGUI extends JFrame {
 
 	    if (list.isSelectionEmpty()) {
 	    } else {
-	    String displayName = docName.substring(0, docName.indexOf("  -  "));
-	    optionLabel.setText(displayName + "'s Editors");
+		String displayName = docName.substring(0, docName.indexOf("  -  "));
+		optionLabel.setText(displayName + "'s Editors");
 		refreshEditingUserLists(docName);
 	    }
 	    list = null;
