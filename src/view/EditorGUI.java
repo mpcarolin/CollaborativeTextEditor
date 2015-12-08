@@ -1034,15 +1034,12 @@ public class EditorGUI extends JFrame {
 			for (String editor : currentEditors) {
 				CharSequence sequence = "   -   (Currently Editing)";
 				if (editor.equals(username)) {
-					System.out.println("Add:" + editor);
 					indexToSelect = i;
 					editor = editor + sequence;
 				} else if (editor.contains(sequence)) {
-					System.out.println(editor);
 					String parsedUsername = editor.substring(0, editor.indexOf(" "));
 
-					// do not remove the editing tag if this user is currently
-					// editing
+					// do not remove the editing tag if this user is currently editing
 					if (currentlyEditing && editor.equals(parsedUsername)) {
 						continue;
 					}
@@ -1091,10 +1088,7 @@ public class EditorGUI extends JFrame {
 				}
 			});
 			revisionListMenu.add(revisionKeyItems[i - 1]);
-			System.out.println("Just added an action listener to: " + key);
 		}
-
-		System.out.println("updated the pop ups!");
 	}
 
 	// Update the Document with the new text
@@ -1150,7 +1144,6 @@ public class EditorGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			try {
 				toServer.writeObject(ClientRequest.SAVE_REVISION);
-				System.out.println("saved revision");
 				toServer.writeObject(ClientRequest.GET_REVISIONS);
 			} catch (IOException e1) {
 				e1.printStackTrace();
