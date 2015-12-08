@@ -49,7 +49,7 @@ public class LoginGUI extends JFrame {
 		private void layoutGUI() {
 			// set program's dimensions
 			int windowWidth = (int) (screenSize.getWidth() * 0.35);
-			int windowHeight = (int) (screenSize.getHeight() * 0.2);
+			int windowHeight = (int) (screenSize.getHeight() * 0.25);
 
 			// set defaults
 			this.setDefaultCloseOperation(EXIT_ON_CLOSE);
