@@ -1,0 +1,5 @@
+Authors:
+	Jacob Groh
+	Michael Carolin
+	Daniel Avetian	 
+	Daniel Decina
